@@ -65,3 +65,11 @@ Thumbs.db
 *.njsproj
 *.sln
 *.swp
+
+# ==========================================
+# 6. Data & Mock Files
+# ==========================================
+# Ignore all files inside the data folder...
+data/*
+# ...except for the .gitkeep file so the folder stays in the repo!
+!data/.gitkeep
