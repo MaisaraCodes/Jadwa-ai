@@ -1,0 +1,67 @@
+# ==========================================
+# 1. Critical Security & Environment Files
+# ==========================================
+# NEVER commit OpenAI or Supabase keys!
+.env
+.env.local
+.env.production
+.env.development
+.env.local
+*.env
+
+# ==========================================
+# 2. Frontend (Node.js / React / Vercel)
+# ==========================================
+node_modules/
+/frontend/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Build outputs
+dist/
+/frontend/dist/
+build/
+/frontend/build/
+.vercel/
+
+# ==========================================
+# 3. Backend (Python / FastAPI / LangGraph)
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+/backend/venv/
+/backend/.venv/
+
+# Pipenv / Poetry files (if used)
+.pipenv
+.poetry
+
+# ==========================================
+# 4. Databases & Storage (Supabase/Docker)
+# ==========================================
+.supabase/
+docker-volumes/
+*.log
+*.sqlite
+
+# ==========================================
+# 5. Operating System & IDE Files
+# ==========================================
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
