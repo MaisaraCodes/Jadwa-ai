@@ -33,7 +33,7 @@ flowchart TD
 | Node | Input from state | Output written to state | Model |
 |---|---|---|---|
 | `document_intelligence_node` | raw uploaded files | `extracted_documents: list[DocumentJSON]` | GPT-4o mini (vision) |
-| `forensic_accountant_node` | `extracted_documents`, `simulated_transactions` | `forensic_report: ForensicReport` | GPT-5.4 Mini |
+| `forensic_accountant_node` | `extracted_documents`, `sme_profile.cr_number`  (reads mock_open_banking_ledger from Postgres directly) | `forensic_report: ForensicReport` | GPT-5.4 Mini |
 | `devils_advocate_node` | `extracted_documents`, `sme_profile` | `weakness_report: WeaknessReport` | GPT-5.4 Mini / o4-mini |
 | `saudi_market_oracle_node` | `sme_profile.sector`, `sme_profile.district` | `market_verdict: MarketVerdict` | GPT-5.4 Mini + pgvector retrieval |
 | `risk_sandbox_init_node` | `extracted_documents` | `risk_baseline: RiskBaseline` (precomputed coefficients, no LLM) | none — pure Python |
@@ -41,6 +41,8 @@ flowchart TD
 | `application_builder_node` | `unified_application_record` | final PDF + status update | WeasyPrint, no LLM |
 
 **Why this shape matters:** the four middle nodes (`forensic`, `devil`, `oracle`, `riskinit`) have **no dependency on each other** — they all read from the same upstream state and write to different keys. In LangGraph this means you fan them out as parallel branches (`dispatch` → 4 nodes → `aggregate`), not a sequential chain. This is what makes Phase 2–4 genuinely parallelizable across your team: whoever owns the Forensic Accountant can build and test that node in total isolation from whoever owns the Saudi Market Oracle.
+
+The Forensic node does not receive the ledger through graph state. It queries mock_open_banking_ledger from Postgres in-node, filtered by the SME's CR number, and reconciles against extracted_documents. Keeping bulk reference data out of state is what keeps checkpoints small.
 
 ---
 
