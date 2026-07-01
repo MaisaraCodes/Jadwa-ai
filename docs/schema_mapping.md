@@ -14,7 +14,7 @@ These tables handle the standard app functionality (Auth, file uploads, and basi
 
 ---
 
-## 2. The `agent_results` Table (The LangGraph Checkpointer)
+## 2. The agent_results Table (Agent Output Store)
 
 This table uses the `application_id` as its primary key. Every time a LangGraph node finishes its job, it runs a simple `UPDATE` query on this table to save its output.
 
