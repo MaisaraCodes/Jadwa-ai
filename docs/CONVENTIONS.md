@@ -63,6 +63,12 @@ The four middle nodes are **independent** — fan them out in parallel (`dispatc
 
 ---
 
+## application_documents canonical columns
+
+`file_url`, `file_type`, `is_zatca_verified`, `uploaded_at` (plus `filename` and `status` added for the upload slice) are canonical — `storage_path`, `content_type`, and `created_at` were dropped as redundant and must not be reintroduced.
+
+---
+
 ## Frontend
 
 - **Two visually distinct modes:** teal = SME portal, coral = bank dashboard. Never blend them.
