@@ -27,6 +27,8 @@ Role = Literal["sme", "bank"]
 class Principal:
     user_id: str
     role: Role
+    email: str | None = None
+    display_name: str | None = None
 
 
 def _extract_bearer(authorization: str | None) -> str:
@@ -55,7 +57,9 @@ async def get_current_user(authorization: str | None = Header(default=None)) -> 
     if role not in ("sme", "bank"):
         raise APIError(403, "role_missing", "Authenticated user has no valid role assigned.")
 
-    return Principal(user_id=user.id, role=role)
+    email = getattr(user, "email", None)
+    display_name = user_meta.get("display_name")
+    return Principal(user_id=user.id, role=role, email=email, display_name=display_name)
 
 
 def require_sme(principal: Principal = Depends(get_current_user)) -> Principal:

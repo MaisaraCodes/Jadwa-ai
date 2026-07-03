@@ -29,16 +29,15 @@ from pydantic import BaseModel, Field
 # ---------------------------------------------------------------------------
 Role = Literal["sme", "bank"]
 
-# Status lifecycle (architecture.md §4):
-# draft -> processing -> review_ready -> submitted -> approved | rejected | info_requested
+# Status lifecycle (docs/API_CONTRACT.md — REAL DB enum, supersedes architecture.md §4):
+# draft -> processing -> review_ready -> approved | rejected | more_info_needed
 ApplicationStatus = Literal[
     "draft",
     "processing",
     "review_ready",
-    "submitted",
     "approved",
     "rejected",
-    "info_requested",
+    "more_info_needed",
 ]
 
 ForensicStatus = Literal["green", "yellow", "red"]
@@ -53,11 +52,12 @@ DocumentType = Literal["zatca_receipt", "invoice", "bank_statement", "contract",
 # Core profile & uploads
 # ---------------------------------------------------------------------------
 class SMEProfile(BaseModel):
-    sme_id: str
-    name: str
+    id: str
+    company_name: str
     cr_number: str  # Commercial Registration number — KEYS the ledger lookup in the forensic node
     sector: str
     district: str
+    user_id: str | None = None
     established_year: int | None = None
     backstory: str | None = None  # demo colour only; not used by any agent
 
