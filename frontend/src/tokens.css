@@ -1,0 +1,28 @@
+/* tokens.css — the single source of visual truth */
+:root {
+  /* core */
+  --bg:#F8F6F0;          --surface:#FFFFFF;      --surface-2:#F1EEE4;
+  --ink:#111D18;         --text-2:#54615B;       --text-3:#8A948D;
+  --line:#E4E0D3;        --line-strong:#CBC5B4;
+  /* gold — brand + verification only */
+  --gold:#A9852F;        --gold-strong:#8C6E28;  --gold-soft:#F2E9D2;   --on-gold:#2A2007;
+  /* reserved: forensic + system status */
+  --pass:#177A47;   --pass-bg:#E5F3EA;
+  --review:#9C6F12; --review-bg:#F8EED8;
+  --flag:#B3352A;   --flag-bg:#F9E9E7;
+}
+.dark {
+  --bg:#0B1310;          --surface:#121D18;      --surface-2:#182620;
+  --ink:#F1EDE1;         --text-2:#A9B3AB;       --text-3:#6E7A72;
+  --line:#243129;        --line-strong:#33443A;
+  --gold:#D6B36A;        --gold-strong:#E3C98F;  --gold-soft:#2A2415;   --on-gold:#2A1E05;
+  --pass:#4CC38A;   --pass-bg:#12281C;
+  --review:#E0A93E; --review-bg:#2A2110;
+  --flag:#E2604F;   --flag-bg:#2B1512;
+}
+/* SME portal — oasis teal */
+[data-portal="sme"]        { --accent:#0E7A6E; --accent-strong:#0A5F56; --accent-soft:#E0F1EE; --on-accent:#FFFFFF; }
+.dark [data-portal="sme"]  { --accent:#37B3A2; --accent-strong:#5FC9BB; --accent-soft:#0F2B26; --on-accent:#07211D; }
+/* Bank dashboard — falcon blue */
+[data-portal="bank"]       { --accent:#2E5AA6; --accent-strong:#24478C; --accent-soft:#E5EDF9; --on-accent:#FFFFFF; }
+.dark [data-portal="bank"] { --accent:#7CA4E4; --accent-strong:#9FBDEB; --accent-soft:#14233C; --on-accent:#0D1B33; }

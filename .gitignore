@@ -65,6 +65,7 @@ Thumbs.db
 *.njsproj
 *.sln
 *.swp
+.claude/
 
 # ==========================================
 # 6. Data & Mock Files
@@ -73,3 +74,5 @@ Thumbs.db
 data/*
 # ...except for the .gitkeep file so the folder stays in the repo!
 !data/.gitkeep
+# TS build info
+frontend/tsconfig.tsbuildinfo
