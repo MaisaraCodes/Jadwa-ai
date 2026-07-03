@@ -1,0 +1,11 @@
+{
+  "n_smes": 6,
+  "months_of_history": 15,
+  "totals": {
+    "ledger_rows": 416,
+    "documents": 62,
+    "fabricated": 6,
+    "mismatch": 7,
+    "legit": 49
+  }
+}
