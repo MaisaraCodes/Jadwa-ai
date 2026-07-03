@@ -71,9 +71,15 @@ The four middle nodes are **independent** — fan them out in parallel (`dispatc
 
 ## Frontend
 
-- **Two visually distinct modes:** teal = SME portal, coral = bank dashboard. Never blend them.
-- The bank dashboard fetches the whole application in **one** call (`GET /bank/applications/{id}`) and reads it from the `unified_application_record` shape.
-- Sandbox sends only `deltas`; renders the returned `RiskProjection` (12-point cash-flow chart + risk badge + summary line).
+- **Shared brand core:** night (`--bg` dark) / ivory (`--bg` light) / **gold**. Gold is restricted to the mark's diamond, verification/brand moments, and the Sadu band — never a generic CTA inside a portal.
+- **Two portal accents (replaces teal/coral):** `data-portal="sme"` → **oasis teal**; `data-portal="bank"` → **falcon blue**. Never blend them; the portal is unmistakable from its accent + canvas tint.
+- **`green/amber/red` are reserved for forensic/system status only** (`pass/review/flag`), mapped 1:1 to `ForensicStatus`. The brand palette never uses them.
+- **Dark + light are one system:** semantic tokens in `tokens.css`, `darkMode: 'class'`, accent via `data-portal`. Author each component **once**.
+- **RTL is default-capable:** logical Tailwind utilities only (`ms/me/ps/pe/start/end/border-s/text-start`); `dir`+`lang` on `<html>`; Western digits + `tabular-nums` for all figures.
+- Type: **Zain** (display) + **Alexandria** (body), both Arabic-native, via Google Fonts.
+- The bank dashboard still fetches the whole application in one call and reads the `unified_application_record` shape; the sandbox still sends only `deltas` and renders `RiskProjection`.
+
+See `docs/DESIGN_SYSTEM.md` for the full visual system (tokens, type scale, components) — it is the single source of visual truth and supersedes the old teal/coral rule.
 
 ---
 

@@ -1,13 +1,20 @@
 // SME portal — DocumentUpload
-// Teal identity (CONVENTIONS.md: teal = SME, coral = bank). Drag-drop or browse,
-// per-file progress + status, retry on failure. Accessible: keyboard-openable
-// drop zone, visible focus, aria-live status, reduced-motion aware.
+// Rendered inside the SME portal (data-portal="sme"), so bg-accent/text-accent
+// resolve to oasis teal (DESIGN_SYSTEM.md §4, §11). Dropzone layout matches
+// docs/mockups/sme_portal_arabic_rtl_light.html; copy follows the global
+// language via i18n/strings.ts. Drag-drop or browse, per-file progress +
+// status, retry on failure. Accessible: keyboard-openable drop zone, visible
+// focus, aria-live status, reduced-motion aware.
 //
 // Usage:
 //   <DocumentUpload applicationId={app.id} onUploaded={(doc) => refreshList(doc)} />
 import { useCallback, useRef, useState } from "react";
+import { IconCloudUpload } from "@tabler/icons-react";
 import { uploadDocument, ApiError } from "../../lib/api";
 import type { UploadItem, UploadedDocument } from "../../types";
+import { useLang } from "../../i18n/LangProvider";
+import type { Lang } from "../../i18n/LangProvider";
+import { STRINGS } from "../../i18n/strings";
 
 const ACCEPT = ".pdf,.png,.jpg,.jpeg,.webp,.heic,.heif";
 const ACCEPTED_TYPES = new Set([
@@ -25,15 +32,16 @@ interface Props {
   onUploaded?: (doc: UploadedDocument) => void;
 }
 
-function prevalidate(file: File): string | null {
-  if (file.size === 0) return "This file is empty.";
-  if (file.size > MAX_BYTES) return "This file is over 15 MB.";
+function prevalidate(file: File, lang: Lang): string | null {
+  if (file.size === 0) return STRINGS["upload.errorEmpty"][lang];
+  if (file.size > MAX_BYTES) return STRINGS["upload.errorTooLarge"][lang];
   // Some browsers leave type blank for HEIC; fall back to extension check.
-  if (file.type && !ACCEPTED_TYPES.has(file.type)) return "Unsupported file type.";
+  if (file.type && !ACCEPTED_TYPES.has(file.type)) return STRINGS["upload.errorUnsupportedType"][lang];
   return null;
 }
 
 export default function DocumentUpload({ applicationId, onUploaded }: Props) {
+  const { t, lang } = useLang();
   const [items, setItems] = useState<UploadItem[]>([]);
   const [dragging, setDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -52,18 +60,17 @@ export default function DocumentUpload({ applicationId, onUploaded }: Props) {
         patch(item.id, { stage: "uploaded", progress: 1, result: doc });
         onUploaded?.(doc);
       } catch (err) {
-        const message =
-          err instanceof ApiError ? err.message : "Upload failed. Try again.";
+        const message = err instanceof ApiError ? err.message : t("upload.errorFailed");
         patch(item.id, { stage: "failed", error: message });
       }
     },
-    [applicationId, onUploaded, patch],
+    [applicationId, onUploaded, patch, t],
   );
 
   const addFiles = useCallback(
     (files: FileList | File[]) => {
       const incoming: UploadItem[] = Array.from(files).map((file) => {
-        const problem = prevalidate(file);
+        const problem = prevalidate(file, lang);
         return {
           id: crypto.randomUUID(),
           file,
@@ -75,7 +82,7 @@ export default function DocumentUpload({ applicationId, onUploaded }: Props) {
       setItems((prev) => [...prev, ...incoming]);
       incoming.filter((it) => it.stage === "queued").forEach(startUpload);
     },
-    [startUpload],
+    [startUpload, lang],
   );
 
   const onDrop = useCallback(
@@ -90,11 +97,11 @@ export default function DocumentUpload({ applicationId, onUploaded }: Props) {
   const openPicker = () => inputRef.current?.click();
 
   return (
-    <section className="mx-auto w-full max-w-xl">
+    <section className="h-full w-full">
       <div
         role="button"
         tabIndex={0}
-        aria-label="Add documents: drag files here or press Enter to browse"
+        aria-label={t("upload.dropzoneAriaLabel")}
         onClick={openPicker}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
@@ -109,31 +116,17 @@ export default function DocumentUpload({ applicationId, onUploaded }: Props) {
         onDragLeave={() => setDragging(false)}
         onDrop={onDrop}
         className={[
-          "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed px-6 py-12 text-center transition-colors motion-reduce:transition-none",
-          "focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2",
-          dragging
-            ? "border-teal-500 bg-teal-50"
-            : "border-teal-200 bg-white hover:border-teal-400 hover:bg-teal-50/40",
+          "flex h-full cursor-pointer flex-col items-center justify-center rounded-xl border-[1.5px] border-dashed px-4 py-[22px] text-center transition-colors motion-reduce:transition-none",
+          "focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
+          dragging ? "border-accent bg-accent-soft" : "border-line-strong bg-surface",
         ].join(" ")}
       >
-        <span className="flex h-11 w-11 items-center justify-center rounded-full bg-teal-100 text-teal-700">
-          {/* upload glyph */}
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path
-              d="M12 16V5m0 0 4 4m-4-4-4 4M5 19h14"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+        <IconCloudUpload size={26} className="text-accent" aria-hidden="true" />
+        <p className="mb-1 mt-2.5 text-[13px] font-medium text-ink">{t("upload.dropHere")}</p>
+        <p className="mb-3 text-[11.5px] text-text-3">{t("upload.hint")}</p>
+        <span className="rounded-lg bg-accent px-[18px] py-2 text-[12.5px] font-medium text-on-accent">
+          {t("upload.browse")}
         </span>
-        <p className="text-sm font-medium text-slate-800">
-          Drop documents here, or <span className="text-teal-700 underline">browse</span>
-        </p>
-        <p className="text-xs text-slate-500">
-          Receipts, invoices, or statements — PDF or image, up to 15 MB each
-        </p>
         <input
           ref={inputRef}
           type="file"
@@ -152,37 +145,37 @@ export default function DocumentUpload({ applicationId, onUploaded }: Props) {
           {items.map((it) => (
             <li
               key={it.id}
-              className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2.5"
+              className="flex items-center gap-3 rounded-xl border border-line bg-surface px-3 py-2.5"
             >
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between gap-3">
-                  <p className="truncate text-sm font-medium text-slate-800" title={it.file.name}>
+                  <p className="truncate text-sm font-medium text-ink" title={it.file.name}>
                     {it.file.name}
                   </p>
                   <StatusLabel item={it} />
                 </div>
 
                 {it.stage === "uploading" && (
-                  <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+                  <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-surface-2">
                     <div
-                      className="h-full rounded-full bg-teal-500 transition-[width] duration-150 motion-reduce:transition-none"
+                      className="h-full rounded-full bg-accent transition-[width] duration-150 motion-reduce:transition-none"
                       style={{ width: `${Math.round(it.progress * 100)}%` }}
                     />
                   </div>
                 )}
 
                 {it.stage === "failed" && it.error && (
-                  <p className="mt-1 text-xs text-rose-600">{it.error}</p>
+                  <p className="mt-1 text-xs text-flag">{it.error}</p>
                 )}
               </div>
 
-              {it.stage === "failed" && !prevalidate(it.file) && (
+              {it.stage === "failed" && !prevalidate(it.file, lang) && (
                 <button
                   type="button"
                   onClick={() => startUpload(it)}
-                  className="shrink-0 rounded-lg border border-teal-300 px-2.5 py-1 text-xs font-medium text-teal-700 hover:bg-teal-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                  className="shrink-0 rounded-lg border border-line-strong px-2.5 py-1 text-xs font-medium text-accent-strong hover:bg-accent-soft focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                 >
-                  Retry
+                  {t("upload.retry")}
                 </button>
               )}
             </li>
@@ -194,11 +187,12 @@ export default function DocumentUpload({ applicationId, onUploaded }: Props) {
 }
 
 function StatusLabel({ item }: { item: UploadItem }) {
+  const { t } = useLang();
   const map: Record<UploadItem["stage"], { text: string; cls: string }> = {
-    queued: { text: "Queued", cls: "text-slate-500" },
-    uploading: { text: `${Math.round(item.progress * 100)}%`, cls: "text-teal-700" },
-    uploaded: { text: "Uploaded", cls: "text-teal-700" },
-    failed: { text: "Failed", cls: "text-rose-600" },
+    queued: { text: t("upload.statusQueued"), cls: "text-text-3" },
+    uploading: { text: `${Math.round(item.progress * 100)}%`, cls: "text-accent-strong" },
+    uploaded: { text: t("upload.statusUploaded"), cls: "text-accent-strong" },
+    failed: { text: t("upload.statusFailed"), cls: "text-flag" },
   };
   const { text, cls } = map[item.stage];
   return <span className={`shrink-0 text-xs font-medium ${cls}`}>{text}</span>;
