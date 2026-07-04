@@ -23,11 +23,14 @@ from __future__ import annotations
 
 from datetime import date as _date
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, BackgroundTasks, Depends
 from pydantic import BaseModel
 
+from core import progress as progress_store
 from core.auth import Principal, require_sme
 from core.errors import APIError
+from core.orchestrator import run_pipeline
+from core.pipeline import ALL_NODES, TERMINAL_STATUSES
 from core.supabase import get_service_client
 from models import ApplicationStatus, DocumentJSON, WeaknessReport
 from routers.documents import (
@@ -40,18 +43,6 @@ from routers.documents import (
 
 AGENT_RESULTS_TABLE = "agent_results"
 DOCUMENTS_TABLE = "application_documents"
-
-# All 6 LangGraph nodes (models.py::ApplicationState) — used to derive /status's
-# nodes_completed list once an application has cleared the pipeline.
-ALL_NODES = [
-    "document_intelligence_node",
-    "forensic_accountant_node",
-    "devils_advocate_node",
-    "saudi_market_oracle_node",
-    "risk_sandbox_init_node",
-    "aggregate_results_node",
-]
-TERMINAL_STATUSES = {"review_ready", "approved", "rejected", "more_info_needed"}
 
 router = APIRouter(prefix="/api/v1/applications", tags=["applications"])
 
@@ -213,16 +204,28 @@ async def list_applications(principal: Principal = Depends(require_sme)) -> List
 @router.post("/{application_id}/process", status_code=202, response_model=ProcessResponse)
 async def process_application(
     application_id: str,
+    background_tasks: BackgroundTasks,
     principal: Principal = Depends(require_sme),
 ) -> ProcessResponse:
     svc = get_service_client()
     _assert_owned_application(svc, application_id, principal.user_id)
 
-    # STUB — Phase-2: this should enqueue/kick off the LangGraph run. For now it
-    # just flips the status; no graph executes.
+    app = _get_application(svc, application_id)
+    if app["status"] != "draft":
+        raise APIError(
+            409,
+            "already_processed",
+            "This application has already been processed or submitted.",
+        )
+
     svc.table(APPLICATIONS_TABLE).update({"status": "processing"}).eq(
         APPLICATIONS_ID_COL, application_id
     ).execute()
+
+    # Kicks off the LangGraph run in-process, after this response is sent
+    # (architecture.md — no checkpointer/queue infra for the hackathon build).
+    background_tasks.add_task(run_pipeline, application_id)
+
     return ProcessResponse(status="processing")
 
 
@@ -238,16 +241,17 @@ async def application_status(
     app = _get_application(svc, application_id)
     status = app["status"]
 
-    # STUB — Phase-2: nodes_completed/progress should reflect actual per-node
-    # completion once the LangGraph run is tracked. Derived for now: terminal
-    # (post-pipeline) statuses report all 6 nodes done; anything earlier reports none.
     if status in TERMINAL_STATUSES:
+        # Pipeline definitely ran (possibly in an earlier server process, so the
+        # in-memory tracker may know nothing about it) — report all nodes done.
         nodes_completed = list(ALL_NODES)
-        progress = 1.0
+    elif status == "processing":
+        nodes_completed = progress_store.get_nodes_completed(application_id)
     else:
+        # "draft" — /process hasn't been called yet.
         nodes_completed = []
-        progress = 0.0
 
+    progress = len(nodes_completed) / len(ALL_NODES)
     return StatusResponse(status=status, nodes_completed=nodes_completed, progress=progress)
 
 
