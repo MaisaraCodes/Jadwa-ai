@@ -193,11 +193,12 @@ def make_document(rng, doc_id, vendor, amount, when: date, doc_type: str) -> dic
     total = _round_amount(amount)
     vat = _round_amount(total - total / (1 + VAT_RATE))
     zatca_hash = None
+    qr_base64 = None
     if doc_type == "zatca_receipt":
         vat_number = "3" + "".join(str(rng.randint(0, 9)) for _ in range(14))
         ts = datetime(when.year, when.month, when.day, rng.randint(8, 20), rng.randint(0, 59)).isoformat()
-        tlv = encode_zatca_tlv(vendor, vat_number, ts, total, vat)
-        zatca_hash = synthetic_hash(tlv, doc_id)
+        qr_base64 = encode_zatca_tlv(vendor, vat_number, ts, total, vat)
+        zatca_hash = synthetic_hash(qr_base64, doc_id)
     return {
         "document_id": doc_id,
         "type": doc_type,
@@ -207,6 +208,7 @@ def make_document(rng, doc_id, vendor, amount, when: date, doc_type: str) -> dic
         "date": when.isoformat(),
         "line_items": [f"{vendor} — {doc_type.replace('_', ' ')}"],
         "zatca_verification_hash": zatca_hash,
+        "zatca_qr_base64": qr_base64,
         "confidence_score": round(rng.uniform(0.9, 0.99), 2),
     }
 

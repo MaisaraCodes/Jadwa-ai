@@ -135,22 +135,17 @@ export const STRINGS = {
   "bank.detail.metric.riskClass": { ar: "فئة المخاطر", en: "Risk class" },
   "bank.detail.growing": { ar: "نمو +14%", en: "Growing +14%" },
   "bank.detail.riskMedium": { ar: "متوسطة", en: "Medium" },
-  "bank.detail.forensicTitle": { ar: "تقرير التدقيق", en: "Forensic report" },
-  "bank.detail.finding1Title": {
-    ar: "لا يوجد قيد مدين مطابق في السجل",
-    en: "No matching ledger debit",
-  },
   "bank.detail.finding1Body": {
     ar: "إيصال ZATCA بقيمة {{amount}} (12 أكتوبر) — رمز الاستجابة السريعة صالح، لكن لا توجد معاملة مطابقة في سجل الخدمات المصرفية المفتوحة.",
     en: "ZATCA receipt for {{amount}} (12 Oct) — QR parses as valid, but no corresponding transaction exists in the open-banking ledger.",
   },
-  "bank.detail.finding2Title": {
-    ar: "تسجيل متأخر، والمبلغ ضمن الحد المقبول",
-    en: "Late posting, amount within tolerance",
-  },
   "bank.detail.finding2Body": {
     ar: "تمت تسوية فاتورة الوقود بعد {{days}} أيام من تاريخ الفاتورة — تأخير زمني بسيط، وليس احتيالًا.",
     en: "Fuel invoice cleared {{days}} days after invoice date — timing noise, not fraud.",
+  },
+  "bank.detail.finding3Body": {
+    ar: "عقد إيجار المستودع مؤرَّخ قبل بدء تفعيل السجل التجاري بثلاثة أشهر — على الأرجح تجديد، ولا يستدعي إجراءً.",
+    en: "Warehouse lease is dated three months before the CR activation date — likely a renewal, no action needed.",
   },
   "bank.detail.sandboxTitle": { ar: "بيئة اختبار المخاطر", en: "Risk sandbox" },
   "bank.detail.fuelCostShock": { ar: "صدمة تكلفة الوقود", en: "Fuel cost shock" },
@@ -171,6 +166,24 @@ export const STRINGS = {
     ar: "تم التحقق من كل رقم بواسطة جدوى",
     en: "Every figure cross-checked by Jadwa",
   },
+
+  // --- forensic report card (ForensicReportCard, mirrors ForensicReport in models.py) ---
+  "forensic.title": { ar: "التدقيق المالي", en: "Financial audit" },
+  "forensic.status.green": { ar: "مطابقة", en: "Reconciled" },
+  "forensic.status.yellow": { ar: "بحاجة لمراجعة", en: "Review needed" },
+  "forensic.status.red": { ar: "مخالفات مرصودة", en: "Discrepancies flagged" },
+  "forensic.reconciledLabel": { ar: "نسبة المطابقة", en: "Reconciled" },
+  "forensic.emptyState": { ar: "لا توجد مخالفات", en: "No discrepancies found" },
+  "forensic.severity.high": { ar: "مرتفعة", en: "High" },
+  "forensic.severity.medium": { ar: "متوسطة", en: "Medium" },
+  "forensic.severity.low": { ar: "منخفضة", en: "Low" },
+
+  // --- bank application detail: tabs ---
+  "bank.detail.tab.overview": { ar: "نظرة عامة", en: "Overview" },
+  "bank.detail.tab.forensic": { ar: "التدقيق المالي", en: "Financial audit" },
+  "bank.detail.tab.weakness": { ar: "نقاط الضعف", en: "Weakness report" },
+  "bank.detail.tab.market": { ar: "السوق", en: "Market verdict" },
+  "bank.detail.tab.comingSoon": { ar: "قريبًا", en: "Coming soon" },
 } as const;
 
 export type StringKey = keyof typeof STRINGS;

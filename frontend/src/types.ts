@@ -18,3 +18,19 @@ export interface UploadItem {
   error?: string;
   result?: UploadedDocument;
 }
+
+// Mirrors backend/models.py ForensicReport / DiscrepancyFlag (forensic_accountant_node
+// output, schema_mapping.md Node 2). Do not redefine this shape elsewhere.
+export type ForensicStatus = "green" | "yellow" | "red";
+export type Severity = "high" | "medium" | "low";
+
+export interface DiscrepancyFlag {
+  severity: Severity;
+  description: string;
+}
+
+export interface ForensicReport {
+  overall_status: ForensicStatus;
+  reconciliation_rate: number; // 0.0–1.0
+  discrepancy_flags: DiscrepancyFlag[];
+}

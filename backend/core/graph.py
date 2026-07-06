@@ -17,9 +17,12 @@ import logging
 from langgraph.graph import END, START, StateGraph
 
 from core.supabase import get_service_client
+from core.zatca import ZatcaParseError, ZatcaQRParser
 from models import (
     ApplicationRecord,
     ApplicationState,
+    DiscrepancyFlag,
+    DocumentJSON,
     ForensicReport,
     MarketVerdict,
     RiskBaseline,
@@ -57,12 +60,74 @@ def orchestrator_dispatch(state: ApplicationState) -> dict:
     return {}
 
 
+def _check_zatca_qr(doc: DocumentJSON) -> list[DiscrepancyFlag]:
+    """Decodes doc.zatca_qr_base64 (if present) and cross-checks it against the
+    document's own OCR-extracted fields (vendor/extracted_amount) — the only
+    ZATCA-adjacent data actually on hand (mock_open_banking_ledger has no
+    invoice-level fields to compare against; see progress notes). `timestamp`
+    is deliberately NOT compared: doc.date is a calendar date while the QR
+    timestamp carries time-of-day, so they're never equal even for a genuine
+    match."""
+    if not doc.zatca_qr_base64:
+        return []
+
+    try:
+        parser = ZatcaQRParser(doc.zatca_qr_base64)
+        ledger_row = {
+            "seller_name": doc.vendor,
+            "invoice_total": doc.extracted_amount,
+        }
+        result = parser.validate_against_ledger(ledger_row)
+    except ZatcaParseError as exc:
+        return [DiscrepancyFlag(
+            severity="medium",
+            description=f"Document {doc.document_id}: unparseable ZATCA QR ({exc}).",
+        )]
+
+    flags: list[DiscrepancyFlag] = []
+    for field_name, (qr_value, extracted_value) in result.mismatches.items():
+        flags.append(DiscrepancyFlag(
+            severity="high",
+            description=(
+                f"Document {doc.document_id}: ZATCA QR {field_name} ({qr_value!r}) "
+                f"does not match extracted {field_name} ({extracted_value!r})."
+            ),
+        ))
+    for err in result.errors:
+        flags.append(DiscrepancyFlag(severity="medium", description=f"Document {doc.document_id}: {err}"))
+    return flags
+
+
 def forensic_accountant_node(state: ApplicationState) -> dict:
     # TODO(owner: forensic accountant, architecture.md §1a): reconcile
     # extracted_documents against mock_open_banking_ledger (queried in-node,
     # filtered by sme_profile.cr_number) in plain Python; the LLM only writes
-    # each DiscrepancyFlag's description text.
-    report = ForensicReport(overall_status="green", reconciliation_rate=1.0, discrepancy_flags=[])
+    # each DiscrepancyFlag's description text. The ZATCA QR check below is the
+    # one real signal wired in so far — ledger amount reconciliation is still
+    # a stub (all documents implicitly pass it).
+    documents = state.get("extracted_documents", [])
+    discrepancy_flags: list[DiscrepancyFlag] = []
+    flagged_document_ids: set[str] = set()
+    for doc in documents:
+        doc_flags = _check_zatca_qr(doc)
+        if doc_flags:
+            flagged_document_ids.add(doc.document_id)
+        discrepancy_flags.extend(doc_flags)
+
+    if any(f.severity == "high" for f in discrepancy_flags):
+        overall_status = "red"
+    elif discrepancy_flags:
+        overall_status = "yellow"
+    else:
+        overall_status = "green"
+
+    reconciliation_rate = 1.0 if not documents else 1.0 - len(flagged_document_ids) / len(documents)
+
+    report = ForensicReport(
+        overall_status=overall_status,
+        reconciliation_rate=reconciliation_rate,
+        discrepancy_flags=discrepancy_flags,
+    )
     _persist_column(state["application_id"], "forensic_report", report.model_dump(mode="json"))
     return {"forensic_report": report}
 

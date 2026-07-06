@@ -82,6 +82,9 @@ class DocumentJSON(BaseModel):
     line_items: list[str] = Field(default_factory=list)
     # Parsed OFFLINE from the invoice's ZATCA TLV QR (NOT a ZATCA API call). None if absent.
     zatca_verification_hash: str | None = None
+    # Raw Base64 TLV QR payload (core/zatca.py::ZatcaQRParser input). None if the
+    # document has no QR (e.g. type != "zatca_receipt") or none was decoded.
+    zatca_qr_base64: str | None = None
     confidence_score: float = Field(ge=0.0, le=1.0)
 
 
