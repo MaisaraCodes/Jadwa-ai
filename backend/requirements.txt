@@ -4,3 +4,4 @@ python-dotenv>=1.0
 supabase>=2.0
 python-multipart>=0.0.9
 langgraph>=0.2
+openai>=1.40

@@ -10,9 +10,11 @@ from decimal import Decimal
 
 import pytest
 
+import core.graph as graph_module
 from core.graph import forensic_accountant_node
 from core.zatca import ZatcaParseError, ZatcaQRParser
 from models import DocumentJSON, SMEProfile
+from nodes.forensic.scoring import MatchResult
 
 
 def encode_tlv(fields: list[tuple[int, str]]) -> str:
@@ -107,7 +109,24 @@ def make_sme_profile() -> SMEProfile:
     )
 
 
+def _clean_ledger_match(cr_number: str, documents: list[DocumentJSON]):
+    """Stand-in for reconcile_against_ledger: every document matches its
+    ledger debit exactly. These tests exercise the ZATCA QR signal in
+    isolation, so the ledger side of the report is held clean and
+    monkeypatched rather than hitting a real Postgres ledger."""
+    matches = [
+        MatchResult(document_id=doc.document_id, matched=True, ledger_txn_id="txn-mock",
+                    amount_delta=0.0, date_delta_days=0)
+        for doc in documents
+    ]
+    return matches, {}
+
+
 class TestForensicAccountantZatcaIntegration:
+    @pytest.fixture(autouse=True)
+    def clean_ledger(self, monkeypatch):
+        monkeypatch.setattr(graph_module, "reconcile_against_ledger", _clean_ledger_match)
+
     def test_matching_qr_and_document_is_green(self):
         doc = DocumentJSON(
             document_id="doc-1", type="zatca_receipt", vendor="Gulf Fuel Depot",
@@ -140,7 +159,11 @@ class TestForensicAccountantZatcaIntegration:
         assert len(report.discrepancy_flags) == 1
         assert report.discrepancy_flags[0].severity == "high"
         assert "doc-2" in report.discrepancy_flags[0].description
-        assert report.reconciliation_rate == 0.0
+        # reconciliation_rate reflects ledger reconciliation specifically
+        # (schema_mapping.md Node 2); the mocked ledger matches doc-2 cleanly
+        # here, so only the ZATCA QR forgery — not ledger amount matching —
+        # is what's under test.
+        assert report.reconciliation_rate == 1.0
 
     def test_unparseable_qr_flags_medium_not_crash(self):
         doc = DocumentJSON(

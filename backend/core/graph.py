@@ -28,6 +28,9 @@ from models import (
     RiskBaseline,
     WeaknessReport,
 )
+from nodes.forensic.explain import write_flag_descriptions
+from nodes.forensic.matching import reconcile_against_ledger
+from nodes.forensic.scoring import build_forensic_report
 
 logger = logging.getLogger(__name__)
 
@@ -99,21 +102,29 @@ def _check_zatca_qr(doc: DocumentJSON) -> list[DiscrepancyFlag]:
 
 
 def forensic_accountant_node(state: ApplicationState) -> dict:
-    # TODO(owner: forensic accountant, architecture.md §1a): reconcile
-    # extracted_documents against mock_open_banking_ledger (queried in-node,
-    # filtered by sme_profile.cr_number) in plain Python; the LLM only writes
-    # each DiscrepancyFlag's description text. The ZATCA QR check below is the
-    # one real signal wired in so far — ledger amount reconciliation is still
-    # a stub (all documents implicitly pass it).
+    """Two independent signal sources feed the report (architecture.md §1a):
+    the ZATCA QR structural check (below, per-document) and ledger
+    reconciliation (nodes/forensic/matching.py + scoring.py). Only the ledger
+    check drives `reconciliation_rate` — that's specifically what
+    schema_mapping.md Node 2 defines it as ("cross-reference extracted_documents
+    against mock_open_banking_ledger"). ZATCA flags still fold into
+    `overall_status` and `discrepancy_flags` since a forged QR is its own
+    red flag even when the ledger otherwise reconciles.
+    """
     documents = state.get("extracted_documents", [])
-    discrepancy_flags: list[DiscrepancyFlag] = []
-    flagged_document_ids: set[str] = set()
-    for doc in documents:
-        doc_flags = _check_zatca_qr(doc)
-        if doc_flags:
-            flagged_document_ids.add(doc.document_id)
-        discrepancy_flags.extend(doc_flags)
+    cr_number = state["sme_profile"].cr_number
 
+    zatca_flags: list[DiscrepancyFlag] = []
+    for doc in documents:
+        zatca_flags.extend(_check_zatca_qr(doc))
+
+    matches, invoice_context = reconcile_against_ledger(cr_number, documents)
+    ledger_report = build_forensic_report(
+        matches,
+        describe=lambda raw_flags: write_flag_descriptions(raw_flags, invoice_context),
+    )
+
+    discrepancy_flags = zatca_flags + ledger_report.discrepancy_flags
     if any(f.severity == "high" for f in discrepancy_flags):
         overall_status = "red"
     elif discrepancy_flags:
@@ -121,11 +132,9 @@ def forensic_accountant_node(state: ApplicationState) -> dict:
     else:
         overall_status = "green"
 
-    reconciliation_rate = 1.0 if not documents else 1.0 - len(flagged_document_ids) / len(documents)
-
     report = ForensicReport(
         overall_status=overall_status,
-        reconciliation_rate=reconciliation_rate,
+        reconciliation_rate=ledger_report.reconciliation_rate,
         discrepancy_flags=discrepancy_flags,
     )
     _persist_column(state["application_id"], "forensic_report", report.model_dump(mode="json"))
