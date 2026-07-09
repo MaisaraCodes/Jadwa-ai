@@ -3,7 +3,7 @@
 // SME's progress bar. Injects the Supabase JWT and normalizes the backend error
 // envelope { error: { code, message } } into a typed ApiError.
 import { supabase } from "./supabase";
-import type { UploadedDocument } from "../types";
+import type { DocumentJSON, PatchDocumentRequest, UploadedDocument } from "../types";
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL as string) ?? "/api/v1";
 
@@ -67,5 +67,50 @@ export function uploadDocument(
     };
 
     xhr.send(form);
+  });
+}
+
+async function authedJson<T>(path: string, init?: RequestInit): Promise<T> {
+  const token = await bearerToken();
+  if (!token) {
+    throw new ApiError(401, "unauthorized", "Your session expired. Sign in again.");
+  }
+
+  const res = await fetch(`${API_BASE}${path}`, {
+    ...init,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      ...(init?.body ? { "Content-Type": "application/json" } : {}),
+      ...init?.headers,
+    },
+  });
+
+  let body: any = null;
+  try {
+    body = await res.text().then((text) => (text ? JSON.parse(text) : null));
+  } catch {
+    /* non-JSON body */
+  }
+
+  if (!res.ok) {
+    const code = body?.error?.code ?? "request_failed";
+    const message = body?.error?.message ?? "Something went wrong. Try again.";
+    throw new ApiError(res.status, code, message);
+  }
+  return body as T;
+}
+
+export function getExtractedDocuments(applicationId: string): Promise<{ documents: DocumentJSON[] }> {
+  return authedJson(`/applications/${applicationId}/extracted`);
+}
+
+export function patchExtractedDocument(
+  applicationId: string,
+  documentId: string,
+  patch: PatchDocumentRequest,
+): Promise<DocumentJSON> {
+  return authedJson(`/applications/${applicationId}/documents/${documentId}`, {
+    method: "PATCH",
+    body: JSON.stringify(patch),
   });
 }

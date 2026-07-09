@@ -3,6 +3,7 @@
 // DEMO: application JDW-2026-0147, its stage state, and the 3 document rows are
 // all hardcoded for this pass. Real data (GET /applications/:id, GET /status,
 // GET /applications/:id/documents) wires in Phase 2.
+import { Link } from "react-router-dom";
 import { IconFileInvoice, IconReceipt, IconFileText, IconSparkles } from "@tabler/icons-react";
 import { useLang } from "../../../i18n/LangProvider";
 import { STRINGS, type StringKey } from "../../../i18n/strings";
@@ -116,8 +117,16 @@ export default function SmeHomePage() {
         <DocumentUpload applicationId="JDW-2026-0147" />
 
         <div className="rounded-xl border border-line bg-surface px-4 py-3.5">
-          <div className="mb-2.5 text-[13.5px] font-semibold text-ink">
-            {t("sme.home.documentsTitle")} <span className="font-normal text-text-3">(20)</span>
+          <div className="mb-2.5 flex items-center justify-between">
+            <span className="text-[13.5px] font-semibold text-ink">
+              {t("sme.home.documentsTitle")} <span className="font-normal text-text-3">(20)</span>
+            </span>
+            <Link
+              to="/sme/review"
+              className="text-[12px] font-medium text-accent-strong hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            >
+              {t("sme.home.reviewLink")}
+            </Link>
           </div>
           {DEMO_DOCUMENTS.map((doc, i) => (
             <div

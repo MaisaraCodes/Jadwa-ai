@@ -34,3 +34,30 @@ export interface ForensicReport {
   reconciliation_rate: number; // 0.0–1.0
   discrepancy_flags: DiscrepancyFlag[];
 }
+
+// Mirrors backend/models.py DocumentJSON (Node 1 — document_intelligence_node
+// output, GET /applications/:id/extracted). SME review screen edits a copy of
+// this, then PATCHes only the changed fields back.
+export type DocumentType = "zatca_receipt" | "invoice" | "bank_statement" | "contract" | "other";
+
+export interface DocumentJSON {
+  document_id: string;
+  type: DocumentType;
+  vendor: string | null;
+  extracted_amount: number;
+  currency: string;
+  date: string; // ISO yyyy-mm-dd
+  line_items: string[];
+  zatca_verification_hash: string | null;
+  zatca_qr_base64: string | null;
+  confidence_score: number; // 0.0-1.0
+}
+
+// Mirrors backend PatchDocumentRequest (routers/applications.py) — only the
+// fields the SME can correct on the review screen.
+export interface PatchDocumentRequest {
+  extracted_amount?: number;
+  date?: string;
+  vendor?: string;
+  type?: DocumentType;
+}
