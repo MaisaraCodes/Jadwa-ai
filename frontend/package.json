@@ -1,6 +1,7 @@
 {
   "name": "jadwa-ai-frontend",
   "private": true,
+  "description": "",
   "version": "0.0.1",
   "type": "module",
   "scripts": {

@@ -61,4 +61,66 @@ def complete(
     return content.strip()
 
 
-__all__ = ["LLMError", "complete"]
+def complete_vision(
+    prompt: str,
+    image_url: str,
+    *,
+    system: str | None = None,
+    model: str | None = None,
+    temperature: float = 0.1,
+    max_tokens: int = 900,
+    json_mode: bool = False,
+) -> str:
+    """Returns the completion text for a single image + text prompt.
+
+    Used by the Document Intelligence node (architecture.md §1 — GPT-5.4
+    vision). `model` defaults to the OPENAI_MODEL_VISION env var. `image_url`
+    is passed straight to the model (a Supabase Storage URL for the uploaded
+    file). Set `json_mode=True` to ask the API for a JSON object back.
+
+    Same failure contract as `complete`: raises LLMError for ANY problem so the
+    caller can fall back deterministically — a node must never crash the graph
+    because a model call failed.
+    """
+    try:
+        from openai import OpenAI
+    except ImportError as exc:
+        raise LLMError("openai package is not installed") from exc
+
+    api_key = os.environ.get("OPENAI_API_KEY")
+    if not api_key:
+        raise LLMError("OPENAI_API_KEY is not set")
+
+    resolved_model = model or os.environ.get("OPENAI_MODEL_VISION", "gpt-5.4")
+    messages: list[dict] = []
+    if system:
+        messages.append({"role": "system", "content": system})
+    messages.append({
+        "role": "user",
+        "content": [
+            {"type": "text", "text": prompt},
+            {"type": "image_url", "image_url": {"url": image_url}},
+        ],
+    })
+
+    kwargs: dict = {
+        "model": resolved_model,
+        "messages": messages,
+        "temperature": temperature,
+        "max_tokens": max_tokens,
+    }
+    if json_mode:
+        kwargs["response_format"] = {"type": "json_object"}
+
+    try:
+        response = OpenAI(api_key=api_key).chat.completions.create(**kwargs)
+        content = response.choices[0].message.content
+    except Exception as exc:
+        raise LLMError(f"vision completion failed: {exc}") from exc
+
+    if not content or not content.strip():
+        raise LLMError("model returned an empty completion")
+    return content.strip()
+
+
+__all__ = ["LLMError", "complete", "complete_vision"]

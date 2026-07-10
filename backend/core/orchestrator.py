@@ -5,10 +5,11 @@ Runs as a FastAPI BackgroundTask: in-process, after the 202 response is sent, on
 the same event loop — no Celery/Redis, matching architecture.md's "no real
 checkpointer, no extra infra" guidance for the hackathon build.
 
-document_intelligence_node is still a STUB (separate ticket, Phase 2) — `_run_node`
-paces it so the frontend's live-parse animation has a progress tick to show before
-the real graph starts. Everything from `orchestrator_dispatch` onward is the real
-compiled StateGraph in core/graph.py.
+document_intelligence_node is the real GPT-5.4 vision extraction (extract ->
+normalize -> DocumentJSON, in the document_intelligence package). It runs here,
+just before the compiled StateGraph, because architecture.md keeps it outside
+the graph; everything from `orchestrator_dispatch` onward is the real compiled
+StateGraph in core/graph.py.
 """
 from __future__ import annotations
 
@@ -19,6 +20,7 @@ from core import progress as progress_store
 from core.graph import get_graph
 from core.pipeline import ALL_NODES
 from core.supabase import get_service_client
+from document_intelligence import document_intelligence_node
 from models import ApplicationState, SMEProfile, UploadedFile
 
 logger = logging.getLogger(__name__)
@@ -27,15 +29,6 @@ APPLICATIONS_TABLE = "applications"
 SME_PROFILES_TABLE = "sme_profiles"
 DOCUMENTS_TABLE = "application_documents"
 AGENT_RESULTS_TABLE = "agent_results"
-
-# Paces the demo's live-parse animation for the still-stubbed
-# document_intelligence_node; delete this once that node lands for real.
-STUB_NODE_SECONDS = 1.5
-
-
-async def _run_node(node_name: str, application_id: str) -> None:
-    # TODO(Phase 2): replace with the real document_intelligence_node call.
-    await asyncio.sleep(STUB_NODE_SECONDS)
 
 
 async def _build_initial_state(application_id: str) -> ApplicationState:
@@ -85,10 +78,16 @@ async def run_pipeline(application_id: str) -> None:
     progress_store.start(application_id)
     node_name = "document_intelligence_node"
     try:
-        await _run_node(node_name, application_id)
-        progress_store.mark_done(application_id, node_name)
-
         initial_state = await _build_initial_state(application_id)
+
+        # Node 1 runs here, outside the graph (architecture.md §1). Its vision
+        # calls are blocking, so run it in a worker thread to keep the event
+        # loop free for the /status poller. Its output is fed into the state
+        # the graph then reads from (the 4 agent nodes consume
+        # extracted_documents).
+        node_output = await asyncio.to_thread(document_intelligence_node, initial_state)
+        initial_state["extracted_documents"] = node_output["extracted_documents"]
+        progress_store.mark_done(application_id, node_name)
 
         # stream_mode="updates" yields one chunk per finished node, keyed by
         # node name — that's what lets /status keep reporting live progress
