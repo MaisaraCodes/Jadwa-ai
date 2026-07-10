@@ -6,11 +6,14 @@ Reads `raw_documents` (the uploaded files) off ApplicationState and writes
 inside the compiled StateGraph (core/graph.py) — it runs in core/orchestrator.py
 just before the graph, feeding the four agent nodes their input.
 
-Two-stage per file: extract.py does the GPT-5.4 vision read (file -> raw dict),
-normalize.py coerces that into a canonical DocumentJSON. Both stages are
-crash-proof by construction (extract returns {} on failure; normalize returns
-None only if Pydantic rejects even the defaulted shape), so one bad file lowers
-that document's confidence or drops just that document — it never sinks the run.
+Three-stage per file: extract.py does the GPT-5.4 vision read (file -> raw
+dict), normalize.py coerces that into a canonical DocumentJSON, and
+zatca_enrich.py decodes the ZATCA TLV QR offline (architecture.md §1a — no
+ZATCA API call) to populate zatca_verification_hash. Every stage is crash-proof
+by construction (extract returns {} on failure; normalize returns None only if
+Pydantic rejects even the defaulted shape; enrich flags-not-crashes on a bad
+QR), so one bad file lowers that document's confidence or drops just that
+document — it never sinks the run.
 
 The node is a plain (sync) function matching the graph-node signature so it
 stays unit-testable without an event loop; the orchestrator invokes it via
@@ -23,6 +26,7 @@ import logging
 from core.supabase import get_service_client
 from document_intelligence.extract import extract_document_fields
 from document_intelligence.normalize import normalize_extracted_document
+from document_intelligence.zatca_enrich import enrich_with_zatca
 from models import ApplicationState, DocumentJSON
 
 logger = logging.getLogger(__name__)
@@ -70,6 +74,9 @@ def document_intelligence_node(state: ApplicationState) -> dict:
                 uploaded.document_id, application_id,
             )
             continue
+        # Decode the ZATCA TLV QR offline and populate zatca_verification_hash
+        # (architecture.md §1a). No-op for documents without a QR.
+        doc = enrich_with_zatca(doc)
         extracted.append(doc)
 
     _persist_extracted_documents(application_id, extracted)

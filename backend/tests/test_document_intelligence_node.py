@@ -7,6 +7,8 @@ isolation.
 """
 from __future__ import annotations
 
+import base64
+import hashlib
 from datetime import date
 
 import pytest
@@ -15,6 +17,23 @@ from document_intelligence import extract as extract_mod
 from document_intelligence import node as node_mod
 from document_intelligence.node import document_intelligence_node
 from models import ApplicationState, DocumentJSON, SMEProfile, UploadedFile
+
+
+def _encode_tlv(fields: list[tuple[int, str]]) -> str:
+    payload = b""
+    for tag, value in fields:
+        vb = str(value).encode("utf-8")
+        payload += bytes([tag, len(vb)]) + vb
+    return base64.b64encode(payload).decode("ascii")
+
+
+_VALID_QR = _encode_tlv([
+    (1, "Gulf Fuel"),
+    (2, "300000000000003"),
+    (3, "2025-10-12T14:30:00"),
+    (4, "1500.50"),
+    (5, "195.72"),
+])
 
 
 def _uploaded(document_id: str) -> UploadedFile:
@@ -77,6 +96,30 @@ class TestDocumentIntelligenceNode:
         # persisted the same list under the right application_id
         assert captured_persist["application_id"] == "app-1"
         assert captured_persist["documents"] == docs
+
+    def test_zatca_qr_is_decoded_offline_into_verification_hash(self, monkeypatch, captured_persist):
+        # A zatca_receipt carrying a valid TLV QR must come out with
+        # zatca_verification_hash populated offline (architecture.md §1a) —
+        # matching the synthetic_hash(qr, doc_id) ground-truth convention.
+        raw = {
+            "type": "zatca_receipt", "vendor": "Gulf Fuel", "extracted_amount": 1500.50,
+            "date": "2025-10-12", "zatca_qr_base64": _VALID_QR, "confidence_score": 0.95,
+        }
+        monkeypatch.setattr(node_mod, "extract_document_fields", lambda up: raw)
+
+        out = document_intelligence_node(_state("doc-qr"))
+        doc = out["extracted_documents"][0]
+
+        assert doc.zatca_verification_hash == hashlib.sha256(
+            f"{_VALID_QR}|doc-qr".encode("utf-8")
+        ).hexdigest()
+
+    def test_document_without_qr_has_no_verification_hash(self, monkeypatch, captured_persist):
+        raw = {"type": "invoice", "vendor": "Jarir", "extracted_amount": 300, "date": "2025-10-12"}
+        monkeypatch.setattr(node_mod, "extract_document_fields", lambda up: raw)
+
+        out = document_intelligence_node(_state("doc-noqr"))
+        assert out["extracted_documents"][0].zatca_verification_hash is None
 
     def test_failed_extraction_still_yields_a_low_confidence_document(self, monkeypatch, captured_persist):
         # extract returns {} on any vision/parse failure -> normalize makes a
