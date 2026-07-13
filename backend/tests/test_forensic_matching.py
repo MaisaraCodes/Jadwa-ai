@@ -65,14 +65,22 @@ class TestMatchDocumentsToLedger:
         assert matched_flags.count(True) == 1
         assert matched_flags.count(False) == 1
 
-    def test_closest_candidate_by_date_then_amount_is_chosen(self):
+    def test_closest_candidate_by_amount_then_date_is_chosen(self):
+        # Amount is ranked before date (not the other way around): an exact
+        # amount match further out in the search window beats an
+        # approximate match that's merely closer in date. Real-world
+        # motivation: a same-day unrelated ledger debit (e.g. rent/payroll)
+        # must not out-rank the true match sitting a few days off with a
+        # near-identical amount — that mispairing was letting genuine
+        # invoices get flagged as mismatches (and could, in principle, mask
+        # a fabricated invoice behind an unrelated transaction).
         doc = make_doc("doc-c", 2000.00, date(2025, 5, 15))
         rows = [
             ledger_row("txn-far-exact", 2000.00, date(2025, 5, 1)),
             ledger_row("txn-near-off", 1990.00, date(2025, 5, 16)),
         ]
         matches, _ = match_documents_to_ledger([doc], rows)
-        assert matches[0].ledger_txn_id == "txn-near-off"
+        assert matches[0].ledger_txn_id == "txn-far-exact"
 
     def test_round_and_repeated_flags_populated_even_when_unmatched(self):
         docs = [make_doc(f"doc-{i}", 5000.00, date(2025, 3, i + 1)) for i in range(3)]

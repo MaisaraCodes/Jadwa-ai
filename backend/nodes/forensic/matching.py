@@ -67,7 +67,7 @@ def match_documents_to_ledger(
     ledger_rows: list[dict[str, Any]],
 ) -> tuple[list[MatchResult], dict[str, InvoiceContext]]:
     """Greedily pairs each document with its closest not-yet-claimed ledger
-    debit (by date distance, then amount distance) within
+    debit (by amount distance, then date distance) within
     MAX_SEARCH_WINDOW_DAYS. Each ledger row can satisfy at most one
     document, so two identical invoices can't both point at one payment.
 
@@ -95,7 +95,7 @@ def match_documents_to_ledger(
         repeated_amount = doc.document_id in repeated_ids
 
         best_idx: int | None = None
-        best_score: tuple[int, float] | None = None
+        best_score: tuple[float, int] | None = None
         for idx, candidate in enumerate(candidates):
             if claimed[idx]:
                 continue
@@ -115,7 +115,14 @@ def match_documents_to_ledger(
             # that aren't plausibly the same payment at all.
             if amount_delta > max(AMOUNT_PLAUSIBILITY_FLOOR_SAR, AMOUNT_PLAUSIBILITY_RATIO * doc.extracted_amount):
                 continue
-            score = (day_delta, amount_delta)
+            # Amount-closeness first, date as tiebreaker: a same-day
+            # candidate whose amount is wildly different (e.g. an unrelated
+            # background rent/payroll/fuel debit) previously out-ranked the
+            # true match sitting a few days off with a near-identical
+            # amount, because date-first tuple ordering only fell back to
+            # amount as a tiebreaker. Amount is the stronger signal that two
+            # transactions are the same payment.
+            score = (amount_delta, day_delta)
             if best_score is None or score < best_score:
                 best_score = score
                 best_idx = idx
