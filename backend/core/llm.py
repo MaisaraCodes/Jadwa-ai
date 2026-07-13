@@ -61,6 +61,53 @@ def complete(
     return content.strip()
 
 
+def complete_full(
+    prompt: str,
+    *,
+    system: str | None = None,
+    model: str | None = None,
+    temperature: float = 0.3,
+    max_tokens: int = 400,
+) -> str:
+    """Returns the completion text for a single-turn prompt using the FULL
+    model tier.
+
+    `model` defaults to the OPENAI_MODEL env var (GPT-5.4) — the
+    visible-quality tier the locked model table (architecture.md §1)
+    reserves for Devil's Advocate. Mirrors `complete` (the Mini wrapper)
+    exactly, aside from which env var and default model string it resolves.
+    """
+    try:
+        from openai import OpenAI
+    except ImportError as exc:
+        raise LLMError("openai package is not installed") from exc
+
+    api_key = os.environ.get("OPENAI_API_KEY")
+    if not api_key:
+        raise LLMError("OPENAI_API_KEY is not set")
+
+    resolved_model = model or os.environ.get("OPENAI_MODEL", "gpt-5.4")
+    messages: list[dict] = []
+    if system:
+        messages.append({"role": "system", "content": system})
+    messages.append({"role": "user", "content": prompt})
+
+    try:
+        response = OpenAI(api_key=api_key).chat.completions.create(
+            model=resolved_model,
+            messages=messages,
+            temperature=temperature,
+            max_completion_tokens=max_tokens,
+        )
+        content = response.choices[0].message.content
+    except Exception as exc:
+        raise LLMError(f"completion failed: {exc}") from exc
+
+    if not content or not content.strip():
+        raise LLMError("model returned an empty completion")
+    return content.strip()
+
+
 def complete_vision(
     prompt: str,
     image_url: str,
@@ -123,4 +170,4 @@ def complete_vision(
     return content.strip()
 
 
-__all__ = ["LLMError", "complete", "complete_vision"]
+__all__ = ["LLMError", "complete", "complete_full", "complete_vision"]
