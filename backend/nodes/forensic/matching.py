@@ -34,6 +34,14 @@ LEDGER_TABLE = "mock_open_banking_ledger"
 # "no matching transaction" (fraud signal 1 is for genuinely absent debits).
 MAX_SEARCH_WINDOW_DAYS = 30
 
+# A candidate ledger debit is only considered a plausible match for an
+# invoice if its amount is within this band — the larger of a flat floor or
+# a ratio of the invoice amount. This is deliberately looser than scoring.py's
+# strict AMOUNT_TOLERANCE_SAR (which grades a real match as clean/mismatched);
+# it only rules out candidates that couldn't plausibly be the same payment.
+AMOUNT_PLAUSIBILITY_FLOOR_SAR = 50.0
+AMOUNT_PLAUSIBILITY_RATIO = 0.25
+
 
 def fetch_ledger_rows(cr_number: str) -> list[dict[str, Any]]:
     """Queries the SME's debit transactions from mock_open_banking_ledger."""
@@ -95,6 +103,18 @@ def match_documents_to_ledger(
             if day_delta > MAX_SEARCH_WINDOW_DAYS:
                 continue
             amount_delta = abs(doc.extracted_amount - candidate["amount"])
+            # Plausibility gate: a candidate whose amount is wildly different
+            # from the invoice (e.g. a background rent/payroll/fuel debit
+            # that just happens to land on a nearby date) is noise, not a
+            # match — without this, date-closeness alone (the primary sort
+            # key below) can pair a FABRICATED invoice with an unrelated
+            # transaction and downgrade it from "no matching transaction"
+            # (high) to a mere amount mismatch (medium), masking the fraud
+            # signal. Genuine bookkeeping noise (signal 2, ~10% off) stays
+            # well inside this band; it's only for ruling out candidates
+            # that aren't plausibly the same payment at all.
+            if amount_delta > max(AMOUNT_PLAUSIBILITY_FLOOR_SAR, AMOUNT_PLAUSIBILITY_RATIO * doc.extracted_amount):
+                continue
             score = (day_delta, amount_delta)
             if best_score is None or score < best_score:
                 best_score = score

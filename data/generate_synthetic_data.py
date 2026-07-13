@@ -47,8 +47,12 @@ from supabase import create_client
 # =====================================================================================
 RANDOM_SEED = 42                # fixed → identical dataset every run (demos must repeat)
 MONTHS_OF_HISTORY = 15          # 12-18
-AMOUNT_TOLERANCE = 0.02         # ±2% counts as an amount "match"
-DATE_WINDOW_DAYS = 5            # a ledger debit within ±5 days counts as a date "match"
+# These must stay inside the REAL forensic scoring tolerance
+# (backend/nodes/forensic/scoring.py: AMOUNT_TOLERANCE_SAR=1.00 flat SAR,
+# DATE_WINDOW_DAYS=3) or "legit" invoices fail their own clean-match check —
+# a live end-to-end run caught this drifting out of sync once already.
+AMOUNT_JITTER_SAR = 0.50        # legit invoices get a matching debit within ±0.50 SAR
+DATE_WINDOW_DAYS = 2            # a ledger debit within ±1 day counts as a date "match"
 CURRENCY = "SAR"
 VAT_RATE = 0.15
 
@@ -263,7 +267,7 @@ def build_ledger_and_docs(rng, persona) -> tuple[list[dict], list[dict], list[di
         # matching debit (tiny jitter within tolerance, date within window)
         ledger.append(dict(cr_number=cr,
                            date=when + timedelta(days=rng.randint(-DATE_WINDOW_DAYS + 1, DATE_WINDOW_DAYS - 1)),
-                           amount=-_round_amount(amount * rng.uniform(1 - AMOUNT_TOLERANCE / 2, 1 + AMOUNT_TOLERANCE / 2)),
+                           amount=-_round_amount(amount - rng.uniform(-AMOUNT_JITTER_SAR, AMOUNT_JITTER_SAR)),
                            counterparty=vendor, description="Supplier payment"))
         truth.append(dict(document_id=d_id, bucket="legit", expected_flag="green",
                           reason="Matching ledger debit within amount tolerance and date window."))
