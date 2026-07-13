@@ -52,7 +52,7 @@ export default function App() {
                 </Route>
 
                 <Route
-                  path="/bank/applications/demo"
+                  path="/bank/applications/:applicationId"
                   element={
                     <RequireRole role="bank">
                       <BankApplicationDetailPage />

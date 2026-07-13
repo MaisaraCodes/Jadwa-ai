@@ -136,18 +136,6 @@ export const STRINGS = {
   "bank.detail.metric.riskClass": { ar: "فئة المخاطر", en: "Risk class" },
   "bank.detail.growing": { ar: "نمو +14%", en: "Growing +14%" },
   "bank.detail.riskMedium": { ar: "متوسطة", en: "Medium" },
-  "bank.detail.finding1Body": {
-    ar: "إيصال ZATCA بقيمة {{amount}} (12 أكتوبر) — رمز الاستجابة السريعة صالح، لكن لا توجد معاملة مطابقة في سجل الخدمات المصرفية المفتوحة.",
-    en: "ZATCA receipt for {{amount}} (12 Oct) — QR parses as valid, but no corresponding transaction exists in the open-banking ledger.",
-  },
-  "bank.detail.finding2Body": {
-    ar: "تمت تسوية فاتورة الوقود بعد {{days}} أيام من تاريخ الفاتورة — تأخير زمني بسيط، وليس احتيالًا.",
-    en: "Fuel invoice cleared {{days}} days after invoice date — timing noise, not fraud.",
-  },
-  "bank.detail.finding3Body": {
-    ar: "عقد إيجار المستودع مؤرَّخ قبل بدء تفعيل السجل التجاري بثلاثة أشهر — على الأرجح تجديد، ولا يستدعي إجراءً.",
-    en: "Warehouse lease is dated three months before the CR activation date — likely a renewal, no action needed.",
-  },
   "bank.detail.sandboxTitle": { ar: "بيئة اختبار المخاطر", en: "Risk sandbox" },
   "bank.detail.fuelCostShock": { ar: "صدمة تكلفة الوقود", en: "Fuel cost shock" },
   "bank.detail.monthNov": { ar: "نوفمبر", en: "Nov" },
@@ -178,6 +166,13 @@ export const STRINGS = {
   "forensic.severity.high": { ar: "مرتفعة", en: "High" },
   "forensic.severity.medium": { ar: "متوسطة", en: "Medium" },
   "forensic.severity.low": { ar: "منخفضة", en: "Low" },
+  "forensic.loading": { ar: "جارٍ تحميل التقرير...", en: "Loading report..." },
+  "forensic.loadError": { ar: "تعذّر تحميل تقرير التدقيق.", en: "Couldn't load the forensic report." },
+  "forensic.retry": { ar: "إعادة المحاولة", en: "Retry" },
+  "forensic.notComputed": {
+    ar: "لم يكتمل التحليل المالي لهذا الطلب بعد.",
+    en: "The forensic analysis for this application hasn't run yet.",
+  },
 
   // --- SME review screen (ReviewDocumentsPage) ---
   "review.title": { ar: "راجع بيانات المستندات", en: "Review extracted data" },

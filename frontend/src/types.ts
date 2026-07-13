@@ -61,3 +61,56 @@ export interface PatchDocumentRequest {
   vendor?: string;
   type?: DocumentType;
 }
+
+// Mirrors backend/models.py SMEProfile / WeaknessReport / MarketVerdict /
+// RiskBaseline and routers/bank.py's BankApplicationDetail response shape
+// (GET /bank/applications/:id — architecture.md §4, "the ENTIRE dashboard
+// in ONE call"). weakness_report / market_verdict / risk_baseline stay
+// null until their Phase-2 nodes ship.
+export type ApplicationStatus =
+  | "draft"
+  | "processing"
+  | "review_ready"
+  | "approved"
+  | "rejected"
+  | "more_info_needed";
+
+export interface SMEProfile {
+  id: string;
+  company_name: string;
+  cr_number: string;
+  sector: string;
+  district: string;
+  user_id: string | null;
+}
+
+export interface WeaknessReport {
+  critical_weaknesses: string[];
+  mitigation_suggestions: string[];
+  business_model_score: number;
+}
+
+export interface MarketVerdict {
+  sector_trend: "growing" | "stable" | "declining";
+  district_saturation: "low" | "medium" | "high";
+  oracle_insight: string;
+  sources_cited: string[];
+}
+
+export interface RiskBaseline {
+  base_default_probability: number;
+  revenue_volatility_multiplier: number;
+  cash_buffer_months: number;
+  recommended_interest_rate: number;
+}
+
+export interface BankApplicationDetail {
+  application_id: string;
+  status: ApplicationStatus;
+  sme_profile: SMEProfile;
+  extracted_documents: DocumentJSON[];
+  forensic_report: ForensicReport | null;
+  weakness_report: WeaknessReport | null;
+  market_verdict: MarketVerdict | null;
+  risk_baseline: RiskBaseline | null;
+}

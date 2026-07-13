@@ -3,7 +3,7 @@
 // SME's progress bar. Injects the Supabase JWT and normalizes the backend error
 // envelope { error: { code, message } } into a typed ApiError.
 import { supabase } from "./supabase";
-import type { DocumentJSON, PatchDocumentRequest, UploadedDocument } from "../types";
+import type { BankApplicationDetail, DocumentJSON, PatchDocumentRequest, UploadedDocument } from "../types";
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL as string) ?? "/api/v1";
 
@@ -102,6 +102,10 @@ async function authedJson<T>(path: string, init?: RequestInit): Promise<T> {
 
 export function getExtractedDocuments(applicationId: string): Promise<{ documents: DocumentJSON[] }> {
   return authedJson(`/applications/${applicationId}/extracted`);
+}
+
+export function getBankApplication(applicationId: string): Promise<BankApplicationDetail> {
+  return authedJson(`/bank/applications/${applicationId}`);
 }
 
 export function patchExtractedDocument(

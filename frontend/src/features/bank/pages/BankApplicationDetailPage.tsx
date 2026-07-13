@@ -9,12 +9,12 @@
 // report + Market verdict shown as disabled placeholders until those nodes ship.
 // Risk sandbox stays inside Overview for now rather than its own tab.
 //
-// DEMO: the whole Rawad Logistics application (metrics, forensic report, cash-flow
-// projection) is hardcoded for this pass. Real data comes from
-// GET /bank/applications/{id} (unified_application_record) in Phase 2; the sandbox
-// slider will send `deltas` to the risk endpoint and render the returned
-// RiskProjection instead of this static SVG.
-import { useState } from "react";
+// The forensic tab is wired to the real GET /bank/applications/{id} call
+// (architecture.md §4 — "the ENTIRE dashboard in ONE call"). The rest of this
+// page (Overview metrics, sandbox chart) is still DEMO/hardcoded pending the
+// nodes that produce weakness_report / market_verdict / risk_baseline.
+import { useCallback, useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import { useAuth } from "../../auth/AuthProvider";
 import { useLang } from "../../../i18n/LangProvider";
 import type { StringKey } from "../../../i18n/strings";
@@ -22,7 +22,8 @@ import { JadwaTileMark, GoldDiamond } from "../../../components/JadwaMark";
 import ThemeToggle from "../../../components/ThemeToggle";
 import LangToggle from "../../../components/LangToggle";
 import ForensicReportCard from "../components/ForensicReportCard";
-import type { ForensicReport } from "../../../types";
+import { ApiError, getBankApplication } from "../../../lib/api";
+import type { BankApplicationDetail } from "../../../types";
 
 type TabId = "overview" | "forensic" | "weakness" | "market";
 
@@ -32,30 +33,6 @@ const TABS: { id: TabId; labelKey: StringKey; enabled: boolean }[] = [
   { id: "weakness", labelKey: "bank.detail.tab.weakness", enabled: false },
   { id: "market", labelKey: "bank.detail.tab.market", enabled: false },
 ];
-
-// DEMO forensic_report — stands in for GET /bank/applications/{id}.forensic_report
-// until Phase 2 wires the real endpoint.
-function useDemoForensicReport(zatcaAmount: string): ForensicReport {
-  const { t } = useLang();
-  return {
-    overall_status: "yellow",
-    reconciliation_rate: 0.85,
-    discrepancy_flags: [
-      {
-        severity: "high",
-        description: t("bank.detail.finding1Body", { amount: zatcaAmount }),
-      },
-      {
-        severity: "medium",
-        description: t("bank.detail.finding2Body", { days: 6 }),
-      },
-      {
-        severity: "low",
-        description: t("bank.detail.finding3Body"),
-      },
-    ],
-  };
-}
 
 function Badge({
   tone,
@@ -87,6 +64,8 @@ function MetricCard({ label, children }: { label: string; children: React.ReactN
 }
 
 export default function BankApplicationDetailPage() {
+  const { applicationId: routeApplicationId } = useParams();
+  const applicationId = routeApplicationId ?? "demo"; // mirrors ReviewDocumentsPage's fallback convention
   const { signOut } = useAuth();
   const { t, lang } = useLang();
   const [activeTab, setActiveTab] = useState<TabId>("overview");
@@ -94,8 +73,23 @@ export default function BankApplicationDetailPage() {
   // DEMO values — localized only where the mockups show a different form per
   // language (currency position); dates/CR numbers keep Western digits (§3.2).
   const submittedDate = lang === "ar" ? "12 أكتوبر 2025" : "12 Oct 2025";
-  const zatcaAmount = lang === "ar" ? "1,500.50 ر.س" : "SAR 1,500.50";
-  const forensicReport = useDemoForensicReport(zatcaAmount);
+
+  const [detail, setDetail] = useState<BankApplicationDetail | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  const loadDetail = useCallback(async () => {
+    setLoadError(null);
+    setDetail(null);
+    try {
+      setDetail(await getBankApplication(applicationId));
+    } catch (err) {
+      setLoadError(err instanceof ApiError ? err.message : t("forensic.loadError"));
+    }
+  }, [applicationId, t]);
+
+  useEffect(() => {
+    loadDetail();
+  }, [loadDetail]);
 
   return (
     <div data-portal="bank" className="min-h-screen bg-bg">
@@ -233,7 +227,32 @@ export default function BankApplicationDetailPage() {
 
         {activeTab === "forensic" && (
           <div className="mb-3.5">
-            <ForensicReportCard report={forensicReport} />
+            {detail === null && !loadError && (
+              <p className="rounded-xl border border-line bg-surface px-4 py-6 text-center text-[13px] text-text-2">
+                {t("forensic.loading")}
+              </p>
+            )}
+
+            {loadError && (
+              <div className="rounded-xl border border-line bg-surface px-4 py-6 text-center">
+                <p className="mb-2.5 text-[13px] text-flag">{loadError}</p>
+                <button
+                  type="button"
+                  onClick={loadDetail}
+                  className="rounded-lg border border-line-strong px-3 py-1.5 text-xs font-medium text-accent-strong hover:bg-accent-soft focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                >
+                  {t("forensic.retry")}
+                </button>
+              </div>
+            )}
+
+            {detail && detail.forensic_report === null && (
+              <p className="rounded-xl border border-line bg-surface px-4 py-6 text-center text-[13px] text-text-2">
+                {t("forensic.notComputed")}
+              </p>
+            )}
+
+            {detail?.forensic_report && <ForensicReportCard report={detail.forensic_report} />}
           </div>
         )}
 
