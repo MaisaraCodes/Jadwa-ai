@@ -31,6 +31,22 @@ DOCUMENTS_TABLE = "application_documents"
 AGENT_RESULTS_TABLE = "agent_results"
 
 
+def _signed_document_url(svc, storage_path: str) -> str:
+    """application_documents.file_url stores the bare Storage object path
+    (routers/documents.py), not a fetchable URL — the vision model needs an
+    actual URL it can GET, so re-sign it here the same way the upload
+    response does."""
+    from routers.documents import BUCKET, SIGNED_URL_TTL_SECONDS
+
+    try:
+        signed = svc.storage.from_(BUCKET).create_signed_url(storage_path, SIGNED_URL_TTL_SECONDS)
+    except Exception:
+        return storage_path
+    if isinstance(signed, dict):
+        return signed.get("signedURL") or signed.get("signedUrl") or storage_path
+    return getattr(signed, "signedURL", None) or getattr(signed, "signedUrl", None) or storage_path
+
+
 async def _build_initial_state(application_id: str) -> ApplicationState:
     """Load the ApplicationState the compiled graph needs to run, and make
     sure the 4 agent nodes have an `agent_results` row to UPDATE into (each
@@ -53,7 +69,7 @@ async def _build_initial_state(application_id: str) -> ApplicationState:
         UploadedFile(
             document_id=str(d["id"]),
             filename=d["filename"],
-            storage_url=d["file_url"],
+            storage_url=_signed_document_url(svc, d["file_url"]),
             content_type=d["file_type"],
         )
         for d in doc_rows
@@ -74,6 +90,23 @@ async def _build_initial_state(application_id: str) -> ApplicationState:
     )
 
 
+def _run_graph_sync(application_id: str, initial_state: ApplicationState) -> None:
+    """The 4-way fan-out + aggregate, run to completion in a worker thread.
+
+    The 4 agent nodes are plain sync functions doing blocking I/O (Postgres,
+    OpenAI) — LangGraph does not offload sync nodes to a thread on its own,
+    so driving them via the async `.astream()` API from the event-loop thread
+    would block ALL concurrent request handling (including /status polling)
+    for the entire graph run. Using the sync `.stream()` API here, itself
+    wrapped in `asyncio.to_thread` by the caller, keeps the loop free the
+    same way the document_intelligence_node call already does below.
+    """
+    for update in get_graph().stream(initial_state, stream_mode="updates"):
+        for node_name in update:
+            if node_name in ALL_NODES:
+                progress_store.mark_done(application_id, node_name)
+
+
 async def run_pipeline(application_id: str) -> None:
     progress_store.start(application_id)
     node_name = "document_intelligence_node"
@@ -89,13 +122,9 @@ async def run_pipeline(application_id: str) -> None:
         initial_state["extracted_documents"] = node_output["extracted_documents"]
         progress_store.mark_done(application_id, node_name)
 
-        # stream_mode="updates" yields one chunk per finished node, keyed by
-        # node name — that's what lets /status keep reporting live progress
-        # instead of only finding out once the whole graph is done.
-        async for update in get_graph().astream(initial_state, stream_mode="updates"):
-            for node_name in update:
-                if node_name in ALL_NODES:
-                    progress_store.mark_done(application_id, node_name)
+        # Same reasoning as above: the graph's own nodes block just as hard,
+        # so this also runs off the event loop.
+        await asyncio.to_thread(_run_graph_sync, application_id, initial_state)
     except Exception:
         # Leave `status` at "processing" — /status will report a stalled
         # progress bar (nodes_completed short of ALL_NODES) instead of lying
