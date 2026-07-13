@@ -28,6 +28,11 @@ from models import (
     RiskBaseline,
     WeaknessReport,
 )
+from nodes.devils_advocate.ledger import fetch_ledger_rows as fetch_devils_advocate_ledger_rows
+from nodes.devils_advocate.ledger import split_by_type as split_ledger_rows_by_type
+from nodes.devils_advocate.narrate import AdvocateContext, write_weakness_report
+from nodes.devils_advocate.scoring import business_model_score, rank_weaknesses
+from nodes.devils_advocate.signals import compute_all_signals
 from nodes.forensic.explain import write_flag_descriptions
 from nodes.forensic.matching import reconcile_against_ledger
 from nodes.forensic.scoring import build_forensic_report
@@ -142,9 +147,41 @@ def forensic_accountant_node(state: ApplicationState) -> dict:
 
 
 def devils_advocate_node(state: ApplicationState) -> dict:
-    # TODO(owner: devil's advocate): real GPT-5.4 critique of sme_profile +
-    # extracted_documents.
-    report = WeaknessReport(critical_weaknesses=[], mitigation_suggestions=[], business_model_score=50)
+    """Business-model critique (architecture.md §1, schema_mapping.md
+    Node 3). Four deterministic Python signals
+    (nodes/devils_advocate/signals.py) are graded from extracted_documents
+    plus the SME's mock_open_banking_ledger rows, fetched in-node
+    (CONVENTIONS.md rule 3) — this mirrors the forensic node's own ledger
+    read, but Devil's Advocate needs BOTH debit and credit rows, so it uses
+    its own fetch (nodes/devils_advocate/ledger.py) rather than forensic's
+    debit-only one. scoring.py turns the signals into business_model_score
+    plus the ranked weakness list; narrate.py (GPT-5.4 full) is the only LLM
+    call in this node and writes text only — it never sets severity or the
+    score.
+    """
+    documents = state.get("extracted_documents", [])
+    sme_profile = state["sme_profile"]
+
+    ledger_rows = fetch_devils_advocate_ledger_rows(sme_profile.cr_number)
+    debit_rows, credit_rows = split_ledger_rows_by_type(ledger_rows)
+
+    signals = compute_all_signals(
+        debit_rows=debit_rows, credit_rows=credit_rows,
+        documents=documents, sector=sme_profile.sector,
+    )
+    score = business_model_score(signals)
+    ranked = rank_weaknesses(signals)
+
+    narrative = write_weakness_report(
+        ranked,
+        AdvocateContext(company_name=sme_profile.company_name, sector=sme_profile.sector),
+    )
+
+    report = WeaknessReport(
+        critical_weaknesses=narrative.critical_weaknesses,
+        mitigation_suggestions=narrative.mitigation_suggestions,
+        business_model_score=score,
+    )
     _persist_column(state["application_id"], "weakness_report", report.model_dump(mode="json"))
     return {"weakness_report": report}
 
