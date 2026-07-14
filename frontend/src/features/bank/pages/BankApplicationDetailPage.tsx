@@ -22,6 +22,7 @@ import { JadwaTileMark, GoldDiamond } from "../../../components/JadwaMark";
 import ThemeToggle from "../../../components/ThemeToggle";
 import LangToggle from "../../../components/LangToggle";
 import ForensicReportCard from "../components/ForensicReportCard";
+import WeaknessReportCard from "../components/WeaknessReportCard";
 import { ApiError, getBankApplication } from "../../../lib/api";
 import type { BankApplicationDetail } from "../../../types";
 
@@ -30,7 +31,7 @@ type TabId = "overview" | "forensic" | "weakness" | "market";
 const TABS: { id: TabId; labelKey: StringKey; enabled: boolean }[] = [
   { id: "overview", labelKey: "bank.detail.tab.overview", enabled: true },
   { id: "forensic", labelKey: "bank.detail.tab.forensic", enabled: true },
-  { id: "weakness", labelKey: "bank.detail.tab.weakness", enabled: false },
+  { id: "weakness", labelKey: "bank.detail.tab.weakness", enabled: true },
   { id: "market", labelKey: "bank.detail.tab.market", enabled: false },
 ];
 
@@ -253,6 +254,37 @@ export default function BankApplicationDetailPage() {
             )}
 
             {detail?.forensic_report && <ForensicReportCard report={detail.forensic_report} />}
+          </div>
+        )}
+
+        {activeTab === "weakness" && (
+          <div className="mb-3.5">
+            {detail === null && !loadError && (
+              <p className="rounded-xl border border-line bg-surface px-4 py-6 text-center text-[13px] text-text-2">
+                {t("weakness.loading")}
+              </p>
+            )}
+
+            {loadError && (
+              <div className="rounded-xl border border-line bg-surface px-4 py-6 text-center">
+                <p className="mb-2.5 text-[13px] text-flag">{loadError}</p>
+                <button
+                  type="button"
+                  onClick={loadDetail}
+                  className="rounded-lg border border-line-strong px-3 py-1.5 text-xs font-medium text-accent-strong hover:bg-accent-soft focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                >
+                  {t("weakness.retry")}
+                </button>
+              </div>
+            )}
+
+            {detail && detail.weakness_report === null && (
+              <p className="rounded-xl border border-line bg-surface px-4 py-6 text-center text-[13px] text-text-2">
+                {t("weakness.notComputed")}
+              </p>
+            )}
+
+            {detail?.weakness_report && <WeaknessReportCard report={detail.weakness_report} />}
           </div>
         )}
 

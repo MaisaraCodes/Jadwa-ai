@@ -214,6 +214,24 @@ export const STRINGS = {
   "bank.detail.tab.weakness": { ar: "نقاط الضعف", en: "Weakness report" },
   "bank.detail.tab.market": { ar: "السوق", en: "Market verdict" },
   "bank.detail.tab.comingSoon": { ar: "قريبًا", en: "Coming soon" },
+
+  // --- weakness report card (WeaknessReportCard, mirrors WeaknessReport in models.py) ---
+  "weakness.title": { ar: "تقرير نقاط الضعف", en: "Weakness report" },
+  // UI cue derived from business_model_score — not a ForensicStatus verdict.
+  "weakness.edge.pass": { ar: "نموذج عمل قوي", en: "Strong business model" },
+  "weakness.edge.review": { ar: "بحاجة لمراجعة", en: "Needs review" },
+  "weakness.edge.flag": { ar: "نموذج عمل ضعيف", en: "Weak business model" },
+  "weakness.scoreLabel": { ar: "درجة نموذج العمل", en: "Business model score" },
+  "weakness.emptyState": { ar: "لا توجد نقاط ضعف جوهرية", en: "No critical weaknesses found" },
+  "weakness.mitigationsTitle": { ar: "إجراءات موصى بها", en: "Recommended actions" },
+  "weakness.mitigationInlineLabel": { ar: "مقترح:", en: "Suggested:" },
+  "weakness.loading": { ar: "جارٍ تحميل تقرير نقاط الضعف...", en: "Loading weakness report..." },
+  "weakness.loadError": { ar: "تعذّر تحميل تقرير نقاط الضعف.", en: "Couldn't load the weakness report." },
+  "weakness.retry": { ar: "إعادة المحاولة", en: "Retry" },
+  "weakness.notComputed": {
+    ar: "لم يكتمل تحليل نقاط الضعف لهذا الطلب بعد.",
+    en: "The weakness analysis for this application hasn't run yet.",
+  },
 } as const;
 
 export type StringKey = keyof typeof STRINGS;
