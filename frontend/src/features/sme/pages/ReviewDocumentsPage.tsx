@@ -1,12 +1,17 @@
-// SME portal — ReviewDocumentsPage
+// SME portal — DocumentReviewPanel + ReviewDocumentsPage.
 // Lets the SME confirm or correct what Node 1 (document_intelligence_node)
 // extracted from each uploaded document, before the forensic accountant
 // reconciles it against the ledger. Low confidence_score documents are
 // pre-flagged so the SME's attention goes where the LLM is least sure.
 //
 // GET /applications/:id/extracted and PATCH /applications/:id/documents/:id
-// are both real endpoints (routers/applications.py) — this page is their
-// first caller.
+// are both real endpoints (routers/applications.py).
+//
+// DocumentReviewPanel is the reusable core (list + edit + confirm + progress
+// bar) — ReviewDocumentsPage wraps it with page chrome for the standalone
+// /sme/review route; ApplicationDetailPage embeds the panel directly for the
+// analysis-done phase, passing its own onContinue ("Submit application")
+// instead of the panel's default "back to dashboard" behavior.
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { IconArrowLeft, IconAlertTriangle, IconCheck, IconPencil } from "@tabler/icons-react";
@@ -34,11 +39,25 @@ function toDraft(doc: DocumentJSON): DraftFields {
   };
 }
 
-export default function ReviewDocumentsPage() {
-  const { applicationId: routeApplicationId } = useParams();
-  const applicationId = routeApplicationId ?? "JDW-2026-0147"; // demo fallback, mirrors SmeHomePage's APP_REF
+export interface DocumentReviewPanelProps {
+  applicationId: string;
+  /** Fires whenever the confirmed count changes — lets a host page (e.g. the
+   * detail page's "Submit application" button) gate on full confirmation
+   * without duplicating the confirm-tracking logic. */
+  onAllConfirmedChange?: (info: { allConfirmed: boolean; confirmedCount: number; total: number }) => void;
+  /** If provided, renders a trailing continue button with this handler.
+   * Omit to let the host page provide its own action bar instead. */
+  onContinue?: () => void;
+  continueLabel?: string;
+}
+
+export function DocumentReviewPanel({
+  applicationId,
+  onAllConfirmedChange,
+  onContinue,
+  continueLabel,
+}: DocumentReviewPanelProps) {
   const { t, lang } = useLang();
-  const navigate = useNavigate();
 
   const [documents, setDocuments] = useState<DocumentJSON[] | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -113,19 +132,20 @@ export default function ReviewDocumentsPage() {
     [documents, confirmedIds],
   );
 
+  useEffect(() => {
+    if (!onAllConfirmedChange || documents === null) return;
+    onAllConfirmedChange({
+      allConfirmed,
+      confirmedCount: documents.filter((d) => confirmedIds.has(d.document_id)).length,
+      total: documents.length,
+    });
+    // onAllConfirmedChange is expected to be referentially stable (or the
+    // host memoizes it); only re-fire on data changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [documents, confirmedIds, allConfirmed]);
+
   return (
-    <section>
-      <Link
-        to="/sme"
-        className="mb-3 inline-flex items-center gap-1.5 text-[12.5px] font-medium text-text-2 hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-      >
-        <IconArrowLeft size={14} className={lang === "ar" ? "rotate-180" : ""} aria-hidden="true" />
-        {t("review.backLink")}
-      </Link>
-
-      <h1 className="font-display text-2xl font-extrabold text-ink">{t("review.title")}</h1>
-      <p className="mb-4 mt-0.5 max-w-xl text-[13px] text-text-2">{t("review.subtitle")}</p>
-
+    <>
       {documents === null && !loadError && (
         <p className="rounded-xl border border-line bg-surface px-4 py-6 text-center text-[13px] text-text-2">
           {t("review.loading")}
@@ -305,17 +325,43 @@ export default function ReviewDocumentsPage() {
                     total: documents.length,
                   })}
             </span>
-            <button
-              type="button"
-              onClick={() => navigate("/sme")}
-              disabled={!allConfirmed}
-              className="rounded-lg bg-accent px-4 py-1.5 text-xs font-medium text-on-accent disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
-            >
-              {t("review.continue")}
-            </button>
+            {onContinue && (
+              <button
+                type="button"
+                onClick={onContinue}
+                disabled={!allConfirmed}
+                className="rounded-lg bg-accent px-4 py-1.5 text-xs font-medium text-on-accent disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+              >
+                {continueLabel ?? t("review.continue")}
+              </button>
+            )}
           </div>
         </>
       )}
+    </>
+  );
+}
+
+export default function ReviewDocumentsPage() {
+  const { applicationId: routeApplicationId } = useParams();
+  const applicationId = routeApplicationId ?? "JDW-2026-0147"; // demo fallback, mirrors SmeHomePage's APP_REF
+  const { t, lang } = useLang();
+  const navigate = useNavigate();
+
+  return (
+    <section>
+      <Link
+        to="/sme"
+        className="mb-3 inline-flex items-center gap-1.5 text-[12.5px] font-medium text-text-2 hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+      >
+        <IconArrowLeft size={14} className={lang === "ar" ? "rotate-180" : ""} aria-hidden="true" />
+        {t("review.backLink")}
+      </Link>
+
+      <h1 className="font-display text-2xl font-extrabold text-ink">{t("review.title")}</h1>
+      <p className="mb-4 mt-0.5 max-w-xl text-[13px] text-text-2">{t("review.subtitle")}</p>
+
+      <DocumentReviewPanel applicationId={applicationId} onContinue={() => navigate("/sme")} />
     </section>
   );
 }

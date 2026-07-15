@@ -25,6 +25,7 @@ import type { ApplicationStatusResponse, ApplicationSummaryItem } from "../../..
 import LifecycleStatusPill from "../../../components/LifecycleStatusPill";
 import SaduBand, { type SaduStageState } from "../../../components/SaduBand";
 import DocumentUpload from "../DocumentUpload";
+import { DocumentReviewPanel } from "./ReviewDocumentsPage";
 
 const POLL_INTERVAL_MS = 1500;
 
@@ -262,9 +263,12 @@ export default function ApplicationDetailPage() {
       )}
 
       {phase === "analysis_done" && (
-        <div className="rounded-xl border border-line bg-surface px-4 py-6 text-center">
-          <p className="text-[13px] text-ink">{t("sme.detail.analysisCompleteNotice")}</p>
-        </div>
+        <>
+          <div className="mb-4 rounded-xl border border-line bg-surface px-4 py-4 text-center">
+            <p className="text-[13px] text-ink">{t("sme.detail.analysisCompleteNotice")}</p>
+          </div>
+          <DocumentReviewPanel applicationId={applicationId} />
+        </>
       )}
 
       {phase === "locked" && (
