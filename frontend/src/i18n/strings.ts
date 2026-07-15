@@ -41,6 +41,56 @@ export const STRINGS = {
   },
   "landing.footer.rights": { ar: "© {{year}} جدوى", en: "© {{year}} Jadwa" },
 
+  // --- public data-sources / credibility page (DataSourcesPage, "/data") ---
+  // SKELETON pass only — structure + honest placeholders, no real coverage
+  // numbers (the corpus isn't ingested yet). Never say "trained on" anywhere
+  // here: it's retrieval (RAG) over a corpus, nothing is trained/fine-tuned.
+  "data.hero.title": { ar: "مبني على بيانات سعودية رسمية وعامة", en: "Grounded in official Saudi public data" },
+  "data.hero.body": {
+    ar: "يعتمد جدوى على الاسترجاع المعزز بالتوليد (RAG) فوق مجموعة مختارة من المصادر الرسمية العامة — كل استنتاج مرتبط بمصدره ويُستشهد به.",
+    en: "Jadwa uses retrieval-augmented generation (RAG) over a curated set of official public sources — every insight is grounded in and cites its source.",
+  },
+  "data.sources.title": { ar: "المصادر", en: "Sources" },
+  "data.sources.subtitle": {
+    ar: "التغطية الكاملة قيد الإضافة — القائمة أدناه تعكس البنية المخطط لها فقط.",
+    en: "Full coverage is still being added — the list below reflects the planned structure only.",
+  },
+  "data.sources.coveragePending": { ar: "التغطية: قيد الإدراج", en: "Coverage: pending ingestion" },
+  "data.source.sama.name": { ar: "البنك المركزي السعودي (ساما)", en: "Saudi Central Bank (SAMA)" },
+  "data.source.sama.body": {
+    ar: "منشورات تنظيمية ومصرفية، ومرجعية إطار الخدمات المصرفية المفتوحة.",
+    en: "Regulatory and banking publications, and open-banking framework references.",
+  },
+  "data.source.monshaat.name": { ar: "منشآت", en: "Monsha'at" },
+  "data.source.monshaat.body": {
+    ar: "تقارير قطاع المنشآت الصغيرة والمتوسطة، وبيانات برامج الدعم والنمو.",
+    en: "SME sector reports, and growth and support program data.",
+  },
+  "data.source.gastat.name": { ar: "الهيئة العامة للإحصاء", en: "General Authority for Statistics (GASTAT)" },
+  "data.source.gastat.body": {
+    ar: "إحصاءات قطاعية وإقليمية — سوق العمل وأعداد المنشآت.",
+    en: "Sector and district-level statistics — labor market and business counts.",
+  },
+  "data.source.more.name": { ar: "مصادر إضافية", en: "More sources" },
+  "data.source.more.body": {
+    ar: "يتواصل التوسّع في مصادر البيانات الرسمية بعد الإطلاق.",
+    en: "Additional official sources are being added as the corpus grows.",
+  },
+  "data.retrieval.title": { ar: "كيف يعمل الاسترجاع", en: "How retrieval works" },
+  "data.retrieval.subtitle": {
+    ar: "لا يُدرَّب أي نموذج على هذه البيانات — يُسترجع المحتوى ذو الصلة عند كل طلب ويُستشهد به.",
+    en: "No model is trained on this data — relevant content is retrieved on each request and cited.",
+  },
+  "data.retrieval.step.query": { ar: "الاستعلام", en: "Query" },
+  "data.retrieval.step.embed": { ar: "التمثيل الرقمي", en: "Embed" },
+  "data.retrieval.step.retrieve": { ar: "استرجاع أعلى النتائج", en: "Retrieve top-k" },
+  "data.retrieval.step.cite": { ar: "استنتاج سوقي موثَّق", en: "Cited market verdict" },
+  "data.honesty.title": { ar: "ملاحظة حول التغطية الحالية", en: "A note on current coverage" },
+  "data.honesty.body": {
+    ar: "لم يتم إدراج مجموعة البيانات بعد؛ استرجاع السوق غير مفعّل في هذه النسخة التجريبية. الأرقام والتغطية أعلاه توضيحية للبنية فقط، وستُستبدل بتغطية فعلية بعد الإدراج.",
+    en: "The corpus hasn't been ingested yet; market retrieval isn't live in this demo build. The figures and coverage above are illustrative of the structure only, and will be replaced with real coverage once ingestion is complete.",
+  },
+
   // --- common / auth ---
   "auth.signOut": { ar: "تسجيل الخروج", en: "Sign out" },
   "auth.workingEllipsis": { ar: "جارٍ العمل…", en: "Working…" },
