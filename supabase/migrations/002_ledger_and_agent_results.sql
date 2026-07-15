@@ -1,0 +1,35 @@
+-- 002_ledger_and_agent_results.sql
+-- Idempotent. Run in the Supabase SQL editor (or via the migration runner) BEFORE
+-- generate_synthetic_data.py.
+--
+-- INTROSPECTED against the live DB before writing this (2026-07-03) — both tables
+-- this migration originally proposed creating ALREADY EXIST from the "Design DB
+-- schema" task, with shapes that differ from the spec's suggested columns. Per the
+-- spec's own guard ("if agent_results already exists with a different shape, do
+-- NOT let this clobber it"), this migration does not touch either table's
+-- structure. generate_synthetic_data.py's ledger insert was adapted to match the
+-- real columns instead (see AGENT_RESULTS_*/ledger insert in the script).
+--
+-- 1) mock_open_banking_ledger — ALREADY EXISTS, no action taken. Real shape:
+--      id uuid pk default uuid_generate_v4()
+--      cr_number text not null
+--      transaction_date date not null   (NOT "date")
+--      description text
+--      amount numeric not null           (signed: credit +, debit -)
+--      transaction_type text check (transaction_type in ('credit','debit'))
+--    No counterparty / running_balance columns — the script folds counterparty
+--    into description and derives transaction_type from the sign of amount.
+--    Indexes idx_ledger_cr_number(cr_number) and idx_ledger_cr_date(cr_number,
+--    transaction_date) already exist — no new indexes needed.
+--
+-- 2) agent_results — ALREADY EXISTS, no action taken. Real shape matches the spec:
+--      application_id uuid pk references applications(id) on delete cascade
+--      extracted_documents jsonb default '[]'
+--      forensic_report / weakness_report / market_verdict / risk_baseline /
+--        unified_application_record jsonb (defaults '{}')
+--      last_updated_by_node text, updated_at timestamptz default now()
+--    generate_synthetic_data.py writes only extracted_documents, as intended.
+--
+-- Nothing to create or alter. This file is kept as a record of the introspection
+-- and as a no-op placeholder so the migration sequence stays intact.
+select 1;

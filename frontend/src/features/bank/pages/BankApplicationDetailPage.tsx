@@ -5,17 +5,39 @@
 // ("Underwriting desk") differs from the queue's header — still guarded by
 // RequireRole role="bank" in App.tsx.
 //
-// DEMO: the whole Rawad Logistics application (metrics, forensic findings, cash-flow
-// projection) is hardcoded for this pass. Real data comes from
-// GET /bank/applications/{id} (unified_application_record) in Phase 2; the sandbox
-// slider will send `deltas` to the risk endpoint and render the returned
-// RiskProjection instead of this static SVG.
-import { IconShieldSearch } from "@tabler/icons-react";
-import { useAuth } from "../../auth/AuthProvider";
+// Tabbed per node (architecture.md §1): Overview / Forensic report / Weakness
+// report are real, wired to the one GET /bank/applications/{id} call
+// (architecture.md §4 — "the ENTIRE dashboard in ONE call"). Market verdict
+// stays a disabled tab; the Risk sandbox section (embedded in Overview) stays
+// a clearly-labelled disabled placeholder — both are out of scope for this
+// refurbish (no /sandbox/recalculate or Oracle UI to build).
+//
+// The decision action bar (Approve / Request info / Reject) posts to the real
+// POST /bank/applications/{id}/decision and reflects the returned status in
+// the header's lifecycle pill; it disables itself once a decision is already
+// recorded (or before the application has even reached "review_ready").
+import { useCallback, useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import { useLang } from "../../../i18n/LangProvider";
-import { JadwaTileMark, GoldDiamond } from "../../../components/JadwaMark";
-import ThemeToggle from "../../../components/ThemeToggle";
-import LangToggle from "../../../components/LangToggle";
+import type { StringKey } from "../../../i18n/strings";
+import { GoldDiamond } from "../../../components/JadwaMark";
+import PortalHeader from "../../../components/PortalHeader";
+import LifecycleStatusPill from "../../../components/LifecycleStatusPill";
+import ForensicReportCard from "../components/ForensicReportCard";
+import WeaknessReportCard from "../components/WeaknessReportCard";
+import { ApiError, decideApplication, getBankApplication } from "../../../lib/api";
+import type { BankApplicationDetail, BankDecision, DocumentJSON } from "../../../types";
+
+type TabId = "overview" | "forensic" | "weakness" | "market";
+
+const TABS: { id: TabId; labelKey: StringKey; enabled: boolean }[] = [
+  { id: "overview", labelKey: "bank.detail.tab.overview", enabled: true },
+  { id: "forensic", labelKey: "bank.detail.tab.forensic", enabled: true },
+  { id: "weakness", labelKey: "bank.detail.tab.weakness", enabled: true },
+  { id: "market", labelKey: "bank.detail.tab.market", enabled: false },
+];
+
+const DECIDED_STATUSES = new Set(["approved", "rejected", "more_info_needed"]);
 
 function Badge({
   tone,
@@ -46,165 +68,310 @@ function MetricCard({ label, children }: { label: string; children: React.ReactN
   );
 }
 
-export default function BankApplicationDetailPage() {
-  const { signOut } = useAuth();
-  const { t, lang } = useLang();
+function DocumentsListCard({ documents }: { documents: DocumentJSON[] }) {
+  const { t } = useLang();
 
-  // DEMO values — localized only where the mockups show a different form per
-  // language (currency position); dates/CR numbers keep Western digits (§3.2).
-  const submittedDate = lang === "ar" ? "12 أكتوبر 2025" : "12 Oct 2025";
-  const zatcaAmount = lang === "ar" ? "1,500.50 ر.س" : "SAR 1,500.50";
+  if (documents.length === 0) {
+    return (
+      <div className="mb-3.5 rounded-xl border border-line bg-surface px-4 py-6 text-center text-[13px] text-text-2">
+        {t("bank.detail.documentsEmpty")}
+      </div>
+    );
+  }
+
+  return (
+    <div className="mb-3.5 rounded-xl border border-line bg-surface p-4">
+      <h3 className="mb-3 text-title font-semibold text-ink">{t("sme.home.documentsTitle")}</h3>
+      <ul className="space-y-2">
+        {documents.map((doc) => (
+          <li
+            key={doc.document_id}
+            className="flex items-center justify-between border-b border-surface-2 pb-2 text-[12.5px] last:border-b-0 last:pb-0"
+          >
+            <div className="min-w-0">
+              <p className="font-medium text-ink">{t(`review.type.${doc.type}` as StringKey)}</p>
+              <p className="mt-0.5 text-text-2">
+                {doc.vendor && <span>{doc.vendor} · </span>}
+                <span dir="ltr" className="tabular-nums">
+                  {doc.currency} {doc.extracted_amount.toLocaleString("en-US")}
+                </span>
+                {" · "}
+                <span dir="ltr" className="tabular-nums">
+                  {doc.date}
+                </span>
+              </p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default function BankApplicationDetailPage() {
+  const { applicationId: routeApplicationId } = useParams();
+  const applicationId = routeApplicationId ?? "demo"; // mirrors ReviewDocumentsPage's fallback convention
+  const { t } = useLang();
+  const [activeTab, setActiveTab] = useState<TabId>("overview");
+
+  const [detail, setDetail] = useState<BankApplicationDetail | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  const [decisionMode, setDecisionMode] = useState<"idle" | "request_info_note">("idle");
+  const [note, setNote] = useState("");
+  const [decisionBusy, setDecisionBusy] = useState<BankDecision | null>(null);
+  const [decisionError, setDecisionError] = useState<string | null>(null);
+
+  const loadDetail = useCallback(async () => {
+    setLoadError(null);
+    setDetail(null);
+    try {
+      setDetail(await getBankApplication(applicationId));
+    } catch (err) {
+      setLoadError(err instanceof ApiError ? err.message : t("forensic.loadError"));
+    }
+  }, [applicationId, t]);
+
+  useEffect(() => {
+    loadDetail();
+  }, [loadDetail]);
+
+  async function submitDecision(decision: BankDecision, noteValue?: string) {
+    setDecisionError(null);
+    setDecisionBusy(decision);
+    try {
+      const res = await decideApplication(applicationId, decision, noteValue);
+      setDetail((prev) => (prev ? { ...prev, status: res.status } : prev));
+      setDecisionMode("idle");
+      setNote("");
+    } catch (err) {
+      setDecisionError(err instanceof ApiError ? err.message : t("bank.detail.decisionError"));
+    } finally {
+      setDecisionBusy(null);
+    }
+  }
+
+  if (loadError) {
+    return (
+      <div data-portal="bank" className="min-h-screen bg-bg">
+        <PortalHeader label={t("bank.detail.deskLabel")} containerClassName="max-w-4xl" />
+        <main className="mx-auto max-w-4xl px-[18px] py-[18px]">
+          <div className="rounded-xl border border-line bg-surface px-4 py-6 text-center">
+            <p className="mb-2.5 text-[13px] text-flag">{loadError}</p>
+            <button
+              type="button"
+              onClick={loadDetail}
+              className="rounded-lg border border-line-strong px-3 py-1.5 text-xs font-medium text-accent-strong hover:bg-accent-soft focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            >
+              {t("forensic.retry")}
+            </button>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (!detail) {
+    return (
+      <div data-portal="bank" className="min-h-screen bg-bg">
+        <PortalHeader label={t("bank.detail.deskLabel")} containerClassName="max-w-4xl" />
+        <main className="mx-auto max-w-4xl px-[18px] py-[18px]">
+          <p className="rounded-xl border border-line bg-surface px-4 py-6 text-center text-[13px] text-text-2">
+            {t("forensic.loading")}
+          </p>
+        </main>
+      </div>
+    );
+  }
+
+  const decisionsLocked = detail.status !== "review_ready";
 
   return (
     <div data-portal="bank" className="min-h-screen bg-bg">
-      <div className="h-[3px] bg-accent" />
-      <header className="flex items-center justify-between border-b border-line bg-surface px-[18px] py-2.5">
-        <div className="flex items-center gap-2.5">
-          <JadwaTileMark tileFill="var(--surface-2)" />
-          <span className="font-display text-[19px] font-extrabold text-ink">{t("brand.wordmark")}</span>
-          <span className="h-4 w-px bg-line" />
-          <span className="text-[12.5px] text-text-2">{t("bank.detail.deskLabel")}</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <LangToggle />
-          <ThemeToggle />
-          <span className="flex items-center gap-2 text-xs text-text-2">
-            <span className="flex h-[26px] w-[26px] items-center justify-center rounded-full bg-accent-soft text-xs font-semibold text-accent-strong">
-              {t("demo.bankUserInitial")}
-            </span>
-            {t("demo.bankUserName")}
-          </span>
-          <button
-            type="button"
-            onClick={() => signOut()}
-            className="rounded-lg border border-line px-2.5 py-1 text-xs font-medium text-text-2 hover:bg-surface-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-          >
-            {t("auth.signOut")}
-          </button>
-        </div>
-      </header>
+      <PortalHeader label={t("bank.detail.deskLabel")} containerClassName="max-w-4xl" />
 
       <main className="mx-auto max-w-4xl px-[18px] py-[18px]">
         <div className="mb-3.5 flex flex-wrap items-end justify-between gap-2">
           <div>
-            <div className="font-display text-[21px] font-extrabold text-ink">{t("bank.demo.company")}</div>
-            <div className="mt-0.5 text-xs text-text-3 tabular-nums">
-              {t("bank.detail.subtitle", { cr: "1010482913", date: submittedDate })}
+            <div className="font-display text-[21px] font-extrabold text-ink">{detail.sme_profile.company_name}</div>
+            <div className="mt-0.5 text-xs text-text-3">
+              {t("bank.detail.subtitleNoCr", { sector: detail.sme_profile.sector, district: detail.sme_profile.district })}
+              {detail.sme_profile.cr_number && (
+                <>
+                  {" · "}
+                  {t("bank.detail.crLabel")}{" "}
+                  <span dir="ltr" className="tabular-nums">
+                    {detail.sme_profile.cr_number}
+                  </span>
+                </>
+              )}
             </div>
           </div>
-          <Badge tone="review">{t("bank.demo.reviewNeeded")}</Badge>
+          <LifecycleStatusPill status={detail.status} />
         </div>
 
-        <div className="mb-3.5 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-          <MetricCard label={t("bank.detail.metric.reconciled")}>
-            <span className="tabular-nums text-[22px] font-semibold text-ink">
-              17<span className="text-[13px] font-normal text-text-3">/20</span>
-            </span>
-          </MetricCard>
-          <MetricCard label={t("bank.detail.metric.businessModel")}>
-            <span className="tabular-nums text-[22px] font-semibold text-ink">
-              72<span className="text-[13px] font-normal text-text-3">/100</span>
-            </span>
-          </MetricCard>
-          <MetricCard label={t("bank.detail.metric.sectorTrend")}>
-            <Badge tone="pass" dot={false}>
-              {t("bank.detail.growing")}
-            </Badge>
-          </MetricCard>
-          <MetricCard label={t("bank.detail.metric.riskClass")}>
-            <Badge tone="review">{t("bank.detail.riskMedium")}</Badge>
-          </MetricCard>
+        <div role="tablist" className="mb-3.5 flex gap-1 border-b border-line">
+          {TABS.map((tab) => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                disabled={!tab.enabled}
+                title={tab.enabled ? undefined : t("bank.detail.tab.comingSoon")}
+                onClick={() => tab.enabled && setActiveTab(tab.id)}
+                className={[
+                  "border-b-2 px-3 py-2 text-sm font-medium transition-colors motion-reduce:transition-none",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
+                  !tab.enabled
+                    ? "cursor-not-allowed border-transparent text-text-3/60"
+                    : isActive
+                      ? "border-accent text-accent-strong"
+                      : "border-transparent text-text-2 hover:text-ink",
+                ].join(" ")}
+              >
+                {t(tab.labelKey)}
+              </button>
+            );
+          })}
         </div>
 
-        <div className="mb-3.5 grid grid-cols-1 gap-3 lg:grid-cols-[1.1fr_1fr]">
-          {/* Forensic report */}
-          <div className="rounded-xl rounded-s-none border border-line border-s-[3px] border-s-flag bg-surface px-4 py-3.5">
-            <div className="mb-3 flex items-center gap-2">
-              <IconShieldSearch size={17} className="text-text-2" aria-hidden="true" />
-              <span className="text-sm font-semibold text-ink">{t("bank.detail.forensicTitle")}</span>
+        {activeTab === "overview" && (
+          <>
+            <DocumentsListCard documents={detail.extracted_documents} />
+
+            <div className="mb-3.5 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+              <MetricCard label={t("bank.detail.metric.reconciled")}>
+                <span className="tabular-nums text-[22px] font-semibold text-ink">
+                  17<span className="text-[13px] font-normal text-text-3">/20</span>
+                </span>
+              </MetricCard>
+              <MetricCard label={t("bank.detail.metric.businessModel")}>
+                <span className="tabular-nums text-[22px] font-semibold text-ink">
+                  72<span className="text-[13px] font-normal text-text-3">/100</span>
+                </span>
+              </MetricCard>
+              <MetricCard label={t("bank.detail.metric.sectorTrend")}>
+                <Badge tone="pass" dot={false}>
+                  {t("bank.detail.growing")}
+                </Badge>
+              </MetricCard>
+              <MetricCard label={t("bank.detail.metric.riskClass")}>
+                <Badge tone="review">{t("bank.detail.riskMedium")}</Badge>
+              </MetricCard>
             </div>
-            <div className="mb-2 rounded-lg bg-flag-bg px-3 py-2.5">
-              <div className="text-[12.5px] font-medium text-flag">{t("bank.detail.finding1Title")}</div>
-              <div className="mt-0.5 text-xs leading-[1.6] text-text-2 tabular-nums">
-                {t("bank.detail.finding1Body", { amount: zatcaAmount })}
-              </div>
+
+            {/* Risk sandbox — deliberately OUT OF SCOPE for this refurbish (no
+                /sandbox/recalculate UI, no Oracle node): a clearly-labelled
+                disabled placeholder, not a live-looking demo. */}
+            <div className="mb-3.5 rounded-xl border border-dashed border-line bg-surface-2 px-4 py-5 text-center">
+              <span className="text-sm font-semibold text-text-2">{t("bank.detail.sandboxTitle")}</span>
+              <p className="mt-1 text-[11.5px] text-text-3">{t("bank.detail.sandboxDisabled")}</p>
             </div>
-            <div className="rounded-lg bg-review-bg px-3 py-2.5">
-              <div className="text-[12.5px] font-medium text-review">{t("bank.detail.finding2Title")}</div>
-              <div className="mt-0.5 text-xs leading-[1.6] text-text-2 tabular-nums">
-                {t("bank.detail.finding2Body", { days: 6 })}
-              </div>
-            </div>
+          </>
+        )}
+
+        {activeTab === "forensic" && (
+          <div className="mb-3.5">
+            {detail.forensic_report === null && (
+              <p className="rounded-xl border border-line bg-surface px-4 py-6 text-center text-[13px] text-text-2">
+                {t("forensic.notComputed")}
+              </p>
+            )}
+            {detail.forensic_report && <ForensicReportCard report={detail.forensic_report} />}
           </div>
+        )}
 
-          {/* Risk sandbox */}
-          <div className="rounded-xl border border-line bg-surface px-4 py-3.5">
-            <div className="mb-2.5 flex items-center justify-between">
-              <span className="text-sm font-semibold text-ink">{t("bank.detail.sandboxTitle")}</span>
-              <span className="tabular-nums text-[11px] text-text-3">&lt; 150 ms</span>
+        {activeTab === "weakness" && (
+          <div className="mb-3.5">
+            {detail.weakness_report === null && (
+              <p className="rounded-xl border border-line bg-surface px-4 py-6 text-center text-[13px] text-text-2">
+                {t("weakness.notComputed")}
+              </p>
+            )}
+            {detail.weakness_report && <WeaknessReportCard report={detail.weakness_report} />}
+          </div>
+        )}
+
+        <div className="rounded-xl border border-line bg-surface px-4 py-3.5">
+          {decisionMode === "idle" && (
+            <div className="flex flex-wrap items-center gap-2.5">
+              <button
+                type="button"
+                onClick={() => submitDecision("approve")}
+                disabled={decisionsLocked || decisionBusy !== null}
+                className="inline-flex h-10 items-center gap-2 rounded-lg bg-accent px-5 text-sm font-medium text-on-accent disabled:opacity-50 hover:bg-accent-strong focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+              >
+                {decisionBusy === "approve" ? t("bank.detail.deciding") : t("bank.detail.approve")}
+              </button>
+              <button
+                type="button"
+                onClick={() => setDecisionMode("request_info_note")}
+                disabled={decisionsLocked || decisionBusy !== null}
+                className="inline-flex h-10 items-center gap-2 rounded-lg border border-line-strong bg-transparent px-[18px] text-sm text-ink disabled:opacity-50 hover:bg-surface-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              >
+                {t("bank.detail.requestInfo")}
+              </button>
+              <button
+                type="button"
+                onClick={() => submitDecision("reject")}
+                disabled={decisionsLocked || decisionBusy !== null}
+                className="inline-flex h-10 items-center gap-2 rounded-lg border border-flag/40 bg-transparent px-[18px] text-sm text-flag disabled:opacity-50 hover:bg-flag-bg focus:outline-none focus-visible:ring-2 focus-visible:ring-flag"
+              >
+                {decisionBusy === "reject" ? t("bank.detail.deciding") : t("bank.detail.reject")}
+              </button>
+              <span className="ms-auto flex items-center gap-1.5 text-[11.5px] text-text-3">
+                <GoldDiamond />
+                {t("bank.detail.signOff")}
+              </span>
             </div>
-            <div className="mb-1.5 flex justify-between text-[11.5px] text-text-2">
-              <span>{t("bank.detail.fuelCostShock")}</span>
-              <span className="tabular-nums font-medium text-ink">+12%</span>
+          )}
+
+          {decisionMode === "request_info_note" && (
+            <div className="space-y-2.5">
+              <label className="block text-[12px] font-medium text-text-2">
+                {t("bank.detail.noteLabel")}
+                <textarea
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  rows={3}
+                  placeholder={t("bank.detail.notePlaceholder")}
+                  className="mt-1 w-full rounded-lg border border-line-strong bg-bg px-2.5 py-1.5 text-[13px] text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                />
+              </label>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => submitDecision("request_info", note)}
+                  disabled={decisionBusy !== null}
+                  className="rounded-lg bg-accent px-4 py-1.5 text-xs font-medium text-on-accent disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+                >
+                  {decisionBusy === "request_info" ? t("bank.detail.deciding") : t("bank.detail.sendRequest")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDecisionMode("idle");
+                    setNote("");
+                  }}
+                  disabled={decisionBusy !== null}
+                  className="rounded-lg border border-line-strong px-4 py-1.5 text-xs text-ink hover:bg-surface-2 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                >
+                  {t("sme.new.cancel")}
+                </button>
+              </div>
             </div>
-            <div className="relative mb-3.5 h-[5px] rounded-full bg-line">
-              <div className="h-full w-[64%] rounded-full bg-accent" />
-              <div
-                className="absolute -top-1 h-[13px] w-[13px] rounded-full border-2 border-accent bg-bg"
-                style={{ insetInlineStart: "calc(64% - 7px)" }}
-              />
-            </div>
-            <svg viewBox="0 0 300 92" width="100%" height="92" aria-label="Twelve-month cash flow under stress">
-              <line x1="0" y1="70" x2="300" y2="70" stroke="var(--line-strong)" strokeWidth="1" strokeDasharray="3 4" />
-              <polyline
-                points="4,40 30,44 56,38 82,50 108,46 134,58 160,54 186,66 212,60 238,72 264,64 292,56"
-                fill="none"
-                stroke="var(--accent)"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <circle cx="238" cy="72" r="3.5" fill="var(--review)" />
-              <circle cx="292" cy="56" r="3.5" fill="var(--accent)" />
-              <text x="4" y="86" fontFamily="Alexandria" fontSize="11" fill="var(--text-3)">
-                {t("bank.detail.monthNov")}
-              </text>
-              <text x="270" y="86" fontFamily="Alexandria" fontSize="11" fill="var(--text-3)">
-                {t("bank.detail.monthOct")}
-              </text>
-            </svg>
-            <p className="mt-2 text-[11.5px] leading-[1.6] text-text-2 tabular-nums">
-              {t("bank.detail.bufferCaption", { buffer: "1.0", month: 10 })}
+          )}
+
+          {decisionError && <p className="mt-2 text-xs text-flag">{decisionError}</p>}
+
+          {decisionsLocked && (
+            <p className="mt-2 text-[11.5px] text-text-3">
+              {DECIDED_STATUSES.has(detail.status) ? t("bank.detail.decisionRecorded") : t("bank.detail.notYetSubmitted")}
             </p>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2.5">
-          <button
-            type="button"
-            title={t("bank.detail.notWiredTitle")}
-            className="rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-on-accent"
-          >
-            {t("bank.detail.approve")}
-          </button>
-          <button
-            type="button"
-            title={t("bank.detail.notWiredTitle")}
-            className="rounded-lg border border-line-strong px-[18px] py-2.5 text-sm text-ink"
-          >
-            {t("bank.detail.requestInfo")}
-          </button>
-          <button
-            type="button"
-            title={t("bank.detail.notWiredTitle")}
-            className="rounded-lg border border-[#4A2320] px-[18px] py-2.5 text-sm text-flag"
-          >
-            {t("bank.detail.reject")}
-          </button>
-          <span className="ms-auto flex items-center gap-1.5 text-[11.5px] text-text-3">
-            <GoldDiamond />
-            {t("bank.detail.signOff")}
-          </span>
+          )}
         </div>
       </main>
     </div>

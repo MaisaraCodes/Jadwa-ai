@@ -35,7 +35,7 @@ Put `models.py` in `/backend` and import it from every node. The frontend mirror
 |---|---|---|---|
 | `document_intelligence_node` | raw files | `extracted_documents` | **GPT-5.4** (vision) |
 | `forensic_accountant_node` | `extracted_documents`, `sme_profile.cr_number` (+ ledger from Postgres) | `forensic_report` | **GPT-5.4 Mini** |
-| `devils_advocate_node` | `extracted_documents`, `sme_profile` | `weakness_report` | **GPT-5.4** |
+| `devils_advocate_node` | `extracted_documents`, `sme_profile` (+ ledger from Postgres, both debit and credit rows) | `weakness_report` | **GPT-5.4** |
 | `saudi_market_oracle_node` | `sme_profile.sector`, `sme_profile.district` | `market_verdict` | **GPT-5.4 Mini** + `text-embedding-3-large` |
 | `risk_sandbox_init_node` | `extracted_documents` | `risk_baseline` | none (Python) |
 | `aggregate_results_node` | all 4 outputs | `unified_application_record` | none |

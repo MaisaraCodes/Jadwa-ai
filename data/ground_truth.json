@@ -1,0 +1,562 @@
+{
+  "generated_at": "2026-07-13T20:40:42.859687+00:00",
+  "seed": 42,
+  "smes": [
+    {
+      "company_name": "Rawad Logistics",
+      "cr_number": "1010482913",
+      "sector": "logistics",
+      "district": "Al-Kharj",
+      "application_id": "a9623caa-8034-4a23-bed4-5f25b06387ca",
+      "backstory": "Family-run last-mile logistics operator; 80% of fuel from a single vendor.",
+      "documents": [
+        {
+          "document_id": "ef38524a-fd32-4d14-9e01-c9a6a7be1d2d",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Rawad Logistics",
+          "application_id": "a9623caa-8034-4a23-bed4-5f25b06387ca"
+        },
+        {
+          "document_id": "2d4e7a87-b4c2-499d-9907-7e981062edf3",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Rawad Logistics",
+          "application_id": "a9623caa-8034-4a23-bed4-5f25b06387ca"
+        },
+        {
+          "document_id": "ba6e0c23-35cd-4407-b9b0-2af1c47b4711",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Rawad Logistics",
+          "application_id": "a9623caa-8034-4a23-bed4-5f25b06387ca"
+        },
+        {
+          "document_id": "504300d7-e2a4-45f4-a79d-c7d3d4b25849",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Rawad Logistics",
+          "application_id": "a9623caa-8034-4a23-bed4-5f25b06387ca"
+        },
+        {
+          "document_id": "bcf7a412-da95-4a28-b232-95865b4ba423",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Rawad Logistics",
+          "application_id": "a9623caa-8034-4a23-bed4-5f25b06387ca"
+        },
+        {
+          "document_id": "32cdc075-cc76-437a-a77a-ed695df18bd6",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Rawad Logistics",
+          "application_id": "a9623caa-8034-4a23-bed4-5f25b06387ca"
+        },
+        {
+          "document_id": "35e91ad7-223f-4844-a770-1e3971218ae0",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Rawad Logistics",
+          "application_id": "a9623caa-8034-4a23-bed4-5f25b06387ca"
+        },
+        {
+          "document_id": "ff2a6137-0e91-4db0-9654-bb81a098f1a1",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Rawad Logistics",
+          "application_id": "a9623caa-8034-4a23-bed4-5f25b06387ca"
+        },
+        {
+          "document_id": "692cfce4-6d11-42c5-8749-6f382c3ea5a2",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Rawad Logistics",
+          "application_id": "a9623caa-8034-4a23-bed4-5f25b06387ca"
+        },
+        {
+          "document_id": "9fb11298-d553-4ada-8af5-1f0d8f8b6ee8",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Rawad Logistics",
+          "application_id": "a9623caa-8034-4a23-bed4-5f25b06387ca"
+        },
+        {
+          "document_id": "f107b52c-c836-430d-a3eb-a223459ad136",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Rawad Logistics",
+          "application_id": "a9623caa-8034-4a23-bed4-5f25b06387ca"
+        },
+        {
+          "document_id": "32084888-4c51-46c3-82b7-9d58b0b0eaeb",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Rawad Logistics",
+          "application_id": "a9623caa-8034-4a23-bed4-5f25b06387ca"
+        },
+        {
+          "document_id": "47c423af-8b48-4f39-87fb-78c1787bff97",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Rawad Logistics",
+          "application_id": "a9623caa-8034-4a23-bed4-5f25b06387ca"
+        },
+        {
+          "document_id": "9d5a21f7-adee-4c57-9c6c-1d8fd89c38ca",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Rawad Logistics",
+          "application_id": "a9623caa-8034-4a23-bed4-5f25b06387ca"
+        },
+        {
+          "document_id": "6ccd0db6-1c04-4066-bb8b-8d124e60794f",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Rawad Logistics",
+          "application_id": "a9623caa-8034-4a23-bed4-5f25b06387ca"
+        },
+        {
+          "document_id": "5c27f790-1d53-415b-8bcf-116a474a46d4",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Rawad Logistics",
+          "application_id": "a9623caa-8034-4a23-bed4-5f25b06387ca"
+        },
+        {
+          "document_id": "590117fd-1b9a-4489-a7d2-5b46b723c3c3",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Rawad Logistics",
+          "application_id": "a9623caa-8034-4a23-bed4-5f25b06387ca"
+        },
+        {
+          "document_id": "272a5a62-29e8-4e93-8dfe-6b1f8ec684aa",
+          "bucket": "fabricated",
+          "expected_flag": "red",
+          "reason": "No corresponding transaction in the ledger (fabricated). QR parses as valid; SAR 1500.50 on 2025-10-12 has no matching debit.",
+          "sme": "Rawad Logistics",
+          "application_id": "a9623caa-8034-4a23-bed4-5f25b06387ca"
+        },
+        {
+          "document_id": "d2652b09-d906-448a-ac6b-6ccf6fc2171b",
+          "bucket": "mismatch",
+          "expected_flag": "yellow",
+          "reason": "Ledger debit exists but amount differs ~10% (beyond tolerance) — bookkeeping noise.",
+          "sme": "Rawad Logistics",
+          "application_id": "a9623caa-8034-4a23-bed4-5f25b06387ca"
+        },
+        {
+          "document_id": "823a89f3-b61d-428b-ab50-5845152eb8ac",
+          "bucket": "mismatch",
+          "expected_flag": "yellow",
+          "reason": "Suspiciously round amount and posted outside the date window (late) — timing noise, not fraud.",
+          "sme": "Rawad Logistics",
+          "application_id": "a9623caa-8034-4a23-bed4-5f25b06387ca"
+        }
+      ]
+    },
+    {
+      "company_name": "Nakhla Specialty Coffee",
+      "cr_number": "1010773204",
+      "sector": "cafe",
+      "district": "Al-Malqa, Riyadh",
+      "application_id": "9ef108b5-6bba-48b4-b391-4307ea22a018",
+      "backstory": "Two-branch specialty café; strong seasonality, tight cash buffer.",
+      "documents": [
+        {
+          "document_id": "1ffd9197-3a19-4384-8cec-c627075692e5",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Nakhla Specialty Coffee",
+          "application_id": "9ef108b5-6bba-48b4-b391-4307ea22a018"
+        },
+        {
+          "document_id": "484f0fdd-7503-4a39-af21-55004b974e23",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Nakhla Specialty Coffee",
+          "application_id": "9ef108b5-6bba-48b4-b391-4307ea22a018"
+        },
+        {
+          "document_id": "f5f21947-3009-493b-bb67-9fddc4615cba",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Nakhla Specialty Coffee",
+          "application_id": "9ef108b5-6bba-48b4-b391-4307ea22a018"
+        },
+        {
+          "document_id": "500abb48-4619-4d94-a312-9529f122ec8f",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Nakhla Specialty Coffee",
+          "application_id": "9ef108b5-6bba-48b4-b391-4307ea22a018"
+        },
+        {
+          "document_id": "f7ae030e-5de5-4a6d-aa7c-5bf86ba99c5d",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Nakhla Specialty Coffee",
+          "application_id": "9ef108b5-6bba-48b4-b391-4307ea22a018"
+        },
+        {
+          "document_id": "664f808a-23dd-42e5-aef2-e4f04f705aeb",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Nakhla Specialty Coffee",
+          "application_id": "9ef108b5-6bba-48b4-b391-4307ea22a018"
+        },
+        {
+          "document_id": "f9c6fdd0-d7ee-4354-8faa-35ac0e8d6c2e",
+          "bucket": "fabricated",
+          "expected_flag": "red",
+          "reason": "No corresponding transaction in the ledger (fabricated). QR parses as valid; SAR 5729.22 on 2026-05-13 has no matching debit.",
+          "sme": "Nakhla Specialty Coffee",
+          "application_id": "9ef108b5-6bba-48b4-b391-4307ea22a018"
+        },
+        {
+          "document_id": "91090e35-2e94-40e5-90ef-665da488fc4d",
+          "bucket": "mismatch",
+          "expected_flag": "yellow",
+          "reason": "Ledger debit exists but amount differs ~10% (beyond tolerance) — bookkeeping noise.",
+          "sme": "Nakhla Specialty Coffee",
+          "application_id": "9ef108b5-6bba-48b4-b391-4307ea22a018"
+        }
+      ]
+    },
+    {
+      "company_name": "Bin Sahl Building Materials",
+      "cr_number": "1010556188",
+      "sector": "construction_supplier",
+      "district": "Al-Sulay, Riyadh",
+      "application_id": "d9c7e5db-f567-45e9-9198-0b9ab5220fa5",
+      "backstory": "Cement and rebar supplier to mid-size contractors; lumpy receivables.",
+      "documents": [
+        {
+          "document_id": "12721972-6814-4500-ae5a-0c4450cb777b",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Bin Sahl Building Materials",
+          "application_id": "d9c7e5db-f567-45e9-9198-0b9ab5220fa5"
+        },
+        {
+          "document_id": "b8ab9131-3982-40c0-ae1f-98e3e845e732",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Bin Sahl Building Materials",
+          "application_id": "d9c7e5db-f567-45e9-9198-0b9ab5220fa5"
+        },
+        {
+          "document_id": "964abe46-0e39-41c6-97ad-ed9a6d448b5c",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Bin Sahl Building Materials",
+          "application_id": "d9c7e5db-f567-45e9-9198-0b9ab5220fa5"
+        },
+        {
+          "document_id": "4f2dbbd9-dc4c-447d-b78d-aa087f5b7fdc",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Bin Sahl Building Materials",
+          "application_id": "d9c7e5db-f567-45e9-9198-0b9ab5220fa5"
+        },
+        {
+          "document_id": "a6eba62d-8ccb-436b-a33e-50637fdcca3f",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Bin Sahl Building Materials",
+          "application_id": "d9c7e5db-f567-45e9-9198-0b9ab5220fa5"
+        },
+        {
+          "document_id": "3ceb6b4e-2905-444e-8586-f98b318b4ef4",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Bin Sahl Building Materials",
+          "application_id": "d9c7e5db-f567-45e9-9198-0b9ab5220fa5"
+        },
+        {
+          "document_id": "b5672da3-80ad-4ae4-9539-6a4beb3e4ead",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Bin Sahl Building Materials",
+          "application_id": "d9c7e5db-f567-45e9-9198-0b9ab5220fa5"
+        },
+        {
+          "document_id": "35371f65-7cce-4c01-86c5-19b7777d6f6d",
+          "bucket": "fabricated",
+          "expected_flag": "red",
+          "reason": "No corresponding transaction in the ledger (fabricated). QR parses as valid; SAR 3313.08 on 2026-06-21 has no matching debit.",
+          "sme": "Bin Sahl Building Materials",
+          "application_id": "d9c7e5db-f567-45e9-9198-0b9ab5220fa5"
+        },
+        {
+          "document_id": "f9e51679-d0b3-42fd-9817-0dae98861e69",
+          "bucket": "mismatch",
+          "expected_flag": "yellow",
+          "reason": "Ledger debit exists but amount differs ~10% (beyond tolerance) — bookkeeping noise.",
+          "sme": "Bin Sahl Building Materials",
+          "application_id": "d9c7e5db-f567-45e9-9198-0b9ab5220fa5"
+        }
+      ]
+    },
+    {
+      "company_name": "Al-Waseet Retail",
+      "cr_number": "1010299471",
+      "sector": "retail",
+      "district": "Al-Olaya, Riyadh",
+      "application_id": "dd396187-7669-4e73-891f-ac00b80d8858",
+      "backstory": "Single-location electronics retailer; heavy Q4 concentration.",
+      "documents": [
+        {
+          "document_id": "98aa803a-0a18-4f8a-865c-d8a582dc199b",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Al-Waseet Retail",
+          "application_id": "dd396187-7669-4e73-891f-ac00b80d8858"
+        },
+        {
+          "document_id": "b620538a-e859-480f-baf4-de8255a51741",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Al-Waseet Retail",
+          "application_id": "dd396187-7669-4e73-891f-ac00b80d8858"
+        },
+        {
+          "document_id": "0f42f463-6e84-4ff2-a78e-26b8c7ab1307",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Al-Waseet Retail",
+          "application_id": "dd396187-7669-4e73-891f-ac00b80d8858"
+        },
+        {
+          "document_id": "4ec4c7de-7eba-46bb-9197-ea7680b22cd8",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Al-Waseet Retail",
+          "application_id": "dd396187-7669-4e73-891f-ac00b80d8858"
+        },
+        {
+          "document_id": "51b8bfad-41f0-4c6b-8b0a-cbb1372254d7",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Al-Waseet Retail",
+          "application_id": "dd396187-7669-4e73-891f-ac00b80d8858"
+        },
+        {
+          "document_id": "9617fa61-72a3-4520-b48e-3c3557b916b1",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Al-Waseet Retail",
+          "application_id": "dd396187-7669-4e73-891f-ac00b80d8858"
+        },
+        {
+          "document_id": "8323e5f1-ad8e-4449-a0a6-c469cba6581b",
+          "bucket": "fabricated",
+          "expected_flag": "red",
+          "reason": "No corresponding transaction in the ledger (fabricated). QR parses as valid; SAR 6709.80 on 2026-05-10 has no matching debit.",
+          "sme": "Al-Waseet Retail",
+          "application_id": "dd396187-7669-4e73-891f-ac00b80d8858"
+        },
+        {
+          "document_id": "3df63db2-533c-4721-84c3-5ee99bccffa6",
+          "bucket": "mismatch",
+          "expected_flag": "yellow",
+          "reason": "Ledger debit exists but amount differs ~10% (beyond tolerance) — bookkeeping noise.",
+          "sme": "Al-Waseet Retail",
+          "application_id": "dd396187-7669-4e73-891f-ac00b80d8858"
+        }
+      ]
+    },
+    {
+      "company_name": "Midad Plastics",
+      "cr_number": "1010641097",
+      "sector": "manufacturer",
+      "district": "2nd Industrial City, Riyadh",
+      "application_id": "fa92043f-895d-4fe9-b81c-3364c3dc5e38",
+      "backstory": "Small injection-moulding manufacturer; stable but low margins.",
+      "documents": [
+        {
+          "document_id": "a1cb675e-d727-42d2-8644-1f169c5a9c92",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Midad Plastics",
+          "application_id": "fa92043f-895d-4fe9-b81c-3364c3dc5e38"
+        },
+        {
+          "document_id": "35d531df-c4c2-4da2-bf8a-1957b28eb4ae",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Midad Plastics",
+          "application_id": "fa92043f-895d-4fe9-b81c-3364c3dc5e38"
+        },
+        {
+          "document_id": "4bab1349-b665-41ab-8044-7d3e5f8e8103",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Midad Plastics",
+          "application_id": "fa92043f-895d-4fe9-b81c-3364c3dc5e38"
+        },
+        {
+          "document_id": "d2ad1427-6dc3-409e-a277-33bd52682191",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Midad Plastics",
+          "application_id": "fa92043f-895d-4fe9-b81c-3364c3dc5e38"
+        },
+        {
+          "document_id": "a15093f6-d63f-4eca-90c4-766f65746623",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Midad Plastics",
+          "application_id": "fa92043f-895d-4fe9-b81c-3364c3dc5e38"
+        },
+        {
+          "document_id": "0aefef5a-99d5-44b7-a239-6d1b7fffa59e",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Midad Plastics",
+          "application_id": "fa92043f-895d-4fe9-b81c-3364c3dc5e38"
+        },
+        {
+          "document_id": "87e4902f-2db7-4ffb-a6d4-31796f6cad5e",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Midad Plastics",
+          "application_id": "fa92043f-895d-4fe9-b81c-3364c3dc5e38"
+        },
+        {
+          "document_id": "b606af8c-a0b5-4ba4-b068-b9b2f857dacd",
+          "bucket": "fabricated",
+          "expected_flag": "red",
+          "reason": "No corresponding transaction in the ledger (fabricated). QR parses as valid; SAR 7833.48 on 2026-06-04 has no matching debit.",
+          "sme": "Midad Plastics",
+          "application_id": "fa92043f-895d-4fe9-b81c-3364c3dc5e38"
+        },
+        {
+          "document_id": "f36e7fe6-37a2-4574-99cc-8478b4d9224d",
+          "bucket": "mismatch",
+          "expected_flag": "yellow",
+          "reason": "Ledger debit exists but amount differs ~10% (beyond tolerance) — bookkeeping noise.",
+          "sme": "Midad Plastics",
+          "application_id": "fa92043f-895d-4fe9-b81c-3364c3dc5e38"
+        }
+      ]
+    },
+    {
+      "company_name": "Durub Auto Parts",
+      "cr_number": "1010318852",
+      "sector": "retail",
+      "district": "Al-Naseem, Riyadh",
+      "application_id": "c2ad0397-b41d-429b-a16d-1693ea8b2978",
+      "backstory": "Auto-parts trader; repeated round-number cash purchases worth a second look.",
+      "documents": [
+        {
+          "document_id": "50a74a1c-32ac-4cb5-97fc-d08a63986d29",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Durub Auto Parts",
+          "application_id": "c2ad0397-b41d-429b-a16d-1693ea8b2978"
+        },
+        {
+          "document_id": "53f8073d-2858-4ea9-895e-baba664d6d3d",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Durub Auto Parts",
+          "application_id": "c2ad0397-b41d-429b-a16d-1693ea8b2978"
+        },
+        {
+          "document_id": "f1295f67-4a57-459e-946b-1b35238a0904",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Durub Auto Parts",
+          "application_id": "c2ad0397-b41d-429b-a16d-1693ea8b2978"
+        },
+        {
+          "document_id": "620ffedf-f474-4e11-a738-19fdddc2580b",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Durub Auto Parts",
+          "application_id": "c2ad0397-b41d-429b-a16d-1693ea8b2978"
+        },
+        {
+          "document_id": "b14831a1-2064-46ed-ba92-a3b4cec93716",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Durub Auto Parts",
+          "application_id": "c2ad0397-b41d-429b-a16d-1693ea8b2978"
+        },
+        {
+          "document_id": "d1724937-bcdf-44af-8153-580a8e16dc4b",
+          "bucket": "legit",
+          "expected_flag": "green",
+          "reason": "Matching ledger debit within amount tolerance and date window.",
+          "sme": "Durub Auto Parts",
+          "application_id": "c2ad0397-b41d-429b-a16d-1693ea8b2978"
+        },
+        {
+          "document_id": "f1706e49-7e58-4f4b-8854-267db6a82e1d",
+          "bucket": "fabricated",
+          "expected_flag": "red",
+          "reason": "No corresponding transaction in the ledger (fabricated). QR parses as valid; SAR 2133.03 on 2026-07-06 has no matching debit.",
+          "sme": "Durub Auto Parts",
+          "application_id": "c2ad0397-b41d-429b-a16d-1693ea8b2978"
+        },
+        {
+          "document_id": "77be6900-eb20-4f24-a17a-335479d92fb1",
+          "bucket": "mismatch",
+          "expected_flag": "yellow",
+          "reason": "Ledger debit exists but amount differs ~10% (beyond tolerance) — bookkeeping noise.",
+          "sme": "Durub Auto Parts",
+          "application_id": "c2ad0397-b41d-429b-a16d-1693ea8b2978"
+        }
+      ]
+    }
+  ]
+}

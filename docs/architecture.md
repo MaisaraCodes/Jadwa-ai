@@ -34,7 +34,7 @@ flowchart TD
 |---|---|---|---|
 | `document_intelligence_node` | raw uploaded files | `extracted_documents: list[DocumentJSON]` | **GPT-5.4** (vision) |
 | `forensic_accountant_node` | `extracted_documents`, `sme_profile.cr_number`  (reads mock_open_banking_ledger from Postgres directly) | `forensic_report: ForensicReport` | **GPT-5.4 Mini** (matching in Python; LLM writes flag text) |
-| `devils_advocate_node` | `extracted_documents`, `sme_profile` | `weakness_report: WeaknessReport` | **GPT-5.4** |
+| `devils_advocate_node` | `extracted_documents`, `sme_profile` (also reads mock_open_banking_ledger from Postgres directly, keyed on `sme_profile.cr_number`, for both debit and credit rows) | `weakness_report: WeaknessReport` | **GPT-5.4** |
 | `saudi_market_oracle_node` | `sme_profile.sector`, `sme_profile.district` | `market_verdict: MarketVerdict` | **GPT-5.4 Mini** + `text-embedding-3-large` (pgvector) |
 | `risk_sandbox_init_node` | `extracted_documents` | `risk_baseline: RiskBaseline` (precomputed coefficients, no LLM) | none — pure Python |
 | `aggregate_results_node` | all four outputs above | merged into `unified_application_record` | none — deterministic merge |

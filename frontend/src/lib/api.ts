@@ -3,7 +3,20 @@
 // SME's progress bar. Injects the Supabase JWT and normalizes the backend error
 // envelope { error: { code, message } } into a typed ApiError.
 import { supabase } from "./supabase";
-import type { UploadedDocument } from "../types";
+import type {
+  ApplicationStatusResponse,
+  ApplicationSummaryItem,
+  ApplicationSummaryResponse,
+  BankApplicationDetail,
+  BankDecision,
+  CreateApplicationResponse,
+  DecisionResponse,
+  DocumentJSON,
+  PatchDocumentRequest,
+  ProcessResponse,
+  SubmitResponse,
+  UploadedDocument,
+} from "../types";
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL as string) ?? "/api/v1";
 
@@ -67,5 +80,92 @@ export function uploadDocument(
     };
 
     xhr.send(form);
+  });
+}
+
+async function authedJson<T>(path: string, init?: RequestInit): Promise<T> {
+  const token = await bearerToken();
+  if (!token) {
+    throw new ApiError(401, "unauthorized", "Your session expired. Sign in again.");
+  }
+
+  const res = await fetch(`${API_BASE}${path}`, {
+    ...init,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      ...(init?.body ? { "Content-Type": "application/json" } : {}),
+      ...init?.headers,
+    },
+  });
+
+  let body: any = null;
+  try {
+    body = await res.text().then((text) => (text ? JSON.parse(text) : null));
+  } catch {
+    /* non-JSON body */
+  }
+
+  if (!res.ok) {
+    const code = body?.error?.code ?? "request_failed";
+    const message = body?.error?.message ?? "Something went wrong. Try again.";
+    throw new ApiError(res.status, code, message);
+  }
+  return body as T;
+}
+
+export function listApplications(): Promise<{ applications: ApplicationSummaryItem[] }> {
+  return authedJson(`/applications`);
+}
+
+export function createApplication(requestedAmount?: number): Promise<CreateApplicationResponse> {
+  return authedJson(`/applications`, {
+    method: "POST",
+    body: JSON.stringify({ requested_amount: requestedAmount ?? null }),
+  });
+}
+
+export function processApplication(applicationId: string): Promise<ProcessResponse> {
+  return authedJson(`/applications/${applicationId}/process`, { method: "POST" });
+}
+
+export function getApplicationStatus(applicationId: string): Promise<ApplicationStatusResponse> {
+  return authedJson(`/applications/${applicationId}/status`);
+}
+
+export function submitApplication(applicationId: string): Promise<SubmitResponse> {
+  return authedJson(`/applications/${applicationId}/submit`, { method: "POST" });
+}
+
+export function getApplicationSummary(applicationId: string): Promise<ApplicationSummaryResponse> {
+  return authedJson(`/applications/${applicationId}/summary`);
+}
+
+export function getExtractedDocuments(applicationId: string): Promise<{ documents: DocumentJSON[] }> {
+  return authedJson(`/applications/${applicationId}/extracted`);
+}
+
+export function getBankApplication(applicationId: string): Promise<BankApplicationDetail> {
+  return authedJson(`/bank/applications/${applicationId}`);
+}
+
+export function decideApplication(
+  applicationId: string,
+  decision: BankDecision,
+  note?: string,
+): Promise<DecisionResponse> {
+  return authedJson(`/bank/applications/${applicationId}/decision`, {
+    method: "POST",
+    body: JSON.stringify({ decision, note: note || undefined }),
+  });
+}
+
+export function patchExtractedDocument(
+  applicationId: string,
+  documentId: string,
+  patch: PatchDocumentRequest,
+): Promise<DocumentJSON> {
+  return authedJson(`/applications/${applicationId}/documents/${documentId}`, {
+    method: "PATCH",
+    body: JSON.stringify(patch),
   });
 }

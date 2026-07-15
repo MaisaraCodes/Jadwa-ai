@@ -70,9 +70,8 @@ Thumbs.db
 # ==========================================
 # 6. Data & Mock Files
 # ==========================================
-# Ignore all files inside the data folder...
-data/*
-# ...except for the .gitkeep file so the folder stays in the repo!
-!data/.gitkeep
+# Seeded demo logins (emails + shared password) — never commit, regenerate via
+# generate_synthetic_data.py --reset instead.
+data/demo_credentials.json
 # TS build info
 frontend/tsconfig.tsbuildinfo

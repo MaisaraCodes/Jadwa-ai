@@ -1,17 +1,23 @@
 // App router. Wraps everything in LangProvider + ThemeProvider (global,
 // user-controlled) then AuthProvider, then routes by role:
+//   /             → public landing page (signed-out) or the user's portal (signed-in)
+//   /data         → public data-sources / credibility page
 //   /login        → shared sign in / create account
 //   /sme/*        → SME portal (role "sme")
 //   /bank/*       → bank dashboard (role "bank")
-//   /  and  *     → send the user to the right place for their role
+//   *             → send the user to the right place for their role
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LangProvider } from "./i18n/LangProvider";
 import { ThemeProvider } from "./lib/theme";
 import { AuthProvider } from "./features/auth/AuthProvider";
-import { RequireRole, RedirectByRole } from "./features/auth/RequireRole";
+import { RequireRole, RedirectByRole, LandingOrRedirect } from "./features/auth/RequireRole";
+import DataSourcesPage from "./features/landing/DataSourcesPage";
 import LoginPage from "./features/auth/LoginPage";
 import SmePortalLayout from "./features/sme/SmePortalLayout";
-import SmeHomePage from "./features/sme/pages/SmeHomePage";
+import SmeDashboardPage from "./features/sme/pages/SmeDashboardPage";
+import NewApplicationPage from "./features/sme/pages/NewApplicationPage";
+import ApplicationDetailPage from "./features/sme/pages/ApplicationDetailPage";
+import ReviewDocumentsPage from "./features/sme/pages/ReviewDocumentsPage";
 import BankDashboardLayout from "./features/bank/BankDashboardLayout";
 import BankQueuePage from "./features/bank/pages/BankQueuePage";
 import BankApplicationDetailPage from "./features/bank/pages/BankApplicationDetailPage";
@@ -34,7 +40,11 @@ export default function App() {
                     </RequireRole>
                   }
                 >
-                  <Route index element={<SmeHomePage />} />
+                  <Route index element={<SmeDashboardPage />} />
+                  <Route path="review" element={<ReviewDocumentsPage />} />
+                  <Route path="review/:applicationId" element={<ReviewDocumentsPage />} />
+                  <Route path="applications/new" element={<NewApplicationPage />} />
+                  <Route path="applications/:applicationId" element={<ApplicationDetailPage />} />
                 </Route>
 
                 <Route
@@ -49,7 +59,7 @@ export default function App() {
                 </Route>
 
                 <Route
-                  path="/bank/applications/demo"
+                  path="/bank/applications/:applicationId"
                   element={
                     <RequireRole role="bank">
                       <BankApplicationDetailPage />
@@ -57,7 +67,8 @@ export default function App() {
                   }
                 />
 
-                <Route path="/" element={<RedirectByRole />} />
+                <Route path="/" element={<LandingOrRedirect />} />
+                <Route path="/data" element={<DataSourcesPage />} />
                 <Route path="*" element={<RedirectByRole />} />
               </Routes>
             </BrowserRouter>

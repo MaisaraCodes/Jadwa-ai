@@ -1,6 +1,8 @@
 // Bare brand mark (DESIGN_SYSTEM.md §2.2) — inline next to the wordmark.
 // Letterform inherits currentColor (set `text-ink` or similar on the wrapper);
 // the diamond dot stays gold in both themes.
+import { useLang } from "../i18n/LangProvider";
+
 interface Props {
   className?: string;
 }
@@ -54,12 +56,16 @@ export function GoldDiamond({ className = "h-[13px] w-[13px]" }: { className?: s
   );
 }
 
-// Full lockup: mark + "Jadwa" wordmark (live text, Zain) + gold diamond terminal.
+// Full lockup: mark + wordmark (live text, Zain, follows the language toggle
+// per §2.3 — "Jadwa" in EN, "جدوى" in AR) + gold diamond terminal. The
+// diamond always terminates the lockup in reading order (physical right in
+// LTR, physical left in RTL) via the flex row's automatic RTL mirroring.
 export function JadwaWordmark({ className }: { className?: string }) {
+  const { t } = useLang();
   return (
     <span className={["inline-flex items-center gap-1.5 text-ink", className].filter(Boolean).join(" ")}>
       <JadwaMark className="h-5 w-5" />
-      <span className="font-display text-base font-extrabold">Jadwa</span>
+      <span className="font-display text-base font-extrabold">{t("brand.wordmark")}</span>
       <GoldDiamond />
     </span>
   );
