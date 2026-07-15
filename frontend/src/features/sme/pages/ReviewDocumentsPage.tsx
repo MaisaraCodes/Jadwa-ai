@@ -57,7 +57,7 @@ export function DocumentReviewPanel({
   onContinue,
   continueLabel,
 }: DocumentReviewPanelProps) {
-  const { t, lang } = useLang();
+  const { t } = useLang();
 
   const [documents, setDocuments] = useState<DocumentJSON[] | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -198,7 +198,7 @@ export function DocumentReviewPanel({
                           <p className="mt-1 text-[12.5px] text-text-2">
                             {doc.vendor && <span>{doc.vendor} · </span>}
                             <span dir="ltr" className="tabular-nums">
-                              {doc.currency} {doc.extracted_amount.toLocaleString(lang === "ar" ? "ar-SA" : "en-US")}
+                              {doc.currency} {doc.extracted_amount.toLocaleString("en-US")}
                             </span>
                             {" · "}
                             <span dir="ltr" className="tabular-nums">
