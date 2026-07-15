@@ -140,6 +140,16 @@ export interface ApplicationSummaryResponse {
   top_risks: string[];
 }
 
+// Mirrors backend routers/bank.py DecisionRequest/DecisionResponse
+// (POST /bank/applications/:id/decision). "request_info" maps server-side
+// to the real ApplicationStatus value "more_info_needed" — never "info_requested"
+// (that's stale architecture.md prose; models.py's enum is canonical).
+export type BankDecision = "approve" | "reject" | "request_info";
+
+export interface DecisionResponse {
+  status: ApplicationStatus;
+}
+
 export interface BankApplicationDetail {
   application_id: string;
   status: ApplicationStatus;

@@ -8,7 +8,9 @@ import type {
   ApplicationSummaryItem,
   ApplicationSummaryResponse,
   BankApplicationDetail,
+  BankDecision,
   CreateApplicationResponse,
+  DecisionResponse,
   DocumentJSON,
   PatchDocumentRequest,
   ProcessResponse,
@@ -144,6 +146,17 @@ export function getExtractedDocuments(applicationId: string): Promise<{ document
 
 export function getBankApplication(applicationId: string): Promise<BankApplicationDetail> {
   return authedJson(`/bank/applications/${applicationId}`);
+}
+
+export function decideApplication(
+  applicationId: string,
+  decision: BankDecision,
+  note?: string,
+): Promise<DecisionResponse> {
+  return authedJson(`/bank/applications/${applicationId}/decision`, {
+    method: "POST",
+    body: JSON.stringify({ decision, note: note || undefined }),
+  });
 }
 
 export function patchExtractedDocument(

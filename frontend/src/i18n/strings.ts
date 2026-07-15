@@ -203,10 +203,8 @@ export const STRINGS = {
   // --- bank application detail ---
   // REVIEW: "underwriting desk" — banking-domain term, confirm preferred AR phrasing.
   "bank.detail.deskLabel": { ar: "مكتب التحليل الائتماني", en: "Underwriting desk" },
-  "bank.detail.subtitle": {
-    ar: "الخدمات اللوجستية · الخرج · السجل التجاري {{cr}} · تاريخ التقديم {{date}}",
-    en: "Logistics · Al-Kharj · CR {{cr}} · submitted {{date}}",
-  },
+  "bank.detail.subtitleNoCr": { ar: "{{sector}} · {{district}}", en: "{{sector}} · {{district}}" },
+  "bank.detail.crLabel": { ar: "السجل التجاري", en: "CR" },
   "bank.detail.metric.reconciled": { ar: "المطابقة", en: "Reconciled" },
   "bank.detail.metric.businessModel": { ar: "نموذج العمل", en: "Business model" },
   "bank.detail.metric.sectorTrend": { ar: "اتجاه القطاع", en: "Sector trend" },
@@ -214,20 +212,27 @@ export const STRINGS = {
   "bank.detail.growing": { ar: "نمو +14%", en: "Growing +14%" },
   "bank.detail.riskMedium": { ar: "متوسطة", en: "Medium" },
   "bank.detail.sandboxTitle": { ar: "بيئة اختبار المخاطر", en: "Risk sandbox" },
-  "bank.detail.fuelCostShock": { ar: "صدمة تكلفة الوقود", en: "Fuel cost shock" },
-  "bank.detail.monthNov": { ar: "نوفمبر", en: "Nov" },
-  "bank.detail.monthOct": { ar: "أكتوبر", en: "Oct" },
-  "bank.detail.bufferCaption": {
-    ar: "ينخفض الاحتياطي إلى أقل من {{buffer}} شهر في الشهر {{month}} بحسب هذا السيناريو.",
-    en: "Buffer dips below {{buffer}} month in month {{month}} under this scenario.",
+  "bank.detail.sandboxDisabled": {
+    ar: "غير مفعّلة بعد — خارج نطاق هذا التحديث.",
+    en: "Not enabled yet — out of scope for this refurbish.",
   },
+  "bank.detail.documentsEmpty": { ar: "لا توجد مستندات مستخرجة بعد.", en: "No extracted documents yet." },
   "bank.detail.approve": { ar: "الموافقة", en: "Approve" },
   "bank.detail.requestInfo": { ar: "طلب معلومات", en: "Request info" },
   "bank.detail.reject": { ar: "الرفض", en: "Reject" },
-  "bank.detail.notWiredTitle": {
-    ar: "غير مفعّل بعد — واجهة مراجعة الطلبات ضمن المرحلة الثانية",
-    en: "Not wired yet — applications review API is Phase 2",
+  "bank.detail.deciding": { ar: "جارٍ الإرسال…", en: "Submitting…" },
+  "bank.detail.decisionError": {
+    ar: "تعذّر تسجيل القرار. حاول مرة أخرى.",
+    en: "Couldn't record the decision. Try again.",
   },
+  "bank.detail.noteLabel": { ar: "ملاحظة للمنشأة", en: "Note to the SME" },
+  "bank.detail.notePlaceholder": {
+    ar: "ما المعلومات الإضافية المطلوبة؟",
+    en: "What additional information do you need?",
+  },
+  "bank.detail.sendRequest": { ar: "إرسال الطلب", en: "Send request" },
+  "bank.detail.decisionRecorded": { ar: "تم تسجيل القرار.", en: "Decision recorded." },
+  "bank.detail.notYetSubmitted": { ar: "لم يُقدَّم للمراجعة بعد.", en: "Not yet submitted for review." },
   "bank.detail.signOff": {
     ar: "تم التحقق من كل رقم بواسطة جدوى",
     en: "Every figure cross-checked by Jadwa",
