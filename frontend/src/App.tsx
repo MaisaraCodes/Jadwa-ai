@@ -12,6 +12,7 @@ import { RequireRole, RedirectByRole } from "./features/auth/RequireRole";
 import LoginPage from "./features/auth/LoginPage";
 import SmePortalLayout from "./features/sme/SmePortalLayout";
 import SmeDashboardPage from "./features/sme/pages/SmeDashboardPage";
+import NewApplicationPage from "./features/sme/pages/NewApplicationPage";
 import ApplicationStubPage from "./features/sme/pages/ApplicationStubPage";
 import ReviewDocumentsPage from "./features/sme/pages/ReviewDocumentsPage";
 import BankDashboardLayout from "./features/bank/BankDashboardLayout";
@@ -39,10 +40,7 @@ export default function App() {
                   <Route index element={<SmeDashboardPage />} />
                   <Route path="review" element={<ReviewDocumentsPage />} />
                   <Route path="review/:applicationId" element={<ReviewDocumentsPage />} />
-                  <Route
-                    path="applications/new"
-                    element={<ApplicationStubPage titleKey="sme.stub.newApplicationTitle" />}
-                  />
+                  <Route path="applications/new" element={<NewApplicationPage />} />
                   <Route
                     path="applications/:applicationId"
                     element={<ApplicationStubPage titleKey="sme.stub.applicationDetailTitle" />}

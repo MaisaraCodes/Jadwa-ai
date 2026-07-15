@@ -7,18 +7,9 @@ import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { IconFileUpload, IconPlus } from "@tabler/icons-react";
 import { useLang } from "../../../i18n/LangProvider";
-import type { StringKey } from "../../../i18n/strings";
 import { ApiError, listApplications } from "../../../lib/api";
 import type { ApplicationSummaryItem } from "../../../types";
-
-function StatusPill({ status }: { status: ApplicationSummaryItem["status"] }) {
-  const { t } = useLang();
-  return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface-2 px-2.5 py-0.5 text-xs font-medium text-text-2">
-      {t(`sme.dashboard.status.${status}` as StringKey)}
-    </span>
-  );
-}
+import LifecycleStatusPill from "../../../components/LifecycleStatusPill";
 
 export default function SmeDashboardPage() {
   const { t } = useLang();
@@ -113,7 +104,7 @@ export default function SmeDashboardPage() {
                 {app.document_count}
               </span>
               <span className="justify-self-end">
-                <StatusPill status={app.status} />
+                <LifecycleStatusPill status={app.status} />
               </span>
             </Link>
           ))}

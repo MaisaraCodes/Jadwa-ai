@@ -77,8 +77,20 @@ export const STRINGS = {
   "sme.dashboard.status.rejected": { ar: "مرفوض", en: "Rejected" },
   "sme.dashboard.status.more_info_needed": { ar: "بحاجة لمعلومات إضافية", en: "More info needed" },
 
-  // --- SME stub screens (applications/new, applications/:id — Prompt 2 fills these) ---
-  "sme.stub.newApplicationTitle": { ar: "إنشاء طلب تمويل", en: "Create application" },
+  // --- SME create-application flow (NewApplicationPage, POST /applications) ---
+  "sme.new.title": { ar: "إنشاء طلب تمويل", en: "Create application" },
+  "sme.new.subtitle": {
+    ar: "أنشئ طلبًا جديدًا، ثم ارفع مستنداتك في الخطوة التالية.",
+    en: "Start a new application, then upload your documents in the next step.",
+  },
+  "sme.new.amountLabel": { ar: "المبلغ المطلوب (اختياري)", en: "Requested amount (optional)" },
+  "sme.new.amountHint": { ar: "بالريال السعودي — يمكنك تعديله لاحقًا.", en: "In SAR — you can change this later." },
+  "sme.new.submit": { ar: "إنشاء الطلب", en: "Create application" },
+  "sme.new.submitting": { ar: "جارٍ الإنشاء…", en: "Creating…" },
+  "sme.new.error": { ar: "تعذّر إنشاء الطلب. حاول مرة أخرى.", en: "Couldn't create the application. Try again." },
+  "sme.new.cancel": { ar: "إلغاء", en: "Cancel" },
+
+  // --- SME application detail stub (applications/:id — filled next in this session) ---
   "sme.stub.applicationDetailTitle": { ar: "تفاصيل الطلب", en: "Application details" },
   "sme.stub.comingNextBody": {
     ar: "هذه الشاشة قيد الإنشاء ضمن الخطوة التالية.",

@@ -4,10 +4,15 @@
 // envelope { error: { code, message } } into a typed ApiError.
 import { supabase } from "./supabase";
 import type {
+  ApplicationStatusResponse,
   ApplicationSummaryItem,
+  ApplicationSummaryResponse,
   BankApplicationDetail,
+  CreateApplicationResponse,
   DocumentJSON,
   PatchDocumentRequest,
+  ProcessResponse,
+  SubmitResponse,
   UploadedDocument,
 } from "../types";
 
@@ -108,6 +113,29 @@ async function authedJson<T>(path: string, init?: RequestInit): Promise<T> {
 
 export function listApplications(): Promise<{ applications: ApplicationSummaryItem[] }> {
   return authedJson(`/applications`);
+}
+
+export function createApplication(requestedAmount?: number): Promise<CreateApplicationResponse> {
+  return authedJson(`/applications`, {
+    method: "POST",
+    body: JSON.stringify({ requested_amount: requestedAmount ?? null }),
+  });
+}
+
+export function processApplication(applicationId: string): Promise<ProcessResponse> {
+  return authedJson(`/applications/${applicationId}/process`, { method: "POST" });
+}
+
+export function getApplicationStatus(applicationId: string): Promise<ApplicationStatusResponse> {
+  return authedJson(`/applications/${applicationId}/status`);
+}
+
+export function submitApplication(applicationId: string): Promise<SubmitResponse> {
+  return authedJson(`/applications/${applicationId}/submit`, { method: "POST" });
+}
+
+export function getApplicationSummary(applicationId: string): Promise<ApplicationSummaryResponse> {
+  return authedJson(`/applications/${applicationId}/summary`);
 }
 
 export function getExtractedDocuments(applicationId: string): Promise<{ documents: DocumentJSON[] }> {

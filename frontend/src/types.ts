@@ -113,6 +113,33 @@ export interface ApplicationSummaryItem {
   document_count: number;
 }
 
+// Mirrors backend routers/applications.py DTOs for the application detail
+// spine (create / process / status / submit / summary).
+export interface CreateApplicationResponse {
+  application_id: string;
+  status: ApplicationStatus;
+}
+
+export interface ProcessResponse {
+  status: ApplicationStatus;
+}
+
+export interface ApplicationStatusResponse {
+  status: ApplicationStatus;
+  nodes_completed: string[];
+  progress: number; // 0.0-1.0
+}
+
+export interface SubmitResponse {
+  status: ApplicationStatus;
+}
+
+export interface ApplicationSummaryResponse {
+  health_summary: string;
+  business_model_score: number | null;
+  top_risks: string[];
+}
+
 export interface BankApplicationDetail {
   application_id: string;
   status: ApplicationStatus;
