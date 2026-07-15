@@ -90,11 +90,36 @@ export const STRINGS = {
   "sme.new.error": { ar: "تعذّر إنشاء الطلب. حاول مرة أخرى.", en: "Couldn't create the application. Try again." },
   "sme.new.cancel": { ar: "إلغاء", en: "Cancel" },
 
-  // --- SME application detail stub (applications/:id — filled next in this session) ---
-  "sme.stub.applicationDetailTitle": { ar: "تفاصيل الطلب", en: "Application details" },
-  "sme.stub.comingNextBody": {
-    ar: "هذه الشاشة قيد الإنشاء ضمن الخطوة التالية.",
-    en: "This screen isn't built yet — it's next.",
+  // --- SME application detail spine (ApplicationDetailPage) ---
+  "sme.detail.applicationLabel": { ar: "الطلب", en: "Application" },
+  "sme.detail.loading": { ar: "جارٍ تحميل الطلب…", en: "Loading application…" },
+  "sme.detail.loadError": { ar: "تعذّر تحميل الطلب. حاول مرة أخرى.", en: "Couldn't load the application. Try again." },
+  "sme.detail.retry": { ar: "إعادة المحاولة", en: "Retry" },
+  "sme.detail.notFound": { ar: "لم يتم العثور على هذا الطلب.", en: "This application couldn't be found." },
+  "sme.detail.existingDocsNote": {
+    ar: "{{count}} مستند مرفوع مسبقًا.",
+    en: "{{count}} document(s) already uploaded.",
+  },
+  "sme.detail.analyzeButton": { ar: "تحليل المستندات", en: "Analyze documents" },
+  "sme.detail.analyzeStarting": { ar: "جارٍ البدء…", en: "Starting…" },
+  "sme.detail.analyzeNeedsDocs": {
+    ar: "ارفع مستندًا واحدًا على الأقل قبل التحليل.",
+    en: "Upload at least one document before analyzing.",
+  },
+  "sme.detail.analyzeError": { ar: "تعذّر بدء التحليل. حاول مرة أخرى.", en: "Couldn't start analysis. Try again." },
+  "sme.detail.processingTitle": { ar: "جارٍ تحليل مستنداتك", en: "Analyzing your documents" },
+  "sme.detail.processingHint": {
+    ar: "يستغرق هذا عادةً دقيقة أو دقيقتين. يمكنك البقاء في هذه الصفحة أو العودة لاحقًا.",
+    en: "This usually takes a minute or two. Stay on this page or check back later.",
+  },
+  "sme.detail.stageProgress": { ar: "اكتملت {{done}} من {{total}} مراحل", en: "{{done}} of {{total}} stages complete" },
+  "sme.detail.analysisCompleteNotice": {
+    ar: "اكتمل التحليل. راجع البيانات المستخرجة أدناه ثم أرسل الطلب.",
+    en: "Analysis complete. Review the extracted data below, then submit.",
+  },
+  "sme.detail.lockedNote": {
+    ar: "طلبك مُقفل أمام أي تعديلات إضافية.",
+    en: "Your application is locked from further edits.",
   },
 
   // --- SME home ---

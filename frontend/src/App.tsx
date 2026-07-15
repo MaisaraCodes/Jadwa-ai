@@ -13,7 +13,7 @@ import LoginPage from "./features/auth/LoginPage";
 import SmePortalLayout from "./features/sme/SmePortalLayout";
 import SmeDashboardPage from "./features/sme/pages/SmeDashboardPage";
 import NewApplicationPage from "./features/sme/pages/NewApplicationPage";
-import ApplicationStubPage from "./features/sme/pages/ApplicationStubPage";
+import ApplicationDetailPage from "./features/sme/pages/ApplicationDetailPage";
 import ReviewDocumentsPage from "./features/sme/pages/ReviewDocumentsPage";
 import BankDashboardLayout from "./features/bank/BankDashboardLayout";
 import BankQueuePage from "./features/bank/pages/BankQueuePage";
@@ -41,10 +41,7 @@ export default function App() {
                   <Route path="review" element={<ReviewDocumentsPage />} />
                   <Route path="review/:applicationId" element={<ReviewDocumentsPage />} />
                   <Route path="applications/new" element={<NewApplicationPage />} />
-                  <Route
-                    path="applications/:applicationId"
-                    element={<ApplicationStubPage titleKey="sme.stub.applicationDetailTitle" />}
-                  />
+                  <Route path="applications/:applicationId" element={<ApplicationDetailPage />} />
                 </Route>
 
                 <Route
