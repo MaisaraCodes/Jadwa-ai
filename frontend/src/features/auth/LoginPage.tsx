@@ -5,7 +5,7 @@
 // Toggles between signing in and creating an account; account creation asks which
 // side you're on (SME or bank). On success, the router sends you to the right home.
 import { useEffect, useState, type FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { IconEye, IconEyeOff } from "@tabler/icons-react";
 import { useAuth, type AppRole } from "./AuthProvider";
 import { useLang } from "../../i18n/LangProvider";
@@ -47,8 +47,13 @@ export default function LoginPage() {
   const { session, role, signIn, signUp } = useAuth();
   const navigate = useNavigate();
   const { t } = useLang();
+  const [searchParams] = useSearchParams();
 
-  const [mode, setMode] = useState<Mode>("signin");
+  // Lets the landing page's "Get started" and "Sign in" CTAs point at two
+  // distinct destinations (?mode=signup vs the bare /login) instead of both
+  // opening the same signin view — the toggle below still works normally
+  // from here on.
+  const [mode, setMode] = useState<Mode>(searchParams.get("mode") === "signup" ? "signup" : "signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);

@@ -13,53 +13,143 @@ export const STRINGS = {
   "brand.wordmark": { ar: "جدوى", en: "Jadwa" },
 
   // --- public landing page (LandingPage, "/") ---
-  "landing.nav.howItWorks": { ar: "كيف يعمل", en: "How it works" },
-  "landing.nav.dataSources": { ar: "مصادر البيانات", en: "Data sources" },
+  // Copy ported verbatim from design-mocks/jadwa_landing_redesign.html (the
+  // visual + copy source of truth for this page) — no hyphens or dashes, per
+  // the copy rule; open compounds throughout ("bank ready", "stress tested").
+  "landing.nav.platform": { ar: "المنصّة", en: "Platform" },
+  "landing.nav.howItWorks": { ar: "كيف تعمل", en: "How it works" },
+  "landing.nav.dataSources": { ar: "المصادر", en: "Data sources" },
   "landing.cta.getStarted": { ar: "ابدأ الآن", en: "Get started" },
-  "landing.hero.subline": {
-    ar: "من الفواتير المبعثرة إلى قرار تمويل مدروس — تحليل فوري، تدقيق دفتري، واختبار ضغط لكل طلب.",
-    en: "From scattered invoices to a considered lending decision — instant analysis, ledger reconciliation, and stress-testing for every application.",
+
+  "landing.hero.eyebrow": {
+    ar: "الجدارة الائتمانية للمنشآت، مُتحقّقة",
+    en: "Verified SME underwriting",
   },
-  "landing.value.smeTitle": { ar: "لأصحاب المنشآت", en: "For business owners" },
-  "landing.value.smeBody": {
-    ar: "حوّل فواتيرك وكشوفاتك المبعثرة إلى طلب تمويل موثّق وجاهز للبنك، خلال دقائق.",
-    en: "Turn messy invoices and statements into a verified, bank-ready application in minutes.",
+  "landing.hero.title": {
+    ar: "دراسة جدوى حيّة لكل طلب تمويل",
+    en: "A living feasibility study for every financing application",
   },
-  "landing.value.bankTitle": { ar: "للبنوك", en: "For banks" },
-  "landing.value.bankBody": {
-    ar: "احصل على ملف مخاطر مدقق جنائيًا ومُختبر بالضغط، قابل للاستكشاف تفاعليًا بدلاً من ملف PDF ثابت.",
-    en: "Get a forensically-checked, stress-tested risk profile you can explore interactively instead of a static PDF.",
+  "landing.hero.body": {
+    ar: "من فواتير متناثرة إلى قرار تمويل يمكنك الدفاع عنه. تقرأ جدوى كل مستند، وتطابقه مع السجل البنكي، وتختبر المنشأة تحت الضغط قبل أن يوقّع أحد.",
+    en: "From scattered invoices to a lending decision you can defend. Jadwa reads every document, reconciles it against the bank ledger, and stress tests the business before anyone signs.",
   },
-  "landing.pipeline.title": { ar: "كيف يعمل جدوى", en: "How Jadwa works" },
+  "landing.hero.cta": { ar: "ابدأ طلبك", en: "Get started" },
+  "landing.trust.chip.zatca": { ar: "متوافق مع فاتورة ZATCA", en: "ZATCA aware" },
+  "landing.trust.chip.bilingual": { ar: "عربي وإنجليزي", en: "Arabic and English" },
+  "landing.trust.chip.data": { ar: "بيانات سعودية رسمية", en: "Official Saudi data" },
+
+  "landing.platform.eyebrow": { ar: "المنصّة", en: "The platform" },
+  "landing.platform.title": {
+    ar: "مسار واحد. جمهوران. طبقة ثقة مشتركة.",
+    en: "One pipeline. Two audiences. One shared layer of trust.",
+  },
+  "landing.platform.body1": {
+    ar: "يتعثّر التمويل في الفجوة بين طرفين لا يثق أحدهما بالآخر تمامًا. المنشأة تعرف أن أرقامها حقيقية لكنها لا تستطيع إثبات ذلك بسرعة، والبنك يريد أن يصدّقها لكنه لا يستطيع التحقق منها على نطاق واسع. تقف جدوى في هذه الفجوة كطبقة محايدة تقوم على الأدلة أولًا، فتحوّل الفواتير والكشوف الخام إلى صورة مالية منظّمة ومُتحقّقة، ثم تعرض الصورة نفسها على كل طرف باللغة التي يحتاجها.",
+    en: "Financing stalls in the gap between two parties who do not fully trust each other. A business knows its numbers are real but cannot prove it quickly. A bank wants to believe them but cannot verify them at scale. Jadwa sits in that gap as a neutral, evidence first layer. It turns raw invoices and statements into a structured, verified financial picture, then presents that same picture to each side in the language it needs.",
+  },
+  "landing.platform.body2Lead": { ar: "لا شيء يُؤخذ على الثقة.", en: "Nothing is taken on faith." },
+  "landing.platform.body2Rest": {
+    ar: " كل رقم يُطابَق مع سجل المعاملات الفعلي، وكل فاتورة يُتحقَّق من صحتها، وكل نموذج عمل يُختبَر أمام الصدمات الأكثر احتمالًا في قطاعه. ما يصل إلى البنك ليس ادعاءً، بل نتيجة.",
+    en: " Every figure is matched against real transaction history, every invoice is checked for authenticity, and every business model is tested against the shocks most likely to hit its sector. What reaches the bank is not a claim. It is a conclusion.",
+  },
+
+  "landing.pipeline.title": { ar: "كيف تعمل جدوى", en: "How Jadwa works" },
   "landing.pipeline.subtitle": {
-    ar: "ست مراحل تعمل تلقائيًا على كل مستند يصل.",
-    en: "Six stages, running automatically on every document that arrives.",
+    ar: "ست مراحل تعمل تلقائيًا على كل مستند يصل",
+    en: "Six stages, running automatically on every document that arrives",
   },
+  "landing.stage.extract": { ar: "استخراج", en: "Extract" },
+  "landing.stage.forensic": { ar: "تدقيق", en: "Forensic" },
+  "landing.stage.stressTest": { ar: "اختبار الضغط", en: "Stress test" },
+  "landing.stage.market": { ar: "السوق", en: "Market" },
+  "landing.stage.riskModel": { ar: "نموذج المخاطر", en: "Risk model" },
+  "landing.stage.record": { ar: "السجل", en: "Record" },
+
+  "landing.sme.eyebrow": { ar: "لأصحاب الأعمال", en: "For business owners" },
+  "landing.sme.title": {
+    ar: "ادخل بمستنداتك، واخرج بطلب جاهز للبنك.",
+    en: "Walk in with documents. Walk out with a bank ready application.",
+  },
+  "landing.sme.body": {
+    ar: "تخسر كثير من المنشآت الصغيرة التمويل لا لأنها ضعيفة، بل لأن أوراقها متناثرة بين صيغ ولغات ومجلدات. تقبل جدوى ذلك كله، بالعربية أو الإنجليزية، مصوَّرًا أو ممسوحًا، وتنظّمه في طلب واحد نظيف خلال دقائق. وقبل أن ترسل، ترى تمامًا ما سيراه البنك، بما في ذلك نقاط الضعف التي سيثيرها موظف دقيق، لتعالجها أولًا.",
+    en: "Many small businesses lose financing not because they are weak, but because their paperwork is scattered across formats, languages, and folders. Jadwa accepts all of it, Arabic or English, photographed or scanned, and organizes it into one clean application in minutes. Before you submit, you see exactly what a bank will see, including the weaknesses a careful officer would raise, so you can address them first.",
+  },
+  "landing.sme.cta": { ar: "ابدأ طلبك", en: "Start an application" },
+  "landing.sme.check1": {
+    ar: "رفع الفواتير والكشوف بأي صيغة",
+    en: "Upload invoices and statements in any format",
+  },
+  "landing.sme.check2": {
+    ar: "قراءة تلقائية بالعربية والإنجليزية",
+    en: "Automatic reading in Arabic and English",
+  },
+  "landing.sme.check3": {
+    ar: "ملخّص صحّة مالية بلغة واضحة قبل الإرسال",
+    en: "A plain language health summary before you submit",
+  },
+  "landing.sme.check4": { ar: "ملف طلب جاهز للبنك", en: "A generated, bank ready application file" },
+
+  "landing.bank.eyebrow": { ar: "للبنوك", en: "For banks" },
+  "landing.bank.title": {
+    ar: "قرارك على الأدلة، لا على الثقة.",
+    en: "Underwrite on evidence, not on trust.",
+  },
+  "landing.bank.body": {
+    ar: "يقضي الموظفون ساعات في قراءة تقارير جامدة لا يزالون مضطرين للتشكيك فيها. تسلّمهم جدوى ملفًا مُقيَّمًا مسبقًا أُنجز فيه العمل الشاق. يصل كل طلب مُدقّقًا جنائيًا، ومختبَرًا تحت الضغط، ومستندًا إلى بيانات السوق السعودي، مع إشارة واضحة على مدى الأصالة. ويمكن للموظف استكشاف المخاطر تفاعليًا، فيحرّك عوامل السيناريو ويراقب الملف وهو يتغيّر، ثم يقرّر والدليل بين يديه.",
+    en: "Officers spend hours reading static reports they still have to second guess. Jadwa hands them a pre scored file where the hard work is already done. Every application arrives forensically checked, stress tested, and grounded in Saudi market data, with a clear signal on authenticity. Officers can explore the risk interactively, moving scenario levers and watching the profile respond, then decide with the evidence in front of them.",
+  },
+  "landing.bank.cta": { ar: "دخول لوحة البنك", en: "Open the bank dashboard" },
+  "landing.bank.check1": {
+    ar: "قائمة طلبات مُقيَّمة مسبقًا",
+    en: "A pre scored queue of submitted applications",
+  },
+  "landing.bank.check2": {
+    ar: "فحوص أصالة جنائية بإشارات واضحة",
+    en: "Forensic authenticity checks with clear flags",
+  },
+  "landing.bank.check3": {
+    ar: "سيناريوهات مخاطر تفاعلية تُحسب فورًا",
+    en: "Interactive risk scenarios that recalculate live",
+  },
+  "landing.bank.check4": {
+    ar: "سياق سوقي مستند إلى بيانات سعودية رسمية",
+    en: "Market context grounded in official Saudi data",
+  },
+
+  "landing.verdict.line": { ar: "كل رقم تدقّقه جدوى", en: "Every figure cross checked by Jadwa" },
   "landing.trust.body": {
-    ar: "كل رقم في كل طلب يمر بمطابقة دفترية وتحقق من فاتورة ZATCA واختبار ضغط، قبل أن يصل إلى مكتبك.",
-    en: "Every figure in every application passes ledger reconciliation, ZATCA verification, and stress-testing before it reaches your desk.",
+    ar: "كل رقم في كل طلب يمرّ بمطابقة السجل البنكي، والتحقق من رمز فاتورة ZATCA، واختبار الضغط قبل أن يصل إلى مكتبك.",
+    en: "Every figure in every application passes ledger reconciliation, ZATCA verification, and stress testing before it reaches your desk.",
   },
+
+  "landing.closing.title": { ar: "ثقة في كل قرار تمويل.", en: "Bring trust to every financing decision." },
+  "landing.closing.body": {
+    ar: "ابدأ كمنشأة تبحث عن تمويل، أو سجّل الدخول إلى لوحة البنك.",
+    en: "Start as a business seeking financing, or sign in to the bank dashboard.",
+  },
+
   "landing.footer.rights": { ar: "© {{year}} جدوى", en: "© {{year}} Jadwa" },
 
   // --- public data-sources / credibility page (DataSourcesPage, "/data") ---
   // SKELETON pass only — structure + honest placeholders, no real coverage
   // numbers (the corpus isn't ingested yet). Never say "trained on" anywhere
   // here: it's retrieval (RAG) over a corpus, nothing is trained/fine-tuned.
+  "data.hero.eyebrow": { ar: "المصادر", en: "Data sources" },
   "data.hero.title": { ar: "مبني على بيانات سعودية رسمية وعامة", en: "Grounded in official Saudi public data" },
   "data.hero.body": {
-    ar: "يعتمد جدوى على الاسترجاع المعزز بالتوليد (RAG) فوق مجموعة مختارة من المصادر الرسمية العامة — كل استنتاج مرتبط بمصدره ويُستشهد به.",
-    en: "Jadwa uses retrieval-augmented generation (RAG) over a curated set of official public sources — every insight is grounded in and cites its source.",
+    ar: "يعتمد جدوى على الاسترجاع المعزز بالتوليد فوق مجموعة مختارة من المصادر الرسمية العامة. كل استنتاج مرتبط بمصدره ويُستشهد به.",
+    en: "Jadwa uses retrieval augmented generation over a curated set of official public sources. Every insight is grounded in and cites its source.",
   },
   "data.sources.title": { ar: "المصادر", en: "Sources" },
   "data.sources.subtitle": {
-    ar: "التغطية الكاملة قيد الإضافة — القائمة أدناه تعكس البنية المخطط لها فقط.",
-    en: "Full coverage is still being added — the list below reflects the planned structure only.",
+    ar: "التغطية الكاملة قيد الإضافة. القائمة أدناه تعكس البنية المخطط لها فقط.",
+    en: "Full coverage is still being added. The list below reflects the planned structure only.",
   },
   "data.sources.coveragePending": { ar: "التغطية: قيد الإدراج", en: "Coverage: pending ingestion" },
   "data.source.sama.name": { ar: "البنك المركزي السعودي (ساما)", en: "Saudi Central Bank (SAMA)" },
   "data.source.sama.body": {
     ar: "منشورات تنظيمية ومصرفية، ومرجعية إطار الخدمات المصرفية المفتوحة.",
-    en: "Regulatory and banking publications, and open-banking framework references.",
+    en: "Regulatory and banking publications, and open banking framework references.",
   },
   "data.source.monshaat.name": { ar: "منشآت", en: "Monsha'at" },
   "data.source.monshaat.body": {
@@ -68,8 +158,8 @@ export const STRINGS = {
   },
   "data.source.gastat.name": { ar: "الهيئة العامة للإحصاء", en: "General Authority for Statistics (GASTAT)" },
   "data.source.gastat.body": {
-    ar: "إحصاءات قطاعية وإقليمية — سوق العمل وأعداد المنشآت.",
-    en: "Sector and district-level statistics — labor market and business counts.",
+    ar: "إحصاءات قطاعية وإقليمية، سوق العمل وأعداد المنشآت.",
+    en: "Sector and district level statistics, labor market and business counts.",
   },
   "data.source.more.name": { ar: "مصادر إضافية", en: "More sources" },
   "data.source.more.body": {
@@ -78,12 +168,12 @@ export const STRINGS = {
   },
   "data.retrieval.title": { ar: "كيف يعمل الاسترجاع", en: "How retrieval works" },
   "data.retrieval.subtitle": {
-    ar: "لا يُدرَّب أي نموذج على هذه البيانات — يُسترجع المحتوى ذو الصلة عند كل طلب ويُستشهد به.",
-    en: "No model is trained on this data — relevant content is retrieved on each request and cited.",
+    ar: "لا يُدرَّب أي نموذج على هذه البيانات. يُسترجع المحتوى ذو الصلة عند كل طلب ويُستشهد به.",
+    en: "No model is trained on this data. Relevant content is retrieved on each request and cited.",
   },
   "data.retrieval.step.query": { ar: "الاستعلام", en: "Query" },
   "data.retrieval.step.embed": { ar: "التمثيل الرقمي", en: "Embed" },
-  "data.retrieval.step.retrieve": { ar: "استرجاع أعلى النتائج", en: "Retrieve top-k" },
+  "data.retrieval.step.retrieve": { ar: "استرجاع أعلى النتائج", en: "Retrieve top matches" },
   "data.retrieval.step.cite": { ar: "استنتاج سوقي موثَّق", en: "Cited market verdict" },
   "data.honesty.title": { ar: "ملاحظة حول التغطية الحالية", en: "A note on current coverage" },
   "data.honesty.body": {
