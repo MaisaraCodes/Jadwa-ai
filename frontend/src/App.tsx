@@ -11,7 +11,8 @@ import { AuthProvider } from "./features/auth/AuthProvider";
 import { RequireRole, RedirectByRole } from "./features/auth/RequireRole";
 import LoginPage from "./features/auth/LoginPage";
 import SmePortalLayout from "./features/sme/SmePortalLayout";
-import SmeHomePage from "./features/sme/pages/SmeHomePage";
+import SmeDashboardPage from "./features/sme/pages/SmeDashboardPage";
+import ApplicationStubPage from "./features/sme/pages/ApplicationStubPage";
 import ReviewDocumentsPage from "./features/sme/pages/ReviewDocumentsPage";
 import BankDashboardLayout from "./features/bank/BankDashboardLayout";
 import BankQueuePage from "./features/bank/pages/BankQueuePage";
@@ -35,9 +36,17 @@ export default function App() {
                     </RequireRole>
                   }
                 >
-                  <Route index element={<SmeHomePage />} />
+                  <Route index element={<SmeDashboardPage />} />
                   <Route path="review" element={<ReviewDocumentsPage />} />
                   <Route path="review/:applicationId" element={<ReviewDocumentsPage />} />
+                  <Route
+                    path="applications/new"
+                    element={<ApplicationStubPage titleKey="sme.stub.newApplicationTitle" />}
+                  />
+                  <Route
+                    path="applications/:applicationId"
+                    element={<ApplicationStubPage titleKey="sme.stub.applicationDetailTitle" />}
+                  />
                 </Route>
 
                 <Route

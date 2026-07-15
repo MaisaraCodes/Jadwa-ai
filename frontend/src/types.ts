@@ -104,6 +104,15 @@ export interface RiskBaseline {
   recommended_interest_rate: number;
 }
 
+// Mirrors backend routers/applications.py's ApplicationSummaryItem
+// (GET /applications — the SME's own applications list).
+export interface ApplicationSummaryItem {
+  application_id: string;
+  status: ApplicationStatus;
+  created_at: string; // ISO datetime
+  document_count: number;
+}
+
 export interface BankApplicationDetail {
   application_id: string;
   status: ApplicationStatus;

@@ -51,8 +51,39 @@ export const STRINGS = {
 
   // --- SME portal shell ---
   "sme.portalLabel": { ar: "بوابة المنشآت", en: "Business portal" },
-  "demo.smeUserName": { ar: "محمد الحربي", en: "Mohammed Al-Harbi" },
-  "demo.smeUserInitial": { ar: "م", en: "M" },
+
+  // --- SME applications dashboard (SmeDashboardPage, GET /applications) ---
+  "sme.dashboard.title": { ar: "طلبات التمويل الخاصة بي", en: "My loan applications" },
+  "sme.dashboard.subtitle": {
+    ar: "تتبع حالة طلبات التمويل التي قدّمتها.",
+    en: "Track the status of your financing applications.",
+  },
+  "sme.dashboard.createApplication": { ar: "إنشاء طلب جديد", en: "Create application" },
+  "sme.dashboard.colCreated": { ar: "تاريخ الإنشاء", en: "Created" },
+  "sme.dashboard.colDocuments": { ar: "المستندات", en: "Documents" },
+  "sme.dashboard.colStatus": { ar: "الحالة", en: "Status" },
+  "sme.dashboard.loading": { ar: "جارٍ تحميل الطلبات…", en: "Loading applications…" },
+  "sme.dashboard.loadError": { ar: "تعذّر تحميل الطلبات. حاول مرة أخرى.", en: "Couldn't load applications. Try again." },
+  "sme.dashboard.retry": { ar: "إعادة المحاولة", en: "Retry" },
+  "sme.dashboard.emptyTitle": { ar: "ابدأ طلبك الأول", en: "Start your first application" },
+  "sme.dashboard.emptyBody": {
+    ar: "ارفع فواتيرك وكشوفاتك — بالعربية أو الإنجليزية. جدوى تنظّم الباقي.",
+    en: "Upload your invoices and statements — Arabic or English. Jadwa organizes the rest.",
+  },
+  "sme.dashboard.status.draft": { ar: "مسودة", en: "Draft" },
+  "sme.dashboard.status.processing": { ar: "قيد المعالجة", en: "Processing" },
+  "sme.dashboard.status.review_ready": { ar: "جاهز للمراجعة", en: "Ready for review" },
+  "sme.dashboard.status.approved": { ar: "مُوافَق عليه", en: "Approved" },
+  "sme.dashboard.status.rejected": { ar: "مرفوض", en: "Rejected" },
+  "sme.dashboard.status.more_info_needed": { ar: "بحاجة لمعلومات إضافية", en: "More info needed" },
+
+  // --- SME stub screens (applications/new, applications/:id — Prompt 2 fills these) ---
+  "sme.stub.newApplicationTitle": { ar: "إنشاء طلب تمويل", en: "Create application" },
+  "sme.stub.applicationDetailTitle": { ar: "تفاصيل الطلب", en: "Application details" },
+  "sme.stub.comingNextBody": {
+    ar: "هذه الشاشة قيد الإنشاء ضمن الخطوة التالية.",
+    en: "This screen isn't built yet — it's next.",
+  },
 
   // --- SME home ---
   "sme.home.welcome": { ar: "مرحبًا محمد", en: "Welcome, Mohammed" },
@@ -124,8 +155,6 @@ export const STRINGS = {
   // --- bank application detail ---
   // REVIEW: "underwriting desk" — banking-domain term, confirm preferred AR phrasing.
   "bank.detail.deskLabel": { ar: "مكتب التحليل الائتماني", en: "Underwriting desk" },
-  "demo.bankUserName": { ar: "خالد · بنك الإنماء", en: "Khalid · Alinma" },
-  "demo.bankUserInitial": { ar: "خ", en: "K" },
   "bank.detail.subtitle": {
     ar: "الخدمات اللوجستية · الخرج · السجل التجاري {{cr}} · تاريخ التقديم {{date}}",
     en: "Logistics · Al-Kharj · CR {{cr}} · submitted {{date}}",

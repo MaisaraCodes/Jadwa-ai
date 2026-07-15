@@ -15,12 +15,10 @@
 // nodes that produce weakness_report / market_verdict / risk_baseline.
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { useAuth } from "../../auth/AuthProvider";
 import { useLang } from "../../../i18n/LangProvider";
 import type { StringKey } from "../../../i18n/strings";
-import { JadwaTileMark, GoldDiamond } from "../../../components/JadwaMark";
-import ThemeToggle from "../../../components/ThemeToggle";
-import LangToggle from "../../../components/LangToggle";
+import { GoldDiamond } from "../../../components/JadwaMark";
+import PortalHeader from "../../../components/PortalHeader";
 import ForensicReportCard from "../components/ForensicReportCard";
 import WeaknessReportCard from "../components/WeaknessReportCard";
 import { ApiError, getBankApplication } from "../../../lib/api";
@@ -67,7 +65,6 @@ function MetricCard({ label, children }: { label: string; children: React.ReactN
 export default function BankApplicationDetailPage() {
   const { applicationId: routeApplicationId } = useParams();
   const applicationId = routeApplicationId ?? "demo"; // mirrors ReviewDocumentsPage's fallback convention
-  const { signOut } = useAuth();
   const { t, lang } = useLang();
   const [activeTab, setActiveTab] = useState<TabId>("overview");
 
@@ -94,32 +91,7 @@ export default function BankApplicationDetailPage() {
 
   return (
     <div data-portal="bank" className="min-h-screen bg-bg">
-      <div className="h-[3px] bg-accent" />
-      <header className="flex items-center justify-between border-b border-line bg-surface px-[18px] py-2.5">
-        <div className="flex items-center gap-2.5">
-          <JadwaTileMark tileFill="var(--surface-2)" />
-          <span className="font-display text-[19px] font-extrabold text-ink">{t("brand.wordmark")}</span>
-          <span className="h-4 w-px bg-line" />
-          <span className="text-[12.5px] text-text-2">{t("bank.detail.deskLabel")}</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <LangToggle />
-          <ThemeToggle />
-          <span className="flex items-center gap-2 text-xs text-text-2">
-            <span className="flex h-[26px] w-[26px] items-center justify-center rounded-full bg-accent-soft text-xs font-semibold text-accent-strong">
-              {t("demo.bankUserInitial")}
-            </span>
-            {t("demo.bankUserName")}
-          </span>
-          <button
-            type="button"
-            onClick={() => signOut()}
-            className="rounded-lg border border-line px-2.5 py-1 text-xs font-medium text-text-2 hover:bg-surface-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-          >
-            {t("auth.signOut")}
-          </button>
-        </div>
-      </header>
+      <PortalHeader label={t("bank.detail.deskLabel")} containerClassName="max-w-4xl" />
 
       <main className="mx-auto max-w-4xl px-[18px] py-[18px]">
         <div className="mb-3.5 flex flex-wrap items-end justify-between gap-2">
