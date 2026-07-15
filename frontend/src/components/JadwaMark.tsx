@@ -60,13 +60,28 @@ export function GoldDiamond({ className = "h-[13px] w-[13px]" }: { className?: s
 // per §2.3 — "Jadwa" in EN, "جدوى" in AR) + gold diamond terminal. The
 // diamond always terminates the lockup in reading order (physical right in
 // LTR, physical left in RTL) via the flex row's automatic RTL mirroring.
-export function JadwaWordmark({ className }: { className?: string }) {
+// Size overrides default to the existing nav/footer proportions so current
+// call sites render unchanged; PortalHeader passes the mock's header-scale
+// values (mark 24px, word 22px, diamond 10px) explicitly.
+export function JadwaWordmark({
+  className,
+  gapClassName = "gap-1.5",
+  markClassName = "h-5 w-5",
+  textClassName = "text-base",
+  diamondClassName,
+}: {
+  className?: string;
+  gapClassName?: string;
+  markClassName?: string;
+  textClassName?: string;
+  diamondClassName?: string;
+}) {
   const { t } = useLang();
   return (
-    <span className={["inline-flex items-center gap-1.5 text-ink", className].filter(Boolean).join(" ")}>
-      <JadwaMark className="h-5 w-5" />
-      <span className="font-display text-base font-extrabold">{t("brand.wordmark")}</span>
-      <GoldDiamond />
+    <span className={["inline-flex items-center text-ink", gapClassName, className].filter(Boolean).join(" ")}>
+      <JadwaMark className={markClassName} />
+      <span className={["font-display font-extrabold", textClassName].join(" ")}>{t("brand.wordmark")}</span>
+      <GoldDiamond {...(diamondClassName ? { className: diamondClassName } : {})} />
     </span>
   );
 }
