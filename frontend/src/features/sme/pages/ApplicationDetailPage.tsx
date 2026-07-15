@@ -17,11 +17,18 @@
 // the real "Processing" status until the SME actually submits.
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { IconArrowLeft, IconSparkles } from "@tabler/icons-react";
+import { IconArrowLeft, IconFileDownload, IconSparkles } from "@tabler/icons-react";
 import { useLang } from "../../../i18n/LangProvider";
 import type { StringKey } from "../../../i18n/strings";
-import { ApiError, getApplicationStatus, listApplications, processApplication } from "../../../lib/api";
-import type { ApplicationStatusResponse, ApplicationSummaryItem } from "../../../types";
+import {
+  ApiError,
+  getApplicationStatus,
+  getApplicationSummary,
+  listApplications,
+  processApplication,
+  submitApplication,
+} from "../../../lib/api";
+import type { ApplicationStatusResponse, ApplicationSummaryItem, ApplicationSummaryResponse } from "../../../types";
 import LifecycleStatusPill from "../../../components/LifecycleStatusPill";
 import SaduBand, { type SaduStageState } from "../../../components/SaduBand";
 import DocumentUpload from "../DocumentUpload";
@@ -56,6 +63,37 @@ export default function ApplicationDetailPage() {
   const [uploadedThisSession, setUploadedThisSession] = useState(0);
   const [analyzeBusy, setAnalyzeBusy] = useState(false);
   const [analyzeError, setAnalyzeError] = useState<string | null>(null);
+
+  const [reviewProgress, setReviewProgress] = useState<{
+    allConfirmed: boolean;
+    confirmedCount: number;
+    total: number;
+  } | null>(null);
+  const onReviewProgressChange = useCallback(
+    (info: { allConfirmed: boolean; confirmedCount: number; total: number }) => setReviewProgress(info),
+    [],
+  );
+
+  const [submitBusy, setSubmitBusy] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const [summaryInfo, setSummaryInfo] = useState<ApplicationSummaryResponse | null>(null);
+  const [summaryError, setSummaryError] = useState(false);
+
+  // The pipeline has produced weakness_report (and therefore a usable
+  // business_model_score) once nothing's left in "draft" and, if still
+  // "processing", progress has reached 1 — same completion signal `phase`
+  // uses below, computed here too since this effect runs before `phase` is
+  // in scope (it's declared after the early-return loading/error guards).
+  const pipelineDone =
+    !!statusInfo && statusInfo.status !== "draft" && (statusInfo.status !== "processing" || statusInfo.progress >= 1);
+
+  useEffect(() => {
+    if (!applicationId || !pipelineDone || summaryInfo) return;
+    getApplicationSummary(applicationId)
+      .then(setSummaryInfo)
+      .catch(() => setSummaryError(true));
+  }, [applicationId, pipelineDone, summaryInfo]);
 
   const load = useCallback(async () => {
     if (!applicationId) return;
@@ -128,6 +166,20 @@ export default function ApplicationDetailPage() {
       setAnalyzeError(err instanceof ApiError ? err.message : t("sme.detail.analyzeError"));
     } finally {
       setAnalyzeBusy(false);
+    }
+  }
+
+  async function onSubmit() {
+    if (!applicationId) return;
+    setSubmitError(null);
+    setSubmitBusy(true);
+    try {
+      await submitApplication(applicationId);
+      await load(); // status is now server-confirmed "review_ready" -> phase "locked"
+    } catch (err) {
+      setSubmitError(err instanceof ApiError ? err.message : t("sme.detail.submitError"));
+    } finally {
+      setSubmitBusy(false);
     }
   }
 
@@ -267,16 +319,89 @@ export default function ApplicationDetailPage() {
           <div className="mb-4 rounded-xl border border-line bg-surface px-4 py-4 text-center">
             <p className="text-[13px] text-ink">{t("sme.detail.analysisCompleteNotice")}</p>
           </div>
-          <DocumentReviewPanel applicationId={applicationId} />
+
+          <div className="mb-4">
+            <DocumentReviewPanel applicationId={applicationId} onAllConfirmedChange={onReviewProgressChange} />
+          </div>
+
+          {summaryInfo && <HealthSummaryCard summary={summaryInfo} />}
+          {summaryError && <p className="mb-4 text-center text-xs text-text-3">{t("sme.detail.summaryUnavailable")}</p>}
+
+          <div className="flex flex-wrap items-center gap-2.5 rounded-xl border border-line bg-surface px-4 py-3.5">
+            <button
+              type="button"
+              onClick={onSubmit}
+              disabled={!reviewProgress?.allConfirmed || submitBusy}
+              className="inline-flex h-10 items-center gap-2 rounded-lg bg-accent px-5 text-sm font-medium text-on-accent disabled:opacity-50 hover:bg-accent-strong focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+            >
+              {submitBusy ? t("sme.detail.submitting") : t("sme.detail.submitButton")}
+            </button>
+            {submitError && <p className="text-xs text-flag">{submitError}</p>}
+          </div>
         </>
       )}
 
       {phase === "locked" && (
-        <div className="rounded-xl border border-line bg-surface px-4 py-6 text-center text-[13px] text-text-2">
-          {t("sme.detail.lockedNote")}
-        </div>
+        <>
+          <div className="mb-4 rounded-xl border border-line bg-surface px-4 py-6 text-center text-[13px] text-text-2">
+            {t("sme.detail.lockedNote")}
+          </div>
+
+          {summaryInfo && <HealthSummaryCard summary={summaryInfo} />}
+          {summaryError && <p className="mb-4 text-center text-xs text-text-3">{t("sme.detail.summaryUnavailable")}</p>}
+
+          <div className="flex items-center justify-end rounded-xl border border-line bg-surface px-4 py-3.5">
+            <PdfPlaceholderButton />
+          </div>
+        </>
       )}
     </section>
+  );
+}
+
+function HealthSummaryCard({ summary }: { summary: ApplicationSummaryResponse }) {
+  const { t } = useLang();
+  return (
+    <div className="mb-4 rounded-xl border border-line bg-surface px-4 py-3.5">
+      <div className="mb-2 flex items-center justify-between">
+        <span className="text-[13.5px] font-semibold text-ink">{t("sme.detail.summaryTitle")}</span>
+        {summary.business_model_score !== null && (
+          <span dir="ltr" className="tabular-nums text-[13px] font-semibold text-ink">
+            {summary.business_model_score}
+            <span className="text-[11px] font-normal text-text-3">/100</span>
+          </span>
+        )}
+      </div>
+      <p className="text-[12.5px] text-text-2">{summary.health_summary}</p>
+      {summary.top_risks.length > 0 && (
+        <div className="mt-3 rounded-lg bg-gold-soft px-2.5 py-2">
+          <p className="mb-1 flex items-center gap-1.5 text-[11.5px] font-medium text-ink">
+            <IconSparkles size={13} className="text-gold-strong" aria-hidden="true" />
+            {t("sme.detail.strengthenTitle")}
+          </p>
+          <ul className="list-disc space-y-1 ps-4 text-[11.5px] leading-[1.6] text-text-2">
+            {summary.top_risks.map((risk, i) => (
+              <li key={i}>{risk}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PdfPlaceholderButton() {
+  const { t } = useLang();
+  return (
+    <button
+      type="button"
+      disabled
+      title={t("sme.detail.pdfComingSoon")}
+      className="inline-flex cursor-not-allowed items-center gap-2 rounded-lg border border-line-strong px-4 py-2 text-sm text-text-3"
+    >
+      <IconFileDownload size={15} aria-hidden="true" />
+      {t("sme.detail.pdfButton")}
+    </button>
   );
 }
 

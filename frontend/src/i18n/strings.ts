@@ -121,6 +121,17 @@ export const STRINGS = {
     ar: "طلبك مُقفل أمام أي تعديلات إضافية.",
     en: "Your application is locked from further edits.",
   },
+  "sme.detail.submitButton": { ar: "إرسال الطلب", en: "Submit application" },
+  "sme.detail.submitting": { ar: "جارٍ الإرسال…", en: "Submitting…" },
+  "sme.detail.submitError": { ar: "تعذّر إرسال الطلب. حاول مرة أخرى.", en: "Couldn't submit the application. Try again." },
+  "sme.detail.summaryTitle": { ar: "ملخص الوضع المالي لمنشأتك", en: "Business health summary" },
+  "sme.detail.strengthenTitle": { ar: "نقاط يمكن تعزيزها", en: "Areas to strengthen" },
+  "sme.detail.summaryUnavailable": {
+    ar: "تعذّر تحميل ملخص الوضع المالي الآن.",
+    en: "The business summary isn't available right now.",
+  },
+  "sme.detail.pdfButton": { ar: "تحميل PDF", en: "Download PDF" },
+  "sme.detail.pdfComingSoon": { ar: "قريبًا", en: "Coming soon" },
 
   // --- SME home ---
   "sme.home.welcome": { ar: "مرحبًا محمد", en: "Welcome, Mohammed" },
