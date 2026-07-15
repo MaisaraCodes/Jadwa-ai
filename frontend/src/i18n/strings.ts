@@ -12,6 +12,35 @@ export const STRINGS = {
   // --- brand ---
   "brand.wordmark": { ar: "جدوى", en: "Jadwa" },
 
+  // --- public landing page (LandingPage, "/") ---
+  "landing.nav.howItWorks": { ar: "كيف يعمل", en: "How it works" },
+  "landing.nav.dataSources": { ar: "مصادر البيانات", en: "Data sources" },
+  "landing.cta.getStarted": { ar: "ابدأ الآن", en: "Get started" },
+  "landing.hero.subline": {
+    ar: "من الفواتير المبعثرة إلى قرار تمويل مدروس — تحليل فوري، تدقيق دفتري، واختبار ضغط لكل طلب.",
+    en: "From scattered invoices to a considered lending decision — instant analysis, ledger reconciliation, and stress-testing for every application.",
+  },
+  "landing.value.smeTitle": { ar: "لأصحاب المنشآت", en: "For business owners" },
+  "landing.value.smeBody": {
+    ar: "حوّل فواتيرك وكشوفاتك المبعثرة إلى طلب تمويل موثّق وجاهز للبنك، خلال دقائق.",
+    en: "Turn messy invoices and statements into a verified, bank-ready application in minutes.",
+  },
+  "landing.value.bankTitle": { ar: "للبنوك", en: "For banks" },
+  "landing.value.bankBody": {
+    ar: "احصل على ملف مخاطر مدقق جنائيًا ومُختبر بالضغط، قابل للاستكشاف تفاعليًا بدلاً من ملف PDF ثابت.",
+    en: "Get a forensically-checked, stress-tested risk profile you can explore interactively instead of a static PDF.",
+  },
+  "landing.pipeline.title": { ar: "كيف يعمل جدوى", en: "How Jadwa works" },
+  "landing.pipeline.subtitle": {
+    ar: "ست مراحل تعمل تلقائيًا على كل مستند يصل.",
+    en: "Six stages, running automatically on every document that arrives.",
+  },
+  "landing.trust.body": {
+    ar: "كل رقم في كل طلب يمر بمطابقة دفترية وتحقق من فاتورة ZATCA واختبار ضغط، قبل أن يصل إلى مكتبك.",
+    en: "Every figure in every application passes ledger reconciliation, ZATCA verification, and stress-testing before it reaches your desk.",
+  },
+  "landing.footer.rights": { ar: "© {{year}} جدوى", en: "© {{year}} Jadwa" },
+
   // --- common / auth ---
   "auth.signOut": { ar: "تسجيل الخروج", en: "Sign out" },
   "auth.workingEllipsis": { ar: "جارٍ العمل…", en: "Working…" },

@@ -3,14 +3,15 @@
 import type { ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth, type AppRole } from "./AuthProvider";
+import LandingPage from "../landing/LandingPage";
 
 const HOME: Record<AppRole, string> = { sme: "/sme", bank: "/bank" };
 
 function FullPageSpinner() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50">
+    <div className="flex min-h-screen items-center justify-center bg-bg">
       <div
-        className="h-6 w-6 animate-spin rounded-full border-2 border-slate-300 border-t-slate-600 motion-reduce:animate-none"
+        className="h-6 w-6 animate-spin rounded-full border-2 border-line-strong border-t-ink motion-reduce:animate-none"
         role="status"
         aria-label="Loading"
       />
@@ -31,10 +32,22 @@ export function RequireRole({ role, children }: { role: AppRole; children: React
   return <>{children}</>;
 }
 
-// Used at "/" and "/login" to bounce an already-signed-in user to their home.
+// Used at the catch-all route ("*") to bounce an already-signed-in user to
+// their home, or a signed-out one to /login.
 export function RedirectByRole() {
   const { session, role, loading } = useAuth();
   if (loading) return <FullPageSpinner />;
   if (!session || !role) return <Navigate to="/login" replace />;
   return <Navigate to={HOME[role]} replace />;
+}
+
+// Used at "/" — the public landing page for signed-out visitors. Preserves
+// the same authed-redirect behavior as RedirectByRole (signed-in users still
+// land on their portal), but signed-out visitors see the landing page
+// instead of being bounced straight to /login.
+export function LandingOrRedirect() {
+  const { session, role, loading } = useAuth();
+  if (loading) return <FullPageSpinner />;
+  if (session && role) return <Navigate to={HOME[role]} replace />;
+  return <LandingPage />;
 }

@@ -1,14 +1,15 @@
 // App router. Wraps everything in LangProvider + ThemeProvider (global,
 // user-controlled) then AuthProvider, then routes by role:
+//   /             → public landing page (signed-out) or the user's portal (signed-in)
 //   /login        → shared sign in / create account
 //   /sme/*        → SME portal (role "sme")
 //   /bank/*       → bank dashboard (role "bank")
-//   /  and  *     → send the user to the right place for their role
+//   *             → send the user to the right place for their role
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LangProvider } from "./i18n/LangProvider";
 import { ThemeProvider } from "./lib/theme";
 import { AuthProvider } from "./features/auth/AuthProvider";
-import { RequireRole, RedirectByRole } from "./features/auth/RequireRole";
+import { RequireRole, RedirectByRole, LandingOrRedirect } from "./features/auth/RequireRole";
 import LoginPage from "./features/auth/LoginPage";
 import SmePortalLayout from "./features/sme/SmePortalLayout";
 import SmeDashboardPage from "./features/sme/pages/SmeDashboardPage";
@@ -64,7 +65,7 @@ export default function App() {
                   }
                 />
 
-                <Route path="/" element={<RedirectByRole />} />
+                <Route path="/" element={<LandingOrRedirect />} />
                 <Route path="*" element={<RedirectByRole />} />
               </Routes>
             </BrowserRouter>
