@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Jadwa — landing redesign concept</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Zain:wght@400;700;800&family=Alexandria:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg:#F8F6F0; --surface:#FFFFFF; --surface-2:#F1EEE4;
+  --ink:#111D18; --text-2:#54615B; --text-3:#8A948D;
+  --line:#E4E0D3; --line-strong:#CBC5B4;
+  --gold:#A9852F; --gold-strong:#8C6E28; --gold-soft:#F2E9D2; --on-gold:#2A2007;
+  --pass:#177A47; --sme:#0E7A6E; --bank:#2E5AA6;
+}
+html.dark{
+  --bg:#0B1310; --surface:#121D18; --surface-2:#182620;
+  --ink:#F1EDE1; --text-2:#A9B3AB; --text-3:#6E7A72;
+  --line:#243129; --line-strong:#33443A;
+  --gold:#D6B36A; --gold-strong:#E3C98F; --gold-soft:#2A2415; --on-gold:#2A1E05;
+  --pass:#4CC38A; --sme:#37B3A2; --bank:#7CA4E4;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:Alexandria,system-ui,sans-serif;line-height:1.7;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.zain{font-family:Zain,Alexandria,sans-serif}
+.wrap{max-width:1120px;margin:0 auto;padding:0 32px}
+.narrow{max-width:800px;margin:0 auto;padding:0 32px}
+.tnum{font-variant-numeric:tabular-nums}
+html[lang=ar] p{line-height:1.9}
+
+.topstrip{height:3px;background:var(--gold)}
+header{border-bottom:1px solid var(--line);position:sticky;top:0;background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(10px);z-index:20}
+.nav{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:70px}
+.brand{display:flex;align-items:center;gap:10px;justify-self:start}
+.brand .mark{width:26px;height:26px;color:var(--ink)}
+.brand .word{font-size:25px;font-weight:800;letter-spacing:.01em}
+.brand .diamond{width:11px;height:11px}
+.navlinks{display:flex;gap:30px;justify-self:center}
+.navlinks a{color:var(--text-2);text-decoration:none;font-size:14px;font-weight:500;transition:color .15s}
+.navlinks a:hover{color:var(--ink)}
+.navact{display:flex;align-items:center;gap:14px;justify-self:end}
+.toggle{display:flex;border:1px solid var(--line-strong);border-radius:8px;overflow:hidden}
+.toggle button{background:transparent;border:0;color:var(--text-3);font-family:inherit;font-size:12px;font-weight:600;padding:5px 10px;cursor:pointer}
+.toggle button.on{background:var(--surface-2);color:var(--ink)}
+.iconbtn{width:32px;height:32px;border:1px solid var(--line-strong);border-radius:8px;background:transparent;color:var(--text-2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px}
+.btn{font-family:inherit;font-size:14px;font-weight:600;border-radius:8px;padding:0 18px;height:40px;display:inline-flex;align-items:center;gap:8px;cursor:pointer;text-decoration:none;transition:.15s;white-space:nowrap}
+.btn-gold{background:var(--gold);color:var(--on-gold);border:1px solid var(--gold)}
+.btn-gold:hover{background:var(--gold-strong)}
+.btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--line-strong)}
+.btn-ghost:hover{background:var(--surface-2)}
+.btn-lg{height:54px;font-size:16px;padding:0 28px}
+
+.eyebrow{font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);font-weight:600}
+html[dir=rtl] .eyebrow{letter-spacing:normal;text-transform:none;font-size:15px}
+
+.hero{padding:104px 0 52px;text-align:center}
+.hero .eyebrow{margin-bottom:26px}
+.hero h1{font-size:clamp(42px,6.6vw,82px);font-weight:800;line-height:1.04;letter-spacing:-.015em;max-width:15ch;margin:0 auto 24px}
+html[dir=rtl] .hero h1{line-height:1.14;letter-spacing:0}
+.hero h1 .dia{display:inline-block;width:.4em;height:.4em;margin-inline-start:.14em;transform:translateY(-.32em)}
+.hero .sub{font-size:clamp(17px,2vw,20px);color:var(--text-2);max-width:56ch;margin:0 auto 40px}
+.cta-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.trust{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:44px}
+.trust span{font-size:13px;color:var(--text-2);border:1px solid var(--line);border-radius:100px;padding:7px 15px;display:inline-flex;align-items:center;gap:7px}
+.trust span::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--gold)}
+
+section{border-top:1px solid var(--line)}
+.sec{padding:104px 0}
+.sec-intro{text-align:center}
+.sec-intro .eyebrow{display:block;margin-bottom:20px}
+.sec-intro h2{font-size:clamp(30px,4vw,50px);font-weight:800;line-height:1.12;max-width:20ch;margin:0 auto 30px}
+.sec-intro p{font-size:18px;color:var(--text-2);margin-bottom:22px}
+.sec-intro p:last-child{margin-bottom:0}
+.sec-intro p b{color:var(--ink);font-weight:600}
+
+.sadu{padding:92px 0 96px}
+.zig{width:100%;height:14px;display:block;margin-bottom:44px;opacity:.9}
+.pipe-head{text-align:center;margin-bottom:38px}
+.pipe-head h2{font-size:clamp(28px,3.6vw,40px);font-weight:800}
+.pipe-head p{color:var(--text-2);font-size:16px;margin-top:10px}
+.band{width:100%;height:auto;display:block}
+.tri-fill{opacity:0;animation:rise .55s ease forwards}
+.st-label{fill:var(--text-2);font-family:Alexandria,sans-serif;font-size:15px;font-weight:500}
+.st-num{fill:var(--gold);font-family:Alexandria,sans-serif;font-size:12px;font-weight:600}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@media (prefers-reduced-motion:reduce){.tri-fill{animation:none;opacity:1}}
+
+.split{display:grid;grid-template-columns:1.05fr .95fr;gap:64px;align-items:center}
+.split .copy .eyebrow{display:block;margin-bottom:18px}
+.split .copy h2{font-size:clamp(28px,3.6vw,44px);font-weight:800;line-height:1.14;margin-bottom:24px}
+.split .copy p{font-size:17px;color:var(--text-2);margin-bottom:28px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 30px}
+.panel ul{list-style:none}
+.panel li{display:flex;align-items:flex-start;gap:14px;padding:20px 0;border-bottom:1px solid var(--line);font-size:16px;color:var(--ink)}
+.panel li:last-child{border-bottom:0}
+.panel li .ck{flex:none;width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;margin-top:1px}
+.sme-accent .ck{background:color-mix(in srgb,var(--sme) 16%,transparent);color:var(--sme)}
+.bank-accent .ck{background:color-mix(in srgb,var(--bank) 16%,transparent);color:var(--bank)}
+.sme-accent .eyebrow{color:var(--sme)} .bank-accent .eyebrow{color:var(--bank)}
+.linkgo{font-size:15px;font-weight:600;display:inline-flex;align-items:center;gap:7px;text-decoration:none}
+.sme-accent .linkgo{color:var(--sme)} .bank-accent .linkgo{color:var(--bank)}
+.linkgo i{transition:transform .15s}
+html[dir=rtl] .linkgo i{transform:scaleX(-1)}
+.bank-sec .split{grid-template-columns:.95fr 1.05fr}
+.bank-sec .panel{order:-1}
+
+.verdict{background:var(--gold-soft);border-block:1px solid color-mix(in srgb,var(--gold) 34%,transparent);text-align:center;padding:60px 0}
+.verdict .line{display:inline-flex;align-items:center;gap:12px;font-family:Zain,sans-serif;font-size:clamp(24px,3.2vw,34px);font-weight:800;color:var(--ink)}
+.verdict .dia{width:17px;height:17px}
+.verdict p{color:var(--text-2);font-size:16px;max-width:60ch;margin:16px auto 0}
+
+.closing{text-align:center;padding:100px 0}
+.closing h2{font-size:clamp(30px,4vw,48px);font-weight:800;margin-bottom:18px}
+.closing p{color:var(--text-2);font-size:18px;margin-bottom:34px}
+
+footer{border-top:1px solid var(--line);padding:36px 0}
+.foot{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.foot .brand .word{font-size:19px}
+.flinks{display:flex;gap:26px}
+.flinks a{color:var(--text-2);text-decoration:none;font-size:14px}
+.flinks a:hover{color:var(--ink)}
+.cr{color:var(--text-3);font-size:13px}
+
+@media (max-width:820px){
+  .navlinks{display:none}
+  .nav{grid-template-columns:1fr auto}
+  .split,.bank-sec .split{grid-template-columns:1fr;gap:34px}
+  .bank-sec .panel{order:0}
+  .sec{padding:72px 0}
+  .hero{padding:68px 0 30px}
+}
+</style>
+</head>
+<body>
+<div class="topstrip"></div>
+
+<header>
+  <div class="wrap">
+    <nav class="nav">
+      <div class="brand">
+        <svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><rect x="22" y="24" width="56" height="13" fill="currentColor"/><rect x="65" y="37" width="13" height="28" fill="currentColor"/><rect x="10" y="52" width="68" height="13" fill="currentColor"/><path d="M38 38.5 L43.5 44.5 L38 50.5 L32.5 44.5 Z" fill="var(--gold)"/></svg>
+        <span class="word zain" data-ar="جدوى" data-en="Jadwa">جدوى</span>
+        <svg class="diamond" viewBox="0 0 14 14" aria-hidden="true"><path d="M7 .5 L13.5 7 L7 13.5 L.5 7 Z" fill="var(--gold)"/></svg>
+      </div>
+      <div class="navlinks">
+        <a href="#platform" data-ar="المنصّة" data-en="Platform">المنصّة</a>
+        <a href="#how" data-ar="كيف تعمل" data-en="How it works">كيف تعمل</a>
+        <a href="#sources" data-ar="المصادر" data-en="Data sources">المصادر</a>
+      </div>
+      <div class="navact">
+        <div class="toggle" id="lang">
+          <button data-lang="ar" class="on">ع</button>
+          <button data-lang="en">EN</button>
+        </div>
+        <button class="iconbtn" id="theme" aria-label="theme">☾</button>
+        <a href="#" class="btn btn-gold" data-ar="ابدأ الآن" data-en="Get started">ابدأ الآن</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<section class="hero" style="border-top:0">
+  <div class="wrap">
+    <div class="eyebrow" data-ar="الجدارة الائتمانية للمنشآت، مُتحقّقة" data-en="Verified SME underwriting">الجدارة الائتمانية للمنشآت، مُتحقّقة</div>
+    <h1 class="zain" data-ar="دراسة جدوى حيّة لكل طلب تمويل" data-en="A living feasibility study for every financing application">دراسة جدوى حيّة لكل طلب تمويل<span class="dia"><svg viewBox="0 0 14 14"><path d="M7 .5 L13.5 7 L7 13.5 L.5 7 Z" fill="var(--gold)"/></svg></span></h1>
+    <p class="sub" data-ar="من فواتير متناثرة إلى قرار تمويل يمكنك الدفاع عنه. تقرأ جدوى كل مستند، وتطابقه مع السجل البنكي، وتختبر المنشأة تحت الضغط قبل أن يوقّع أحد." data-en="From scattered invoices to a lending decision you can defend. Jadwa reads every document, reconciles it against the bank ledger, and stress tests the business before anyone signs.">من فواتير متناثرة إلى قرار تمويل يمكنك الدفاع عنه. تقرأ جدوى كل مستند، وتطابقه مع السجل البنكي، وتختبر المنشأة تحت الضغط قبل أن يوقّع أحد.</p>
+    <div class="cta-row">
+      <a href="#" class="btn btn-gold btn-lg" data-ar="ابدأ طلبك" data-en="Get started">ابدأ طلبك</a>
+      <a href="#" class="btn btn-ghost btn-lg" data-ar="تسجيل الدخول" data-en="Sign in">تسجيل الدخول</a>
+    </div>
+    <div class="trust">
+      <span data-ar="متوافق مع فاتورة ZATCA" data-en="ZATCA aware">متوافق مع فاتورة ZATCA</span>
+      <span data-ar="عربي وإنجليزي" data-en="Arabic and English">عربي وإنجليزي</span>
+      <span data-ar="بيانات سعودية رسمية" data-en="Official Saudi data">بيانات سعودية رسمية</span>
+    </div>
+  </div>
+</section>
+
+<section id="platform">
+  <div class="sec sec-intro narrow">
+    <span class="eyebrow" data-ar="المنصّة" data-en="The platform">المنصّة</span>
+    <h2 class="zain" data-ar="مسار واحد. جمهوران. طبقة ثقة مشتركة." data-en="One pipeline. Two audiences. One shared layer of trust.">مسار واحد. جمهوران. طبقة ثقة مشتركة.</h2>
+    <p data-ar="يتعثّر التمويل في الفجوة بين طرفين لا يثق أحدهما بالآخر تمامًا. المنشأة تعرف أن أرقامها حقيقية لكنها لا تستطيع إثبات ذلك بسرعة، والبنك يريد أن يصدّقها لكنه لا يستطيع التحقق منها على نطاق واسع. تقف جدوى في هذه الفجوة كطبقة محايدة تقوم على الأدلة أولًا، فتحوّل الفواتير والكشوف الخام إلى صورة مالية منظّمة ومُتحقّقة، ثم تعرض الصورة نفسها على كل طرف باللغة التي يحتاجها." data-en="Financing stalls in the gap between two parties who do not fully trust each other. A business knows its numbers are real but cannot prove it quickly. A bank wants to believe them but cannot verify them at scale. Jadwa sits in that gap as a neutral, evidence first layer. It turns raw invoices and statements into a structured, verified financial picture, then presents that same picture to each side in the language it needs.">يتعثّر التمويل في الفجوة بين طرفين لا يثق أحدهما بالآخر تمامًا. المنشأة تعرف أن أرقامها حقيقية لكنها لا تستطيع إثبات ذلك بسرعة، والبنك يريد أن يصدّقها لكنه لا يستطيع التحقق منها على نطاق واسع. تقف جدوى في هذه الفجوة كطبقة محايدة تقوم على الأدلة أولًا، فتحوّل الفواتير والكشوف الخام إلى صورة مالية منظّمة ومُتحقّقة، ثم تعرض الصورة نفسها على كل طرف باللغة التي يحتاجها.</p>
+    <p data-ar="لا شيء يُؤخذ على الثقة. كل رقم يُطابَق مع سجل المعاملات الفعلي، وكل فاتورة يُتحقَّق من صحتها، وكل نموذج عمل يُختبَر أمام الصدمات الأكثر احتمالًا في قطاعه. ما يصل إلى البنك ليس ادعاءً، بل نتيجة." data-en="Nothing is taken on faith. Every figure is matched against real transaction history, every invoice is checked for authenticity, and every business model is tested against the shocks most likely to hit its sector. What reaches the bank is not a claim. It is a conclusion."><b>لا شيء يُؤخذ على الثقة.</b> كل رقم يُطابَق مع سجل المعاملات الفعلي، وكل فاتورة يُتحقَّق من صحتها، وكل نموذج عمل يُختبَر أمام الصدمات الأكثر احتمالًا في قطاعه. ما يصل إلى البنك ليس ادعاءً، بل نتيجة.</p>
+  </div>
+</section>
+
+<section id="how" class="sadu">
+  <div class="wrap">
+    <svg class="zig" viewBox="0 0 1200 20" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 18 L30 4 L60 18 L90 4 L120 18 L150 4 L180 18 L210 4 L240 18 L270 4 L300 18 L330 4 L360 18 L390 4 L420 18 L450 4 L480 18 L510 4 L540 18 L570 4 L600 18 L630 4 L660 18 L690 4 L720 18 L750 4 L780 18 L810 4 L840 18 L870 4 L900 18 L930 4 L960 18 L990 4 L1020 18 L1050 4 L1080 18 L1110 4 L1140 18 L1170 4 L1200 18" fill="none" stroke="var(--gold)" stroke-width="1.5"/>
+    </svg>
+    <div class="pipe-head">
+      <h2 class="zain" data-ar="كيف تعمل جدوى" data-en="How Jadwa works">كيف تعمل جدوى</h2>
+      <p data-ar="ست مراحل تعمل تلقائيًا على كل مستند يصل" data-en="Six stages, running automatically on every document that arrives">ست مراحل تعمل تلقائيًا على كل مستند يصل</p>
+    </div>
+    <svg class="band" viewBox="0 0 1120 170" aria-hidden="true" id="band"></svg>
+  </div>
+</section>
+
+<section id="sme" class="sme-accent">
+  <div class="sec wrap">
+    <div class="split">
+      <div class="copy">
+        <span class="eyebrow" data-ar="لأصحاب الأعمال" data-en="For business owners">لأصحاب الأعمال</span>
+        <h2 class="zain" data-ar="ادخل بمستنداتك، واخرج بطلب جاهز للبنك." data-en="Walk in with documents. Walk out with a bank ready application.">ادخل بمستنداتك، واخرج بطلب جاهز للبنك.</h2>
+        <p data-ar="تخسر كثير من المنشآت الصغيرة التمويل لا لأنها ضعيفة، بل لأن أوراقها متناثرة بين صيغ ولغات ومجلدات. تقبل جدوى ذلك كله، بالعربية أو الإنجليزية، مصوَّرًا أو ممسوحًا، وتنظّمه في طلب واحد نظيف خلال دقائق. وقبل أن ترسل، ترى تمامًا ما سيراه البنك، بما في ذلك نقاط الضعف التي سيثيرها موظف دقيق، لتعالجها أولًا." data-en="Many small businesses lose financing not because they are weak, but because their paperwork is scattered across formats, languages, and folders. Jadwa accepts all of it, Arabic or English, photographed or scanned, and organizes it into one clean application in minutes. Before you submit, you see exactly what a bank will see, including the weaknesses a careful officer would raise, so you can address them first.">تخسر كثير من المنشآت الصغيرة التمويل لا لأنها ضعيفة، بل لأن أوراقها متناثرة بين صيغ ولغات ومجلدات. تقبل جدوى ذلك كله، بالعربية أو الإنجليزية، مصوَّرًا أو ممسوحًا، وتنظّمه في طلب واحد نظيف خلال دقائق. وقبل أن ترسل، ترى تمامًا ما سيراه البنك، بما في ذلك نقاط الضعف التي سيثيرها موظف دقيق، لتعالجها أولًا.</p>
+        <a href="#" class="linkgo" data-ar="ابدأ طلبك" data-en="Start an application">ابدأ طلبك <i>→</i></a>
+      </div>
+      <div class="panel">
+        <ul>
+          <li><span class="ck">✓</span><span data-ar="رفع الفواتير والكشوف بأي صيغة" data-en="Upload invoices and statements in any format">رفع الفواتير والكشوف بأي صيغة</span></li>
+          <li><span class="ck">✓</span><span data-ar="قراءة تلقائية بالعربية والإنجليزية" data-en="Automatic reading in Arabic and English">قراءة تلقائية بالعربية والإنجليزية</span></li>
+          <li><span class="ck">✓</span><span data-ar="ملخّص صحّة مالية بلغة واضحة قبل الإرسال" data-en="A plain language health summary before you submit">ملخّص صحّة مالية بلغة واضحة قبل الإرسال</span></li>
+          <li><span class="ck">✓</span><span data-ar="ملف طلب جاهز للبنك" data-en="A generated, bank ready application file">ملف طلب جاهز للبنك</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="bank-sec bank-accent">
+  <div class="sec wrap">
+    <div class="split">
+      <div class="copy">
+        <span class="eyebrow" data-ar="للبنوك" data-en="For banks">للبنوك</span>
+        <h2 class="zain" data-ar="قرارك على الأدلة، لا على الثقة." data-en="Underwrite on evidence, not on trust.">قرارك على الأدلة، لا على الثقة.</h2>
+        <p data-ar="يقضي الموظفون ساعات في قراءة تقارير جامدة لا يزالون مضطرين للتشكيك فيها. تسلّمهم جدوى ملفًا مُقيَّمًا مسبقًا أُنجز فيه العمل الشاق. يصل كل طلب مُدقّقًا جنائيًا، ومختبَرًا تحت الضغط، ومستندًا إلى بيانات السوق السعودي، مع إشارة واضحة على مدى الأصالة. ويمكن للموظف استكشاف المخاطر تفاعليًا، فيحرّك عوامل السيناريو ويراقب الملف وهو يتغيّر، ثم يقرّر والدليل بين يديه." data-en="Officers spend hours reading static reports they still have to second guess. Jadwa hands them a pre scored file where the hard work is already done. Every application arrives forensically checked, stress tested, and grounded in Saudi market data, with a clear signal on authenticity. Officers can explore the risk interactively, moving scenario levers and watching the profile respond, then decide with the evidence in front of them.">يقضي الموظفون ساعات في قراءة تقارير جامدة لا يزالون مضطرين للتشكيك فيها. تسلّمهم جدوى ملفًا مُقيَّمًا مسبقًا أُنجز فيه العمل الشاق. يصل كل طلب مُدقّقًا جنائيًا، ومختبَرًا تحت الضغط، ومستندًا إلى بيانات السوق السعودي، مع إشارة واضحة على مدى الأصالة. ويمكن للموظف استكشاف المخاطر تفاعليًا، فيحرّك عوامل السيناريو ويراقب الملف وهو يتغيّر، ثم يقرّر والدليل بين يديه.</p>
+        <a href="#" class="linkgo" data-ar="دخول لوحة البنك" data-en="Open the bank dashboard">دخول لوحة البنك <i>→</i></a>
+      </div>
+      <div class="panel">
+        <ul>
+          <li><span class="ck">✓</span><span data-ar="قائمة طلبات مُقيَّمة مسبقًا" data-en="A pre scored queue of submitted applications">قائمة طلبات مُقيَّمة مسبقًا</span></li>
+          <li><span class="ck">✓</span><span data-ar="فحوص أصالة جنائية بإشارات واضحة" data-en="Forensic authenticity checks with clear flags">فحوص أصالة جنائية بإشارات واضحة</span></li>
+          <li><span class="ck">✓</span><span data-ar="سيناريوهات مخاطر تفاعلية تُحسب فورًا" data-en="Interactive risk scenarios that recalculate live">سيناريوهات مخاطر تفاعلية تُحسب فورًا</span></li>
+          <li><span class="ck">✓</span><span data-ar="سياق سوقي مستند إلى بيانات سعودية رسمية" data-en="Market context grounded in official Saudi data">سياق سوقي مستند إلى بيانات سعودية رسمية</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="verdict" id="sources">
+  <div class="wrap">
+    <div class="line">
+      <svg class="dia" viewBox="0 0 14 14" aria-hidden="true"><path d="M7 .5 L13.5 7 L7 13.5 L.5 7 Z" fill="var(--gold)"/></svg>
+      <span class="zain" data-ar="كل رقم تدقّقه جدوى" data-en="Every figure cross checked by Jadwa">كل رقم تدقّقه جدوى</span>
+    </div>
+    <p data-ar="كل رقم في كل طلب يمرّ بمطابقة السجل البنكي، والتحقق من رمز فاتورة ZATCA، واختبار الضغط قبل أن يصل إلى مكتبك." data-en="Every figure in every application passes ledger reconciliation, ZATCA verification, and stress testing before it reaches your desk.">كل رقم في كل طلب يمرّ بمطابقة السجل البنكي، والتحقق من رمز فاتورة ZATCA، واختبار الضغط قبل أن يصل إلى مكتبك.</p>
+  </div>
+</section>
+
+<section class="closing" style="border-top:0">
+  <div class="narrow">
+    <h2 class="zain" data-ar="ثقة في كل قرار تمويل." data-en="Bring trust to every financing decision.">ثقة في كل قرار تمويل.</h2>
+    <p data-ar="ابدأ كمنشأة تبحث عن تمويل، أو سجّل الدخول إلى لوحة البنك." data-en="Start as a business seeking financing, or sign in to the bank dashboard.">ابدأ كمنشأة تبحث عن تمويل، أو سجّل الدخول إلى لوحة البنك.</p>
+    <div class="cta-row">
+      <a href="#" class="btn btn-gold btn-lg" data-ar="ابدأ الآن" data-en="Get started">ابدأ الآن</a>
+      <a href="#" class="btn btn-ghost btn-lg" data-ar="تسجيل الدخول" data-en="Sign in">تسجيل الدخول</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div class="brand">
+        <svg class="mark" style="width:22px;height:22px" viewBox="0 0 100 100" aria-hidden="true"><rect x="22" y="24" width="56" height="13" fill="currentColor"/><rect x="65" y="37" width="13" height="28" fill="currentColor"/><rect x="10" y="52" width="68" height="13" fill="currentColor"/><path d="M38 38.5 L43.5 44.5 L38 50.5 L32.5 44.5 Z" fill="var(--gold)"/></svg>
+        <span class="word zain" data-ar="جدوى" data-en="Jadwa">جدوى</span>
+      </div>
+      <div class="flinks">
+        <a href="#platform" data-ar="المنصّة" data-en="Platform">المنصّة</a>
+        <a href="#how" data-ar="كيف تعمل" data-en="How it works">كيف تعمل</a>
+        <a href="#sources" data-ar="المصادر" data-en="Data sources">المصادر</a>
+        <a href="#" data-ar="تسجيل الدخول" data-en="Sign in">تسجيل الدخول</a>
+      </div>
+      <div class="cr tnum" data-ar="© 2026 جدوى" data-en="© 2026 Jadwa">© 2026 جدوى</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+const STAGES=[
+  {ar:"استخراج",en:"Extract"},{ar:"تدقيق",en:"Forensic"},{ar:"اختبار الضغط",en:"Stress test"},
+  {ar:"السوق",en:"Market"},{ar:"نموذج المخاطر",en:"Risk model"},{ar:"السجل",en:"Record"}
+];
+function drawBand(){
+  const rtl=document.documentElement.dir==="rtl";
+  const lang=document.documentElement.lang;
+  const n=6, W=1120, triW=150, gap=(W-triW*n)/(n+1), topY=18, baseY=118;
+  let s="";
+  for(let i=0;i<n;i++){
+    const idx=rtl?(n-1-i):i;
+    const x=gap+idx*(triW+gap);
+    const cx=x+triW/2;
+    s+=`<path d="M${x} ${baseY} L${cx} ${topY} L${x+triW} ${baseY} Z" fill="none" stroke="var(--line-strong)" stroke-width="1"/>`;
+    s+=`<path class="tri-fill" style="animation-delay:${i*0.09}s" d="M${x+22} ${baseY} L${cx} ${topY+28} L${x+triW-22} ${baseY} Z" fill="var(--gold)"/>`;
+    s+=`<text class="st-num" x="${cx}" y="${baseY+26}" text-anchor="middle">${String(i+1).padStart(2,"0")}</text>`;
+    s+=`<text class="st-label" x="${cx}" y="${baseY+46}" text-anchor="middle">${lang==="ar"?STAGES[idx].ar:STAGES[idx].en}</text>`;
+  }
+  document.getElementById("band").innerHTML=s;
+}
+function setLang(l){
+  document.documentElement.lang=l;
+  document.documentElement.dir=l==="ar"?"rtl":"ltr";
+  document.querySelectorAll("[data-ar]").forEach(el=>{el.textContent=el.getAttribute("data-"+l);});
+  document.querySelectorAll("#lang button").forEach(b=>b.classList.toggle("on",b.dataset.lang===l));
+  drawBand();
+}
+document.querySelectorAll("#lang button").forEach(b=>b.addEventListener("click",()=>setLang(b.dataset.lang)));
+document.getElementById("theme").addEventListener("click",()=>{
+  const d=document.documentElement.classList.toggle("dark");
+  document.getElementById("theme").textContent=d?"☾":"☀";
+});
+drawBand();
+</script>
+</body>
+</html>

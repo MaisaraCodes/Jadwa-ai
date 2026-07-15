@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Jadwa — SME screens concept</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Zain:wght@400;700;800&family=Alexandria:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg:#F8F6F0; --surface:#FFFFFF; --surface-2:#F1EEE4;
+  --ink:#111D18; --text-2:#54615B; --text-3:#8A948D;
+  --line:#E4E0D3; --line-strong:#CBC5B4;
+  --gold:#A9852F; --gold-soft:#F2E9D2;
+  --accent:#0E7A6E; --accent-strong:#0A5F56; --accent-soft:#E0F1EE; --on-accent:#FFFFFF;
+  --pass:#177A47; --pass-bg:#E5F3EA; --review:#9C6F12; --review-bg:#F8EED8; --flag:#B3352A; --flag-bg:#F9E9E7;
+}
+html.dark{
+  --bg:#0B1310; --surface:#121D18; --surface-2:#182620;
+  --ink:#F1EDE1; --text-2:#A9B3AB; --text-3:#6E7A72;
+  --line:#243129; --line-strong:#33443A;
+  --gold:#D6B36A; --gold-soft:#2A2415;
+  --accent:#37B3A2; --accent-strong:#5FC9BB; --accent-soft:#0F2B26; --on-accent:#07211D;
+  --pass:#4CC38A; --pass-bg:#12281C; --review:#E0A93E; --review-bg:#2A2110; --flag:#E2604F; --flag-bg:#2B1512;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:Alexandria,system-ui,sans-serif;line-height:1.7;-webkit-font-smoothing:antialiased}
+.zain{font-family:Zain,Alexandria,sans-serif}
+.tnum{font-variant-numeric:tabular-nums}
+.wrap{max-width:1080px;margin:0 auto;padding:0 28px}
+
+.topstrip{height:3px;background:var(--accent)}
+header{border-bottom:1px solid var(--line);background:var(--surface)}
+.hbar{display:flex;align-items:center;justify-content:space-between;height:62px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand .mark{width:24px;height:24px;color:var(--ink)}
+.brand .word{font-size:22px;font-weight:800}
+.brand .diamond{width:10px;height:10px}
+.brand .sep{width:1px;height:22px;background:var(--line-strong);margin-inline:14px}
+.brand .plabel{font-size:14px;color:var(--text-2);font-weight:500}
+.hact{display:flex;align-items:center;gap:12px}
+.toggle{display:flex;border:1px solid var(--line-strong);border-radius:8px;overflow:hidden}
+.toggle button{background:transparent;border:0;color:var(--text-3);font-family:inherit;font-size:12px;font-weight:600;padding:5px 9px;cursor:pointer}
+.toggle button.on{background:var(--surface-2);color:var(--ink)}
+.iconbtn{width:31px;height:31px;border:1px solid var(--line-strong);border-radius:8px;background:transparent;color:var(--text-2);cursor:pointer}
+.umail{font-size:13px;color:var(--text-3)}
+.btn{font-family:inherit;font-size:14px;font-weight:600;border-radius:8px;padding:0 16px;height:38px;display:inline-flex;align-items:center;gap:8px;cursor:pointer;text-decoration:none;border:1px solid transparent;transition:.15s;white-space:nowrap}
+.btn-accent{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.btn-accent:hover{background:var(--accent-strong)}
+.btn-ghost{background:transparent;color:var(--ink);border-color:var(--line-strong)}
+.btn-ghost:hover{background:var(--surface-2)}
+.btn-lg{height:46px;padding:0 22px;font-size:15px}
+
+.mockbar{background:var(--surface-2);border-bottom:1px solid var(--line)}
+.mockbar .in{display:flex;align-items:center;gap:12px;height:46px}
+.mockbar .lbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-3);font-weight:600}
+.segs{display:flex;gap:6px}
+.seg{font-family:inherit;font-size:13px;font-weight:600;border:1px solid var(--line-strong);background:transparent;color:var(--text-2);border-radius:100px;padding:5px 14px;cursor:pointer}
+.seg.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+
+.page{padding:40px 0 72px}
+.pagehead{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:30px}
+.pagehead h1{font-size:34px;font-weight:800;line-height:1.1}
+.pagehead p{color:var(--text-2);font-size:15px;margin-top:8px}
+
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:32px}
+.metric{background:var(--surface-2);border-radius:12px;padding:16px 18px}
+.metric .k{font-size:13px;color:var(--text-3);font-weight:500;margin-bottom:8px}
+.metric .v{font-size:26px;font-weight:600;line-height:1}
+.metric .v small{font-size:14px;color:var(--text-3);font-weight:400}
+
+.applist{display:flex;flex-direction:column;gap:14px}
+.appcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px 22px;display:grid;grid-template-columns:1fr auto auto;gap:24px;align-items:center;transition:border-color .15s}
+.appcard:hover{border-color:var(--line-strong)}
+.appcard .title{font-size:17px;font-weight:600}
+.appcard .meta{font-size:13px;color:var(--text-3);margin-top:5px;display:flex;gap:10px;align-items:center}
+.appcard .meta .dot{width:3px;height:3px;border-radius:50%;background:var(--text-3)}
+.prog{display:flex;flex-direction:column;gap:7px;min-width:170px}
+.prog .mini{height:22px}
+.prog .ptext{font-size:12px;color:var(--text-3)}
+.amt{text-align:end;min-width:120px}
+.amt .n{font-size:17px;font-weight:600}
+.amt .cur{font-size:12px;color:var(--text-3);margin-top:3px}
+.pill{display:inline-flex;align-items:center;gap:7px;border-radius:100px;padding:4px 11px;font-size:12px;font-weight:600;border:1px solid var(--line)}
+.pill .pd{width:6px;height:6px;border-radius:50%}
+.pill.neutral{background:var(--surface-2);color:var(--text-2)}
+.pill.neutral .pd{background:var(--text-3)}
+.pill.accent{background:var(--accent-soft);color:var(--accent-strong);border-color:transparent}
+.pill.accent .pd{background:var(--accent)}
+.pill.pass{background:var(--pass-bg);color:var(--pass);border-color:transparent}
+.pill.pass .pd{background:var(--pass)}
+.pill.review{background:var(--review-bg);color:var(--review);border-color:transparent}
+.pill.review .pd{background:var(--review)}
+.rowbtn{grid-column:1 / -1;display:flex;justify-content:flex-end;margin-top:4px}
+
+.crgrid{display:grid;grid-template-columns:1fr 320px;gap:36px;align-items:start}
+.stepper{display:flex;align-items:center;gap:8px;margin-bottom:34px}
+.step{display:flex;align-items:center;gap:9px;color:var(--text-3);font-size:14px;font-weight:500}
+.step .num{width:26px;height:26px;border-radius:50%;border:1px solid var(--line-strong);display:flex;align-items:center;justify-content:center;font-size:13px}
+.step.active{color:var(--ink)}
+.step.active .num{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.step .bar{width:26px;height:1px;background:var(--line-strong)}
+.formcard{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:28px}
+.formcard h2{font-size:20px;font-weight:700;margin-bottom:4px}
+.formcard .lead{font-size:14px;color:var(--text-2);margin-bottom:24px}
+.field{margin-bottom:20px}
+.field label{display:block;font-size:13px;color:var(--text-2);font-weight:500;margin-bottom:8px}
+.field .in,.field select,.field textarea{width:100%;height:46px;border-radius:8px;background:var(--surface);border:1px solid var(--line-strong);padding:0 14px;font-family:inherit;font-size:15px;color:var(--ink)}
+.field textarea{height:auto;padding:12px 14px;resize:vertical;min-height:88px}
+.field .in:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 22%,transparent)}
+.inpair{display:flex;align-items:center;border:1px solid var(--line-strong);border-radius:8px;overflow:hidden}
+.inpair span{padding:0 14px;background:var(--surface-2);color:var(--text-2);font-size:14px;height:46px;display:flex;align-items:center}
+.inpair input{border:0;height:46px;flex:1;padding:0 14px;background:var(--surface);color:var(--ink);font-family:inherit;font-size:15px}
+.inpair input:focus{outline:none}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.bizcard{border:1px solid var(--line);border-radius:12px;padding:16px 18px;background:var(--surface-2);display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:24px}
+.bizcard .bn{font-size:15px;font-weight:600}
+.bizcard .bm{font-size:13px;color:var(--text-3);margin-top:4px}
+.bizcard a{color:var(--accent);font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap}
+.formactions{display:flex;gap:12px;margin-top:8px}
+.aside{background:var(--surface-2);border-radius:16px;padding:24px}
+.aside h3{font-size:15px;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.aside h3 .d{width:11px;height:11px}
+.aside ol{list-style:none;counter-reset:s}
+.aside li{counter-increment:s;display:flex;gap:12px;padding:11px 0;font-size:14px;color:var(--text-2);border-bottom:1px solid var(--line)}
+.aside li:last-child{border-bottom:0}
+.aside li::before{content:counter(s);flex:none;width:22px;height:22px;border-radius:50%;background:var(--accent-soft);color:var(--accent-strong);font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center}
+
+.hidden{display:none}
+.st-num{fill:var(--text-3);font-family:Alexandria,sans-serif;font-size:9px;font-weight:600}
+@media (max-width:860px){
+  .metrics{grid-template-columns:repeat(2,1fr)}
+  .appcard{grid-template-columns:1fr;gap:14px}
+  .amt{text-align:start}
+  .crgrid{grid-template-columns:1fr;gap:22px}
+  .umail{display:none}
+}
+</style>
+</head>
+<body>
+<div class="topstrip"></div>
+
+<header>
+  <div class="wrap">
+    <div class="hbar">
+      <div class="brand">
+        <svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><rect x="22" y="24" width="56" height="13" fill="currentColor"/><rect x="65" y="37" width="13" height="28" fill="currentColor"/><rect x="10" y="52" width="68" height="13" fill="currentColor"/><path d="M38 38.5 L43.5 44.5 L38 50.5 L32.5 44.5 Z" fill="var(--accent)"/></svg>
+        <span class="word zain" data-ar="جدوى" data-en="Jadwa">جدوى</span>
+        <svg class="diamond" viewBox="0 0 14 14" aria-hidden="true"><path d="M7 .5 L13.5 7 L7 13.5 L.5 7 Z" fill="var(--gold)"/></svg>
+        <span class="sep"></span>
+        <span class="plabel" data-ar="بوّابة المنشآت" data-en="Business portal">بوّابة المنشآت</span>
+      </div>
+      <div class="hact">
+        <div class="toggle" id="lang"><button data-lang="ar" class="on">ع</button><button data-lang="en">EN</button></div>
+        <button class="iconbtn" id="theme" aria-label="theme">☾</button>
+        <span class="umail">miso54232@gmail.com</span>
+        <a href="#" class="btn btn-ghost" style="height:34px" data-ar="خروج" data-en="Sign out">خروج</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="mockbar">
+  <div class="wrap">
+    <div class="in">
+      <span class="lbl" data-ar="معاينة" data-en="Preview">معاينة</span>
+      <div class="segs">
+        <button class="seg on" data-screen="dashboard" data-ar="لوحة الطلبات" data-en="Dashboard">لوحة الطلبات</button>
+        <button class="seg" data-screen="create" data-ar="طلب جديد" data-en="New application">طلب جديد</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="screen-dashboard" class="page">
+  <div class="wrap">
+    <div class="pagehead">
+      <div>
+        <h1 class="zain" data-ar="طلبات التمويل" data-en="My loan applications">طلبات التمويل</h1>
+        <p data-ar="تابِع حالة طلباتك، وأكمِل المسودّات، وابدأ طلبًا جديدًا." data-en="Track your applications, finish your drafts, and start a new one.">تابِع حالة طلباتك، وأكمِل المسودّات، وابدأ طلبًا جديدًا.</p>
+      </div>
+      <a href="#" class="btn btn-accent btn-lg" data-ar="إنشاء طلب" data-en="Create application">＋ <span data-ar="إنشاء طلب" data-en="Create application">إنشاء طلب</span></a>
+    </div>
+
+    <div class="metrics">
+      <div class="metric"><div class="k" data-ar="طلبات نشطة" data-en="Active">طلبات نشطة</div><div class="v tnum">3</div></div>
+      <div class="metric"><div class="k" data-ar="قيد المراجعة" data-en="In review">قيد المراجعة</div><div class="v tnum">1</div></div>
+      <div class="metric"><div class="k" data-ar="معتمدة" data-en="Approved">معتمدة</div><div class="v tnum">2</div></div>
+      <div class="metric"><div class="k" data-ar="إجمالي المطلوب" data-en="Total requested">إجمالي المطلوب</div><div class="v tnum">485,000 <small>SAR</small></div></div>
+    </div>
+
+    <div class="applist" id="applist"></div>
+  </div>
+</div>
+
+<div id="screen-create" class="page hidden">
+  <div class="wrap">
+    <div class="pagehead" style="margin-bottom:24px">
+      <div>
+        <h1 class="zain" data-ar="طلب تمويل جديد" data-en="New financing application">طلب تمويل جديد</h1>
+        <p data-ar="ابدأ بتفاصيل التمويل، ثم أضِف مستنداتك." data-en="Start with the financing details, then add your documents.">ابدأ بتفاصيل التمويل، ثم أضِف مستنداتك.</p>
+      </div>
+    </div>
+
+    <div class="stepper">
+      <div class="step active"><span class="num">1</span><span data-ar="التفاصيل" data-en="Details">التفاصيل</span></div>
+      <span class="bar"></span>
+      <div class="step"><span class="num">2</span><span data-ar="المستندات" data-en="Documents">المستندات</span></div>
+      <span class="bar"></span>
+      <div class="step"><span class="num">3</span><span data-ar="المراجعة" data-en="Review">المراجعة</span></div>
+      <span class="bar"></span>
+      <div class="step"><span class="num">4</span><span data-ar="الإرسال" data-en="Submit">الإرسال</span></div>
+    </div>
+
+    <div class="crgrid">
+      <div class="formcard">
+        <h2 data-ar="تفاصيل التمويل" data-en="Financing details">تفاصيل التمويل</h2>
+        <p class="lead" data-ar="هذه التفاصيل تساعد البنك على تقييم طلبك بدقّة." data-en="These details help the bank assess your request accurately.">هذه التفاصيل تساعد البنك على تقييم طلبك بدقّة.</p>
+
+        <div class="bizcard">
+          <div>
+            <div class="bn" data-ar="مؤسسة رواد للخدمات اللوجستية" data-en="Rawad Logistics">مؤسسة رواد للخدمات اللوجستية</div>
+            <div class="bm tnum" data-ar="السجل التجاري 1010XXXXXX · لوجستيات · الخرج" data-en="CR 1010XXXXXX · Logistics · Al-Kharj">السجل التجاري 1010XXXXXX · لوجستيات · الخرج</div>
+          </div>
+          <a href="#" data-ar="تعديل الملف" data-en="Edit profile">تعديل الملف</a>
+        </div>
+
+        <div class="two">
+          <div class="field">
+            <label data-ar="المبلغ المطلوب" data-en="Amount requested">المبلغ المطلوب</label>
+            <div class="inpair"><span>SAR</span><input class="tnum" value="180,000" /></div>
+          </div>
+          <div class="field">
+            <label data-ar="مدة التمويل" data-en="Financing term">مدة التمويل</label>
+            <select>
+              <option data-ar="6 أشهر" data-en="6 months">6 أشهر</option>
+              <option data-ar="12 شهرًا" data-en="12 months" selected>12 شهرًا</option>
+              <option data-ar="24 شهرًا" data-en="24 months">24 شهرًا</option>
+              <option data-ar="36 شهرًا" data-en="36 months">36 شهرًا</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label data-ar="الغرض من التمويل" data-en="Purpose of financing">الغرض من التمويل</label>
+          <select>
+            <option data-ar="رأس مال عامل" data-en="Working capital" selected>رأس مال عامل</option>
+            <option data-ar="شراء معدات" data-en="Equipment purchase">شراء معدات</option>
+            <option data-ar="تمويل مخزون" data-en="Inventory">تمويل مخزون</option>
+            <option data-ar="توسعة" data-en="Expansion">توسعة</option>
+            <option data-ar="غير ذلك" data-en="Other">غير ذلك</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label data-ar="وصف مختصر (اختياري)" data-en="Short description (optional)">وصف مختصر (اختياري)</label>
+          <textarea placeholder="" data-ar-ph="اشرح باختصار كيف سيُستخدم التمويل" data-en-ph="Briefly explain how the financing will be used"></textarea>
+        </div>
+
+        <div class="formactions">
+          <a href="#" class="btn btn-accent btn-lg" data-ar="أنشئ وتابِع إلى المستندات" data-en="Create and continue to documents">أنشئ وتابِع إلى المستندات</a>
+          <a href="#" class="btn btn-ghost btn-lg" data-ar="إلغاء" data-en="Cancel">إلغاء</a>
+        </div>
+      </div>
+
+      <div class="aside">
+        <h3><svg class="d" viewBox="0 0 14 14" aria-hidden="true"><path d="M7 .5 L13.5 7 L7 13.5 L.5 7 Z" fill="var(--gold)"/></svg><span data-ar="ماذا يحدث بعد ذلك؟" data-en="What happens next">ماذا يحدث بعد ذلك؟</span></h3>
+        <ol>
+          <li data-ar="ارفع فواتيرك وكشوفك بأي صيغة." data-en="Upload your invoices and statements in any format.">ارفع فواتيرك وكشوفك بأي صيغة.</li>
+          <li data-ar="تقرأ جدوى المستندات وتنظّمها تلقائيًا." data-en="Jadwa reads and organizes your documents automatically.">تقرأ جدوى المستندات وتنظّمها تلقائيًا.</li>
+          <li data-ar="راجِع الأرقام وصحّح أي خطأ قبل الإرسال." data-en="Review the figures and fix anything before you submit.">راجِع الأرقام وصحّح أي خطأ قبل الإرسال.</li>
+          <li data-ar="أرسِل طلبك الجاهز إلى قائمة البنك." data-en="Send your ready application to the bank queue.">أرسِل طلبك الجاهز إلى قائمة البنك.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const APPS=[
+  {title_ar:"تمويل رأس مال عامل",title_en:"Working capital facility",meta_ar:"أُنشئ 12 يوليو · 8 مستندات",meta_en:"Created 12 Jul · 8 documents",amount:"180,000",stages:3,status:"processing"},
+  {title_ar:"شراء معدات",title_en:"Equipment purchase",meta_ar:"أُنشئ 9 يوليو · 6 مستندات",meta_en:"Created 9 Jul · 6 documents",amount:"120,000",stages:6,status:"review"},
+  {title_ar:"تمويل مخزون",title_en:"Inventory financing",meta_ar:"أُرسل 7 يوليو · 5 مستندات",meta_en:"Submitted 7 Jul · 5 documents",amount:"95,000",stages:6,status:"submitted"},
+  {title_ar:"توسعة فرع",title_en:"Branch expansion",meta_ar:"اعتُمد 2 يوليو · 7 مستندات",meta_en:"Approved 2 Jul · 7 documents",amount:"90,000",stages:6,status:"approved"},
+  {title_ar:"مسودّة جديدة",title_en:"New draft",meta_ar:"أُنشئ اليوم · 0 مستندات",meta_en:"Created today · 0 documents",amount:"—",stages:0,status:"draft"}
+];
+const PILL={
+  processing:{cls:"accent",ar:"قيد المعالجة",en:"Processing"},
+  review:{cls:"review",ar:"جاهز للمراجعة",en:"Ready to review"},
+  submitted:{cls:"neutral",ar:"مُرسَل",en:"Submitted"},
+  approved:{cls:"pass",ar:"معتمد",en:"Approved"},
+  draft:{cls:"neutral",ar:"مسودّة",en:"Draft"}
+};
+const ACTION={
+  processing:{ar:"متابعة",en:"View progress"},review:{ar:"مراجعة وإرسال",en:"Review and submit"},
+  submitted:{ar:"عرض",en:"View"},approved:{ar:"عرض",en:"View"},draft:{ar:"متابعة",en:"Continue"}
+};
+function miniBand(done){
+  const n=6,w=168,tw=22,gap=(w-tw*n)/(n-1),topY=2,baseY=18;
+  const rtl=document.documentElement.dir==="rtl";let s="";
+  for(let i=0;i<n;i++){
+    const idx=rtl?(n-1-i):i;const x=idx*(tw+gap);const cx=x+tw/2;
+    const fill=i<done?"var(--accent)":"none";
+    const stroke=i<done?"var(--accent)":"var(--line-strong)";
+    s+=`<path d="M${x} ${baseY} L${cx} ${topY} L${x+tw} ${baseY} Z" fill="${fill}" stroke="${stroke}" stroke-width="1"/>`;
+  }
+  return `<svg class="mini" viewBox="0 0 ${w} 20" width="${w}" aria-hidden="true">${s}</svg>`;
+}
+function lang(){return document.documentElement.lang;}
+function renderApps(){
+  const L=lang();
+  document.getElementById("applist").innerHTML=APPS.map(a=>{
+    const p=PILL[a.status],act=ACTION[a.status];
+    const prog=a.status==="processing"
+      ? `${miniBand(a.stages)}<div class="ptext" data-x>${L==="ar"?"المرحلة 3 من 6":"Stage 3 of 6"}</div>`
+      : `${miniBand(a.stages)}<div class="ptext">&nbsp;</div>`;
+    return `<div class="appcard">
+      <div><div class="title">${L==="ar"?a.title_ar:a.title_en}</div>
+      <div class="meta"><span>${L==="ar"?a.meta_ar:a.meta_en}</span></div></div>
+      <div class="prog">${prog}</div>
+      <div class="amt"><div class="n tnum">${a.amount==="—"?"—":a.amount}</div><div class="cur">${a.amount==="—"?(L==="ar"?"لم يُحدَّد":"Not set"):"SAR"}</div></div>
+      <div style="display:flex;align-items:center;gap:14px;grid-column:1/-1;justify-content:flex-end;border-top:1px solid var(--line);padding-top:14px;margin-top:2px">
+        <span class="pill ${p.cls}"><span class="pd"></span>${L==="ar"?p.ar:p.en}</span>
+        <a href="#" class="btn btn-ghost" style="height:34px">${L==="ar"?act.ar:act.en}</a>
+      </div>
+    </div>`;
+  }).join("");
+}
+function setLang(l){
+  document.documentElement.lang=l;document.documentElement.dir=l==="ar"?"rtl":"ltr";
+  document.querySelectorAll("[data-ar]").forEach(el=>{el.textContent=el.getAttribute("data-"+l);});
+  document.querySelectorAll("[data-ar-ph]").forEach(el=>{el.setAttribute("placeholder",el.getAttribute("data-"+l+"-ph"));});
+  document.querySelectorAll("#lang button").forEach(b=>b.classList.toggle("on",b.dataset.lang===l));
+  renderApps();
+}
+document.querySelectorAll("#lang button").forEach(b=>b.addEventListener("click",()=>setLang(b.dataset.lang)));
+document.getElementById("theme").addEventListener("click",()=>{
+  const d=document.documentElement.classList.toggle("dark");
+  document.getElementById("theme").textContent=d?"☾":"☀";renderApps();
+});
+document.querySelectorAll(".seg").forEach(s=>s.addEventListener("click",()=>{
+  document.querySelectorAll(".seg").forEach(x=>x.classList.remove("on"));s.classList.add("on");
+  const sc=s.dataset.screen;
+  document.getElementById("screen-dashboard").classList.toggle("hidden",sc!=="dashboard");
+  document.getElementById("screen-create").classList.toggle("hidden",sc!=="create");
+}));
+renderApps();
+</script>
+</body>
+</html>
