@@ -17,6 +17,7 @@ import { GoldDiamond, JadwaWordmark } from "../../components/JadwaMark";
 import ThemeToggle from "../../components/ThemeToggle";
 import LangToggle from "../../components/LangToggle";
 import SaduBand from "../../components/SaduBand";
+import Eyebrow from "../../components/Eyebrow";
 
 const STAGE_LABEL_KEYS: StringKey[] = [
   "landing.stage.extract",
@@ -33,26 +34,6 @@ const FOCUS_CLASS =
 
 const BTN_GOLD = `inline-flex items-center rounded-lg bg-gold px-[18px] font-semibold text-on-gold hover:bg-gold-strong ${FOCUS_CLASS}`;
 const BTN_GHOST = `inline-flex items-center rounded-lg border border-line-strong px-[18px] font-medium text-ink hover:bg-surface-2 ${FOCUS_CLASS}`;
-
-// Base eyebrow is gold (brand); the two dual-audience sections pass
-// tone="accent" so it reads teal/blue against their data-portal scope instead
-// (mock: `.sme-accent .eyebrow` / `.bank-accent .eyebrow` override the base
-// gold to var(--sme) / var(--bank), which are literally the same hex values
-// as the app's existing --accent per portal — see the section wrappers below).
-function Eyebrow({ children, tone = "gold" }: { children: React.ReactNode; tone?: "gold" | "accent" }) {
-  const { lang } = useLang();
-  return (
-    <span
-      className={[
-        "font-semibold",
-        tone === "gold" ? "text-gold" : "text-accent",
-        lang === "ar" ? "text-[15px]" : "text-[13px] uppercase tracking-[0.16em]",
-      ].join(" ")}
-    >
-      {children}
-    </span>
-  );
-}
 
 function TrustChip({ children }: { children: React.ReactNode }) {
   return (
