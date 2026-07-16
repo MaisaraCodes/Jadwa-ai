@@ -35,6 +35,18 @@
     opacity: 1;
   }
 
+  /* Sadu band stage completion (DESIGN_SYSTEM.md §8.9, motion pass item 4) —
+     fires once per stage whenever its `state` actually changes, because
+     SaduBand keys each stage's wrapper `<g>` on `state`, forcing a fresh
+     mount (and therefore a fresh animation) on every real transition. */
+  .stage-fill-in {
+    animation: stage-fill-in var(--motion-base) var(--motion-ease) both;
+  }
+  @keyframes stage-fill-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
   /* Route-change content fade, keyed by pathname in <PageFade>. */
   .page-fade {
     animation: page-fade-in var(--motion-base) var(--motion-ease) both;
@@ -62,7 +74,8 @@
       transform: none !important;
       transition: none !important;
     }
-    .page-fade {
+    .page-fade,
+    .stage-fill-in {
       animation: none !important;
     }
     .skeleton {

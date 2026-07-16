@@ -21,6 +21,7 @@ import SaduBand from "../../components/SaduBand";
 import Eyebrow from "../../components/Eyebrow";
 import PageFade from "../../components/PageFade";
 import Reveal from "../../components/Reveal";
+import { useReveal } from "../../lib/motion";
 
 const STAGE_LABEL_KEYS: StringKey[] = [
   "landing.stage.extract",
@@ -74,6 +75,7 @@ export default function LandingPage() {
   const { t, lang } = useLang();
   const heroLeading = lang === "ar" ? "leading-[1.14]" : "leading-[1.04] tracking-[-0.015em]";
   const { hash } = useLocation();
+  const { ref: pipelineRef, revealed: pipelineRevealed } = useReveal<HTMLDivElement>();
 
   // React Router doesn't restore scroll to a URL hash on a client-side route
   // change (only native page loads do) — so a cross-page link like
@@ -185,8 +187,8 @@ export default function LandingPage() {
             <p className="mt-2.5 text-base text-text-2">{t("landing.pipeline.subtitle")}</p>
 
             <div className="mt-9 overflow-x-auto">
-              <div className="inline-block">
-                <SaduBand stages={ALL_DONE} tone="gold" />
+              <div ref={pipelineRef} className="inline-block">
+                <SaduBand stages={ALL_DONE} tone="gold" revealed={pipelineRevealed} />
                 <div className="mt-2 grid grid-cols-[repeat(6,4rem)] gap-3">
                   {STAGE_LABEL_KEYS.map((key) => (
                     <span key={key} className="text-center text-[11px] text-text-2">
