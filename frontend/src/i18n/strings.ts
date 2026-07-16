@@ -245,6 +245,17 @@ export const STRINGS = {
   "sme.dashboard.status.approved": { ar: "مُوافَق عليه", en: "Approved" },
   "sme.dashboard.status.rejected": { ar: "مرفوض", en: "Rejected" },
   "sme.dashboard.status.more_info_needed": { ar: "بحاجة لمعلومات إضافية", en: "More info needed" },
+  "sme.dashboard.metric.active": { ar: "طلبات نشطة", en: "Active" },
+  "sme.dashboard.metric.inReview": { ar: "قيد المراجعة", en: "In review" },
+  "sme.dashboard.metric.approved": { ar: "معتمدة", en: "Approved" },
+  "sme.dashboard.metric.totalRequested": { ar: "إجمالي المطلوب", en: "Total requested" },
+  "sme.dashboard.metric.totalPending": { ar: "غير متاح بعد", en: "Not available yet" },
+  "sme.dashboard.amountNotSet": { ar: "لم يُحدَّد بعد", en: "Not set yet" },
+  "sme.dashboard.cardTitle": { ar: "طلب تمويل", en: "Financing application" },
+  "sme.dashboard.action.continue": { ar: "متابعة", en: "Continue" },
+  "sme.dashboard.action.viewProgress": { ar: "عرض التقدم", en: "View progress" },
+  "sme.dashboard.action.reviewAndSubmit": { ar: "مراجعة وإرسال", en: "Review and submit" },
+  "sme.dashboard.action.view": { ar: "عرض", en: "View" },
 
   // --- SME create-application flow (NewApplicationPage, POST /applications) ---
   "sme.new.title": { ar: "إنشاء طلب تمويل", en: "Create application" },

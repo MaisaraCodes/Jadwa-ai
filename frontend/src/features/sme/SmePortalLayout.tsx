@@ -12,9 +12,9 @@ export default function SmePortalLayout() {
 
   return (
     <div data-portal="sme" className="min-h-screen bg-bg">
-      <PortalHeader label={t("sme.portalLabel")} containerClassName="max-w-3xl" />
+      <PortalHeader label={t("sme.portalLabel")} containerClassName="max-w-[1080px]" />
 
-      <main className="mx-auto max-w-3xl px-[18px] py-5">
+      <main className="mx-auto max-w-[1080px] px-[18px] py-6 sm:py-10">
         <Outlet />
       </main>
     </div>
