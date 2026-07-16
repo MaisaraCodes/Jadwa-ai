@@ -9,7 +9,8 @@
 // The two dual-audience sections wrap themselves in data-portal="sme"/"bank"
 // purely to borrow the existing --accent scoping (§6) for their eyebrow/
 // checklist colour — not a claim that the visitor is inside that portal.
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { IconArrowRight } from "@tabler/icons-react";
 import { useLang } from "../../i18n/LangProvider";
 import type { StringKey } from "../../i18n/strings";
@@ -70,6 +71,16 @@ function LinkGo({ to, children }: { to: string; children: React.ReactNode }) {
 export default function LandingPage() {
   const { t, lang } = useLang();
   const heroLeading = lang === "ar" ? "leading-[1.14]" : "leading-[1.04] tracking-[-0.015em]";
+  const { hash } = useLocation();
+
+  // React Router doesn't restore scroll to a URL hash on a client-side route
+  // change (only native page loads do) — so a cross-page link like
+  // "/#platform" from DataSourcesPage/App.tsx would otherwise land here
+  // without ever scrolling to the section.
+  useEffect(() => {
+    if (!hash) return;
+    document.getElementById(hash.slice(1))?.scrollIntoView();
+  }, [hash]);
 
   return (
     <div className="min-h-screen bg-bg">
