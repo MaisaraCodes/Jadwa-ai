@@ -185,6 +185,9 @@ export const STRINGS = {
   "common.nav.home": { ar: "الرئيسية", en: "Home" },
   "common.back.dashboard": { ar: "العودة إلى لوحة الطلبات", en: "Back to dashboard" },
   "common.back.queue": { ar: "العودة إلى قائمة الطلبات", en: "Back to queue" },
+  "common.theme.toLight": { ar: "التبديل إلى الوضع الفاتح", en: "Switch to light mode" },
+  "common.theme.toDark": { ar: "التبديل إلى الوضع الداكن", en: "Switch to dark mode" },
+  "common.loading": { ar: "جارٍ التحميل", en: "Loading" },
   "auth.signOut": { ar: "تسجيل الخروج", en: "Sign out" },
   "auth.workingEllipsis": { ar: "جارٍ العمل…", en: "Working…" },
   "auth.genericError": { ar: "حدث خطأ ما. حاول مرة أخرى.", en: "Something went wrong. Try again." },
@@ -199,7 +202,7 @@ export const STRINGS = {
   // REVIEW: fintech/regulatory phrasing — confirm with a native reviewer.
   "login.demoNote": {
     ar: "بيئة تجريبية · على غرار إطار الخدمات المصرفية المفتوحة من ساما",
-    en: "Demo environment · modeled on SAMA's open-banking framework",
+    en: "Demo environment · modeled on SAMA's open banking framework",
   },
   "login.signInTitle": { ar: "تسجيل الدخول", en: "Sign in" },
   "login.signUpTitle": { ar: "إنشاء حسابك", en: "Create your account" },
@@ -241,8 +244,8 @@ export const STRINGS = {
   "sme.dashboard.retry": { ar: "إعادة المحاولة", en: "Retry" },
   "sme.dashboard.emptyTitle": { ar: "ابدأ طلبك الأول", en: "Start your first application" },
   "sme.dashboard.emptyBody": {
-    ar: "ارفع فواتيرك وكشوفاتك — بالعربية أو الإنجليزية. جدوى تنظّم الباقي.",
-    en: "Upload your invoices and statements — Arabic or English. Jadwa organizes the rest.",
+    ar: "ارفع فواتيرك وكشوفاتك بالعربية أو الإنجليزية. جدوى تنظّم الباقي.",
+    en: "Upload your invoices and statements in Arabic or English. Jadwa organizes the rest.",
   },
   "sme.dashboard.status.draft": { ar: "مسودة", en: "Draft" },
   "sme.dashboard.status.processing": { ar: "قيد المعالجة", en: "Processing" },
@@ -472,15 +475,15 @@ export const STRINGS = {
   "sme.home.stage.riskModel": { ar: "المخاطر", en: "Risk model" },
   "sme.home.stage.record": { ar: "السجل", en: "Record" },
   "sme.home.documentsTitle": { ar: "المستندات", en: "Documents" },
-  "sme.home.doc.fuelInvoice": { ar: "فاتورة وقود — أكتوبر", en: "Fuel invoice — October" },
+  "sme.home.doc.fuelInvoice": { ar: "فاتورة وقود أكتوبر", en: "October fuel invoice" },
   "sme.home.doc.zatcaReceipt": { ar: "إيصال ZATCA", en: "ZATCA receipt" },
   "sme.home.doc.warehouseLease": { ar: "عقد إيجار المستودع", en: "Warehouse lease agreement" },
   "sme.home.doc.matched": { ar: "مطابقة", en: "Matched" },
   "sme.home.reviewLink": { ar: "مراجعة البيانات المستخرجة", en: "Review extracted data" },
   "sme.home.doc.needsReview": { ar: "بحاجة لمراجعتك", en: "Needs your review" },
   "sme.home.tip": {
-    ar: "نصيحة قبل الإرسال: 80% من مشترياتك من مورّد واحد — أرفق عقد مورّد بديل لتقوية طلبك.",
-    en: "Tip before you submit: 80% of your purchases come from a single supplier — attach an alternate supplier contract to strengthen your application.",
+    ar: "نصيحة قبل الإرسال: 80% من مشترياتك من مورّد واحد. أرفق عقد مورّد بديل لتقوية طلبك.",
+    en: "Tip before you submit: 80% of your purchases come from a single supplier. Attach an alternate supplier contract to strengthen your application.",
   },
 
   // --- document upload ---
@@ -490,8 +493,8 @@ export const STRINGS = {
   },
   "upload.dropHere": { ar: "اسحب المستندات هنا", en: "Drop documents here" },
   "upload.hint": {
-    ar: "فواتير، إيصالات، كشوف — عربي أو إنجليزي",
-    en: "Invoices, receipts, statements — Arabic or English",
+    ar: "فواتير، إيصالات، كشوف بالعربي أو الإنجليزي",
+    en: "Invoices, receipts, statements in Arabic or English",
   },
   "upload.browse": { ar: "تصفّح الملفات", en: "Browse files" },
   "upload.errorEmpty": { ar: "هذا الملف فارغ.", en: "This file is empty." },
@@ -618,7 +621,7 @@ export const STRINGS = {
   "review.loadError": { ar: "تعذّر تحميل المستندات. حاول مرة أخرى.", en: "Couldn't load documents. Try again." },
   "review.retry": { ar: "إعادة المحاولة", en: "Retry" },
   "review.empty": { ar: "لا توجد مستندات مستخرجة بعد.", en: "No extracted documents yet." },
-  "review.lowConfidence": { ar: "تحقق منها — ثقة منخفضة", en: "Double-check — low confidence" },
+  "review.lowConfidence": { ar: "ثقة منخفضة، تحقق منها", en: "Low confidence, double check" },
   "review.confirmed": { ar: "مؤكَّد", en: "Confirmed" },
   "review.needsConfirmation": { ar: "بانتظار تأكيدك", en: "Awaiting your confirmation" },
   "review.field.vendor": { ar: "المورّد", en: "Vendor" },

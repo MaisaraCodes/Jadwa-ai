@@ -156,7 +156,7 @@ export default function BankQueuePage() {
                     onKeyDown={(e) => {
                       if (e.key === "Enter") goToDetail();
                     }}
-                    className="cursor-pointer transition-colors last:[&>td]:border-b-0 hover:bg-surface-2 focus:outline-none focus-visible:bg-surface-2"
+                    className="cursor-pointer transition-colors last:[&>td]:border-b-0 hover:bg-surface-2 focus:outline-none focus-visible:bg-surface-2 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
                   >
                     <td className="border-b border-line px-4 py-3 font-medium text-ink">{app.sme_name}</td>
                     <td className="border-b border-line px-4 py-3 text-text-2">{app.sector}</td>

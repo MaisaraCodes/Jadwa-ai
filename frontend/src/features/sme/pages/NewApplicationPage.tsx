@@ -121,7 +121,10 @@ export default function NewApplicationPage() {
               </div>
               <div className="mt-0.5 text-[13px] text-text-3">{t("sme.new.businessMetaPending")}</div>
             </div>
-            <Link to="/sme/settings" className="shrink-0 text-[13px] font-semibold text-accent hover:underline">
+            <Link
+              to="/sme/settings"
+              className="shrink-0 rounded text-[13px] font-semibold text-accent hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            >
               {t("sme.new.editProfile")}
             </Link>
           </div>

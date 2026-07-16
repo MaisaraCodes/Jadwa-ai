@@ -12,7 +12,7 @@ export default function LangToggle() {
         onClick={() => setLang("en")}
         aria-pressed={lang === "en"}
         className={[
-          "px-[9px] py-[5px] font-semibold",
+          "px-[9px] py-[5px] font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset",
           lang === "en" ? "bg-surface-2 text-ink" : "text-text-3",
         ].join(" ")}
       >
@@ -23,7 +23,7 @@ export default function LangToggle() {
         onClick={() => setLang("ar")}
         aria-pressed={lang === "ar"}
         className={[
-          "px-[9px] py-[5px] font-semibold",
+          "px-[9px] py-[5px] font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset",
           lang === "ar" ? "bg-surface-2 text-ink" : "text-text-3",
         ].join(" ")}
       >

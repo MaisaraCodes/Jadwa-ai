@@ -125,7 +125,7 @@ export default function LoginPage() {
                 <legend className="mb-1.5 block text-xs font-medium text-text-2">
                   {t("login.signingUpAs")}
                 </legend>
-                <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Account type">
+                <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label={t("login.signingUpAs")}>
                   {(["sme", "bank"] as AppRole[]).map((r) => {
                     const active = accountRole === r;
                     return (
@@ -168,7 +168,7 @@ export default function LoginPage() {
             <label htmlFor="password" className="mb-1.5 block text-xs font-medium text-text-2">
               {t("login.password")}
             </label>
-            <div className="mb-5 flex items-center justify-between rounded-lg border border-line-strong bg-bg px-3 py-2.5 text-[13px]">
+            <div className="mb-5 flex items-center justify-between rounded-lg border border-line-strong bg-bg px-3 py-2.5 text-[13px] focus-within:border-gold focus-within:ring-2 focus-within:ring-gold">
               <input
                 id="password"
                 type={showPassword ? "text" : "password"}
@@ -183,7 +183,7 @@ export default function LoginPage() {
                 type="button"
                 onClick={() => setShowPassword((s) => !s)}
                 aria-label={showPassword ? t("login.hidePassword") : t("login.showPassword")}
-                className="shrink-0 text-text-3 hover:text-text-2"
+                className="shrink-0 rounded text-text-3 hover:text-text-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
               >
                 {showPassword ? <IconEyeOff size={15} /> : <IconEye size={15} />}
               </button>
@@ -214,7 +214,7 @@ export default function LoginPage() {
                     setMode("signup");
                     setError(null);
                   }}
-                  className="text-gold hover:underline"
+                  className="rounded text-gold hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
                 >
                   {t("login.createAnAccount")}
                 </button>
@@ -228,7 +228,7 @@ export default function LoginPage() {
                     setMode("signin");
                     setError(null);
                   }}
-                  className="text-gold hover:underline"
+                  className="rounded text-gold hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
                 >
                   {t("login.signInLink")}
                 </button>

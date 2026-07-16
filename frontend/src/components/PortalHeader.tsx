@@ -75,6 +75,7 @@ export default function PortalHeader({ label, nav, containerClassName = "max-w-6
                 className={({ isActive }) =>
                   [
                     "border-b-2 px-2 py-2 text-sm font-medium transition-colors motion-reduce:transition-none",
+                    "focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset",
                     isActive ? "border-accent text-accent-strong" : "border-transparent text-text-3 hover:text-text-2",
                   ].join(" ")
                 }
