@@ -4,3 +4,22 @@ expertMode = true
 
 [nix]
 channel = "stable-25_05"
+
+[userenv]
+
+[userenv.shared]
+CORS_ORIGINS = "http://localhost:5173,http://localhost:5000"
+EMBEDDING_DIMENSIONS = "1536"
+ENABLE_MOCK_OPEN_BANKING = "true"
+ENV = "development"
+HOST = "0.0.0.0"
+LANGCHAIN_ENDPOINT = "https://api.smith.langchain.com"
+LANGCHAIN_PROJECT = "jadwa-ai-agents"
+LANGCHAIN_TRACING_V2 = "false"
+OPENAI_EMBEDDING_MODEL = "text-embedding-3-large"
+OPENAI_MODEL = "gpt-4o"
+OPENAI_MODEL_MINI = "gpt-4o-mini"
+OPENAI_MODEL_VISION = "gpt-4o"
+PORT = "8000"
+SUPABASE_STORAGE_BUCKET = "application-documents"
+VITE_API_BASE_URL = "/api/v1"

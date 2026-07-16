@@ -27,6 +27,11 @@ def create_app() -> FastAPI:
         for o in os.environ.get("CORS_ORIGINS", "http://localhost:5173").split(",")
         if o.strip()
     ]
+    # On Replit, requests come through the proxied dev domain — allow it automatically.
+    replit_dev = os.environ.get("REPLIT_DEV_DOMAIN")
+    if replit_dev:
+        origins.append(f"https://{replit_dev}")
+        origins.append(f"http://{replit_dev}")
     app.add_middleware(
         CORSMiddleware,
         allow_origins=origins,
