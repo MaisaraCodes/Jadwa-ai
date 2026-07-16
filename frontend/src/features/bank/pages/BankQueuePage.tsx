@@ -76,7 +76,7 @@ export default function BankQueuePage() {
       </div>
 
       {kpis && (
-        <div className="mt-6 grid grid-cols-2 gap-3.5 sm:grid-cols-4">
+        <div className="page-fade mt-6 grid grid-cols-2 gap-3.5 sm:grid-cols-4">
           <MetricTile label={t("bank.queue.kpi.inQueue")}>
             <span className="text-2xl font-semibold tabular-nums text-ink">{kpis.inQueue}</span>
           </MetricTile>

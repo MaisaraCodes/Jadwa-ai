@@ -364,7 +364,7 @@ export default function BankApplicationDetailPage() {
               </div>
 
               {decisionMode === "idle" && (
-                <div className="flex flex-col gap-2">
+                <div className="page-fade flex flex-col gap-2">
                   <Button
                     variant="accent"
                     onClick={() => submitDecision("approve")}
@@ -390,7 +390,7 @@ export default function BankApplicationDetailPage() {
               )}
 
               {decisionMode === "request_info_note" && (
-                <div className="space-y-2.5">
+                <div className="page-fade space-y-2.5">
                   <label className="block text-[12px] font-medium text-text-2">
                     {t("bank.detail.noteLabel")}
                     <textarea
