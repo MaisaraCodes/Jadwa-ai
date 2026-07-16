@@ -19,6 +19,8 @@ import ThemeToggle from "../../components/ThemeToggle";
 import LangToggle from "../../components/LangToggle";
 import SaduBand from "../../components/SaduBand";
 import Eyebrow from "../../components/Eyebrow";
+import PageFade from "../../components/PageFade";
+import Reveal from "../../components/Reveal";
 
 const STAGE_LABEL_KEYS: StringKey[] = [
   "landing.stage.extract",
@@ -83,6 +85,7 @@ export default function LandingPage() {
   }, [hash]);
 
   return (
+    <PageFade>
     <div className="min-h-screen bg-bg">
       <div className="h-[3px] bg-gold" />
 
@@ -144,7 +147,7 @@ export default function LandingPage() {
 
         {/* The platform */}
         <section id="platform" className="border-t border-line">
-          <div className="mx-auto max-w-[800px] px-4 py-16 text-center sm:px-6 sm:py-24">
+          <Reveal className="mx-auto max-w-[800px] px-4 py-16 text-center sm:px-6 sm:py-24">
             <div className="mb-5 block">
               <Eyebrow>{t("landing.platform.eyebrow")}</Eyebrow>
             </div>
@@ -156,7 +159,7 @@ export default function LandingPage() {
               <b className="font-semibold text-ink">{t("landing.platform.body2Lead")}</b>
               {t("landing.platform.body2Rest")}
             </p>
-          </div>
+          </Reveal>
         </section>
 
         {/* How it works — Sadu band, gold tone (no portal accent pre-login) */}
@@ -199,7 +202,7 @@ export default function LandingPage() {
         {/* For business owners */}
         <section data-portal="sme" className="border-t border-line">
           <div className="mx-auto grid max-w-[1120px] grid-cols-1 items-center gap-8 px-4 py-16 sm:px-6 sm:py-24 md:grid-cols-[1.05fr_0.95fr] md:gap-16">
-            <div>
+            <Reveal index={0}>
               <div className="mb-[18px] block">
                 <Eyebrow tone="accent">{t("landing.sme.eyebrow")}</Eyebrow>
               </div>
@@ -208,22 +211,22 @@ export default function LandingPage() {
               </h2>
               <p className="mb-7 text-[17px] text-text-2">{t("landing.sme.body")}</p>
               <LinkGo to="/login?mode=signup">{t("landing.sme.cta")}</LinkGo>
-            </div>
-            <div className="rounded-2xl border border-line bg-surface px-[30px] py-3">
+            </Reveal>
+            <Reveal index={1} className="rounded-2xl border border-line bg-surface px-[30px] py-3">
               <ul>
                 <CheckItem>{t("landing.sme.check1")}</CheckItem>
                 <CheckItem>{t("landing.sme.check2")}</CheckItem>
                 <CheckItem>{t("landing.sme.check3")}</CheckItem>
                 <CheckItem>{t("landing.sme.check4")}</CheckItem>
               </ul>
-            </div>
+            </Reveal>
           </div>
         </section>
 
         {/* For banks */}
         <section data-portal="bank" className="border-t border-line">
           <div className="mx-auto grid max-w-[1120px] grid-cols-1 items-center gap-8 px-4 py-16 sm:px-6 sm:py-24 md:grid-cols-[0.95fr_1.05fr] md:gap-16">
-            <div className="order-none md:order-last">
+            <Reveal index={0} className="order-none md:order-last">
               <div className="mb-[18px] block">
                 <Eyebrow tone="accent">{t("landing.bank.eyebrow")}</Eyebrow>
               </div>
@@ -232,21 +235,21 @@ export default function LandingPage() {
               </h2>
               <p className="mb-7 text-[17px] text-text-2">{t("landing.bank.body")}</p>
               <LinkGo to="/login">{t("landing.bank.cta")}</LinkGo>
-            </div>
-            <div className="rounded-2xl border border-line bg-surface px-[30px] py-3 md:order-first">
+            </Reveal>
+            <Reveal index={1} className="rounded-2xl border border-line bg-surface px-[30px] py-3 md:order-first">
               <ul>
                 <CheckItem>{t("landing.bank.check1")}</CheckItem>
                 <CheckItem>{t("landing.bank.check2")}</CheckItem>
                 <CheckItem>{t("landing.bank.check3")}</CheckItem>
                 <CheckItem>{t("landing.bank.check4")}</CheckItem>
               </ul>
-            </div>
+            </Reveal>
           </div>
         </section>
 
         {/* Trust / verdict moment — the one non-mark, non-CTA use of gold */}
         <section className="border-y border-[color-mix(in_srgb,var(--gold)_34%,transparent)] bg-gold-soft py-[60px]">
-          <div className="mx-auto max-w-2xl px-4 text-center sm:px-6">
+          <Reveal className="mx-auto max-w-2xl px-4 text-center sm:px-6">
             <div className="flex items-center justify-center gap-3">
               <GoldDiamond className="h-[17px] w-[17px]" />
               <span className="font-display text-[clamp(1.5rem,3.2vw,2.125rem)] font-extrabold text-ink">
@@ -254,12 +257,12 @@ export default function LandingPage() {
               </span>
             </div>
             <p className="mx-auto mt-4 max-w-[60ch] text-base text-text-2">{t("landing.trust.body")}</p>
-          </div>
+          </Reveal>
         </section>
 
         {/* Closing */}
         <section className="py-[100px] text-center">
-          <div className="mx-auto max-w-[800px] px-4 sm:px-6">
+          <Reveal className="mx-auto max-w-[800px] px-4 sm:px-6">
             <h2 className="mb-[18px] font-display text-[clamp(1.875rem,4vw,3rem)] font-extrabold text-ink">
               {t("landing.closing.title")}
             </h2>
@@ -272,7 +275,7 @@ export default function LandingPage() {
                 {t("login.signInCta")}
               </Link>
             </div>
-          </div>
+          </Reveal>
         </section>
       </main>
 
@@ -297,5 +300,6 @@ export default function LandingPage() {
         </div>
       </footer>
     </div>
+    </PageFade>
   );
 }

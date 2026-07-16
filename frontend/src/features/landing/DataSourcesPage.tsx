@@ -23,6 +23,8 @@ import { JadwaWordmark } from "../../components/JadwaMark";
 import ThemeToggle from "../../components/ThemeToggle";
 import LangToggle from "../../components/LangToggle";
 import Eyebrow from "../../components/Eyebrow";
+import PageFade from "../../components/PageFade";
+import Reveal from "../../components/Reveal";
 
 const FOCUS_CLASS =
   "focus:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-bg";
@@ -49,21 +51,23 @@ function SourceCard({
   icon: Icon,
   nameKey,
   bodyKey,
+  index,
 }: {
   icon: typeof IconBuildingBank;
   nameKey: StringKey;
   bodyKey: StringKey;
+  index: number;
 }) {
   const { t } = useLang();
   return (
-    <div className="flex flex-col rounded-2xl border border-line bg-surface p-5">
+    <Reveal index={index} className="flex flex-col rounded-2xl border border-line bg-surface p-5">
       <Icon size={22} className="text-ink" aria-hidden="true" />
       <h3 className="mt-3 text-title text-ink">{t(nameKey)}</h3>
       <p className="mt-1.5 flex-1 text-body-sm text-text-2">{t(bodyKey)}</p>
       <div className="mt-3">
         <CoveragePendingBadge />
       </div>
-    </div>
+    </Reveal>
   );
 }
 
@@ -71,6 +75,7 @@ export default function DataSourcesPage() {
   const { t, lang } = useLang();
 
   return (
+    <PageFade>
     <div className="min-h-screen bg-bg">
       <div className="h-[3px] bg-gold" />
 
@@ -123,21 +128,25 @@ export default function DataSourcesPage() {
             </p>
 
             <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <SourceCard icon={IconBuildingBank} nameKey="data.source.sama.name" bodyKey="data.source.sama.body" />
+              <SourceCard index={0} icon={IconBuildingBank} nameKey="data.source.sama.name" bodyKey="data.source.sama.body" />
               <SourceCard
+                index={1}
                 icon={IconBuildingStore}
                 nameKey="data.source.monshaat.name"
                 bodyKey="data.source.monshaat.body"
               />
-              <SourceCard icon={IconChartBar} nameKey="data.source.gastat.name" bodyKey="data.source.gastat.body" />
+              <SourceCard index={2} icon={IconChartBar} nameKey="data.source.gastat.name" bodyKey="data.source.gastat.body" />
 
               {/* Room for more — an explicit, honest placeholder tile rather
                   than implying the 3 sources above are the full set. */}
-              <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-line-strong bg-bg p-5 text-center">
+              <Reveal
+                index={3}
+                className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-line-strong bg-bg p-5 text-center"
+              >
                 <IconPlus size={22} className="text-text-3" aria-hidden="true" />
                 <h3 className="mt-3 text-title text-text-2">{t("data.source.more.name")}</h3>
                 <p className="mt-1.5 text-body-sm text-text-3">{t("data.source.more.body")}</p>
-              </div>
+              </Reveal>
             </div>
           </div>
         </section>
@@ -200,5 +209,6 @@ export default function DataSourcesPage() {
         </div>
       </footer>
     </div>
+    </PageFade>
   );
 }

@@ -10,6 +10,7 @@ import { IconEye, IconEyeOff } from "@tabler/icons-react";
 import { useAuth, type AppRole } from "./AuthProvider";
 import { useLang } from "../../i18n/LangProvider";
 import LangToggle from "../../components/LangToggle";
+import PageFade from "../../components/PageFade";
 
 type Mode = "signin" | "signup";
 
@@ -82,6 +83,7 @@ export default function LoginPage() {
   }
 
   return (
+    <PageFade>
     <div className="min-h-screen bg-bg">
       <div className="grid min-h-screen grid-cols-1 sm:grid-cols-2">
         {/* Brand panel — inline-start side */}
@@ -238,5 +240,6 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+    </PageFade>
   );
 }

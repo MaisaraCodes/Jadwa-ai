@@ -29,6 +29,7 @@ import { useLocation, useParams } from "react-router-dom";
 import { useLang } from "../../../i18n/LangProvider";
 import { GoldDiamond } from "../../../components/JadwaMark";
 import PortalHeader from "../../../components/PortalHeader";
+import PageFade from "../../../components/PageFade";
 import LifecycleStatusPill from "../../../components/LifecycleStatusPill";
 import StatusPill, { type StatusTone } from "../../../components/StatusPill";
 import Card from "../../../components/Card";
@@ -211,6 +212,7 @@ export default function BankApplicationDetailPage() {
       />
 
       <main className="mx-auto max-w-[1200px] px-4 py-6">
+        <PageFade>
         <BackButton to="/bank" label={t("common.back.queue")} />
 
         <div className="mb-5 flex flex-wrap items-start justify-between gap-3 border-b border-line pb-5">
@@ -418,6 +420,7 @@ export default function BankApplicationDetailPage() {
             />
           </div>
         </div>
+      </PageFade>
       </main>
     </div>
   );
