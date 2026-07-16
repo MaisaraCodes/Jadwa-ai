@@ -18,6 +18,7 @@ import SmeDashboardPage from "./features/sme/pages/SmeDashboardPage";
 import NewApplicationPage from "./features/sme/pages/NewApplicationPage";
 import ApplicationDetailPage from "./features/sme/pages/ApplicationDetailPage";
 import ReviewDocumentsPage from "./features/sme/pages/ReviewDocumentsPage";
+import SmeSettingsPage from "./features/sme/pages/SmeSettingsPage";
 import BankDashboardLayout from "./features/bank/BankDashboardLayout";
 import BankQueuePage from "./features/bank/pages/BankQueuePage";
 import BankApplicationDetailPage from "./features/bank/pages/BankApplicationDetailPage";
@@ -45,6 +46,7 @@ export default function App() {
                   <Route path="review/:applicationId" element={<ReviewDocumentsPage />} />
                   <Route path="applications/new" element={<NewApplicationPage />} />
                   <Route path="applications/:applicationId" element={<ApplicationDetailPage />} />
+                  <Route path="settings" element={<SmeSettingsPage />} />
                 </Route>
 
                 <Route

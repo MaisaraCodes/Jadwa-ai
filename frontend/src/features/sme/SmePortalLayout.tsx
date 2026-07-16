@@ -10,9 +10,14 @@ import PortalHeader from "../../components/PortalHeader";
 export default function SmePortalLayout() {
   const { t } = useLang();
 
+  const nav = [
+    { to: "/sme", label: t("sme.nav.dashboard"), end: true },
+    { to: "/sme/settings", label: t("sme.nav.settings") },
+  ];
+
   return (
     <div data-portal="sme" className="min-h-screen bg-bg">
-      <PortalHeader label={t("sme.portalLabel")} containerClassName="max-w-[1080px]" />
+      <PortalHeader label={t("sme.portalLabel")} nav={nav} containerClassName="max-w-[1080px]" />
 
       <main className="mx-auto max-w-[1080px] px-[18px] py-6 sm:py-10">
         <Outlet />

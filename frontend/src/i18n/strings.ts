@@ -220,6 +220,8 @@ export const STRINGS = {
 
   // --- SME portal shell ---
   "sme.portalLabel": { ar: "بوابة المنشآت", en: "Business portal" },
+  "sme.nav.dashboard": { ar: "لوحة الطلبات", en: "Dashboard" },
+  "sme.nav.settings": { ar: "الإعدادات", en: "Settings" },
 
   // --- SME applications dashboard (SmeDashboardPage, GET /applications) ---
   "sme.dashboard.title": { ar: "طلبات التمويل الخاصة بي", en: "My loan applications" },
@@ -363,6 +365,93 @@ export const STRINGS = {
   },
   "sme.detail.pdfButton": { ar: "تحميل PDF", en: "Download PDF" },
   "sme.detail.pdfComingSoon": { ar: "قريبًا", en: "Coming soon" },
+
+  // --- SME settings (/sme/settings) — matches design-mocks/jadwa_sme_settings.html ---
+  "sme.settings.title": { ar: "الملف والإعدادات", en: "Profile and settings" },
+  "sme.settings.subtitle": {
+    ar: "راجِع بيانات منشأتك وحدّثها، وأدِر حسابك وتفضيلاتك.",
+    en: "Review and update your business details, and manage your account and preferences.",
+  },
+  "sme.settings.nav.business": { ar: "ملف المنشأة", en: "Business profile" },
+  "sme.settings.nav.account": { ar: "الحساب", en: "Account" },
+  "sme.settings.nav.prefs": { ar: "التفضيلات", en: "Preferences" },
+
+  // Business profile — PENDING BACKEND: there is no SME-profile read or write
+  // endpoint yet (architecture.md §4 has no such route), so every field here
+  // is empty (never fabricated) and Save is a disabled placeholder.
+  "sme.settings.biz.title": { ar: "ملف المنشأة", en: "Business profile" },
+  "sme.settings.biz.lead": {
+    ar: "هذه البيانات تظهر للبنك مع كل طلب تمويل.",
+    en: "These details are shown to the bank with every financing application.",
+  },
+  "sme.settings.biz.pendingNote": {
+    ar: "قراءة ملف المنشأة وحفظه قيد الربط مع الخادم.",
+    en: "Reading and saving your business profile is pending backend integration.",
+  },
+  "sme.settings.biz.nameLabel": { ar: "اسم المنشأة", en: "Business name" },
+  "sme.settings.biz.crLabel": { ar: "رقم السجل التجاري", en: "Commercial registration number" },
+  "sme.settings.biz.crHint": {
+    ar: "يُستخدم لمطابقة سجلّك البنكي، غيّره بحذر.",
+    en: "Used to match your bank ledger. Change with care.",
+  },
+  "sme.settings.biz.yearLabel": { ar: "سنة التأسيس", en: "Established year" },
+  "sme.settings.biz.sectorLabel": { ar: "القطاع", en: "Sector" },
+  "sme.settings.biz.sector.logistics": { ar: "لوجستيات", en: "Logistics" },
+  "sme.settings.biz.sector.foodBeverage": { ar: "أغذية ومشروبات", en: "Food and beverage" },
+  "sme.settings.biz.sector.construction": { ar: "إنشاءات", en: "Construction" },
+  "sme.settings.biz.sector.retail": { ar: "تجزئة", en: "Retail" },
+  "sme.settings.biz.sector.manufacturing": { ar: "تصنيع", en: "Manufacturing" },
+  "sme.settings.biz.districtLabel": { ar: "المدينة أو الحي", en: "District or city" },
+  "sme.settings.biz.descriptionLabel": { ar: "وصف المنشأة", en: "Business description" },
+  "sme.settings.biz.descriptionPlaceholder": {
+    ar: "نبذة قصيرة عن نشاط منشأتك",
+    en: "A short note about what your business does",
+  },
+  "sme.settings.biz.save": { ar: "حفظ التغييرات", en: "Save changes" },
+  "sme.settings.biz.savePending": { ar: "الحفظ غير متاح بعد", en: "Saving isn't available yet" },
+  "sme.settings.biz.cancel": { ar: "إلغاء", en: "Cancel" },
+
+  // Account — email is real (Supabase session); password change is real too
+  // (supabase.auth.updateUser, straightforward with an existing session, no
+  // current-password re-check needed).
+  "sme.settings.account.title": { ar: "الحساب", en: "Account" },
+  "sme.settings.account.lead": { ar: "بيانات الدخول والأمان.", en: "Your sign in and security details." },
+  "sme.settings.account.emailLabel": { ar: "البريد الإلكتروني", en: "Email" },
+  "sme.settings.account.emailHint": { ar: "يُستخدم لتسجيل الدخول.", en: "Used to sign in." },
+  "sme.settings.account.newPasswordLabel": { ar: "كلمة مرور جديدة", en: "New password" },
+  "sme.settings.account.confirmPasswordLabel": { ar: "تأكيد كلمة المرور", en: "Confirm password" },
+  "sme.settings.account.update": { ar: "تحديث الحساب", en: "Update account" },
+  "sme.settings.account.updating": { ar: "جارٍ التحديث…", en: "Updating…" },
+  "sme.settings.account.updated": { ar: "تم تحديث كلمة المرور.", en: "Password updated." },
+  "sme.settings.account.mismatch": { ar: "كلمتا المرور غير متطابقتين.", en: "Passwords don't match." },
+  "sme.settings.account.tooShort": {
+    ar: "كلمة المرور قصيرة جدًا (6 أحرف على الأقل).",
+    en: "Password is too short (at least 6 characters).",
+  },
+
+  // Preferences — language + theme are real (existing LangProvider/ThemeProvider
+  // state, applied immediately); notification switches are local only, per the
+  // product having no notification system yet.
+  "sme.settings.prefs.title": { ar: "التفضيلات", en: "Preferences" },
+  "sme.settings.prefs.lead": { ar: "اللغة والمظهر والإشعارات.", en: "Language, appearance, and notifications." },
+  "sme.settings.prefs.languageLabel": { ar: "اللغة", en: "Language" },
+  "sme.settings.prefs.languageHint": { ar: "لغة الواجهة الافتراضية", en: "Default interface language" },
+  "sme.settings.prefs.languageArabic": { ar: "العربية", en: "Arabic" },
+  "sme.settings.prefs.languageEnglish": { ar: "الإنجليزية", en: "English" },
+  "sme.settings.prefs.appearanceLabel": { ar: "المظهر", en: "Appearance" },
+  "sme.settings.prefs.appearanceHint": { ar: "فاتح أو داكن", en: "Light or dark" },
+  "sme.settings.prefs.appearanceLight": { ar: "فاتح", en: "Light" },
+  "sme.settings.prefs.appearanceDark": { ar: "داكن", en: "Dark" },
+  "sme.settings.prefs.notifStatusLabel": { ar: "تحديثات حالة الطلب", en: "Application status updates" },
+  "sme.settings.prefs.notifStatusHint": {
+    ar: "إشعار عند تغيّر حالة أي طلب",
+    en: "Notify me when an application status changes",
+  },
+  "sme.settings.prefs.notifDecisionLabel": { ar: "قرارات البنك", en: "Bank decisions" },
+  "sme.settings.prefs.notifDecisionHint": {
+    ar: "إشعار عند موافقة أو رفض أو طلب معلومات",
+    en: "Notify me on approve, reject, or request for info",
+  },
 
   // --- SME home ---
   "sme.home.welcome": { ar: "مرحبًا محمد", en: "Welcome, Mohammed" },
