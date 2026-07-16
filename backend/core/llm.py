@@ -170,4 +170,43 @@ def complete_vision(
     return content.strip()
 
 
-__all__ = ["LLMError", "complete", "complete_full", "complete_vision"]
+def embed(
+    texts: list[str],
+    *,
+    model: str | None = None,
+    dimensions: int | None = None,
+) -> list[list[float]]:
+    """Returns one embedding vector per input text, same order as `texts`.
+
+    `model` defaults to OPENAI_EMBEDDING_MODEL (text-embedding-3-large);
+    `dimensions` defaults to EMBEDDING_DIMENSIONS (1536 — CONVENTIONS.md
+    "Models & embeddings"). Oracle corpus ingestion and the Oracle node's
+    retrieval query MUST both call this so vectors are guaranteed identical.
+
+    Same failure contract as `complete`: raises LLMError for ANY problem.
+    """
+    try:
+        from openai import OpenAI
+    except ImportError as exc:
+        raise LLMError("openai package is not installed") from exc
+
+    api_key = os.environ.get("OPENAI_API_KEY")
+    if not api_key:
+        raise LLMError("OPENAI_API_KEY is not set")
+
+    resolved_model = model or os.environ.get("OPENAI_EMBEDDING_MODEL", "text-embedding-3-large")
+    resolved_dims = dimensions or int(os.environ.get("EMBEDDING_DIMENSIONS", "1536"))
+
+    try:
+        response = OpenAI(api_key=api_key).embeddings.create(
+            model=resolved_model,
+            input=texts,
+            dimensions=resolved_dims,
+        )
+    except Exception as exc:
+        raise LLMError(f"embedding failed: {exc}") from exc
+
+    return [item.embedding for item in response.data]
+
+
+__all__ = ["LLMError", "complete", "complete_full", "complete_vision", "embed"]
