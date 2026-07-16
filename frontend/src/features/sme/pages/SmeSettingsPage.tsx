@@ -2,18 +2,19 @@
 // design-mocks/jadwa_sme_settings.html: a left settings-nav (Business
 // profile / Account / Preferences) beside one visible section at a time.
 //
-// PENDING BACKEND: there is no SME-profile read or write endpoint yet
-// (architecture.md §4 has no such route) — every Business profile field is
-// empty local state (never fabricated) and Save is a disabled placeholder
-// with a clear title. Account is real: email comes from the Supabase
+// Business profile section is fully wired to GET/PATCH /api/v1/me/profile.
+// cr_number is displayed read-only (server enforces it; never sent in PATCH).
+// Account is real: email comes from the Supabase
 // session, and password change calls the real supabase.auth.updateUser via
 // AuthProvider.updatePassword (straightforward — no current-password
 // re-check needed with an existing session). Preferences' language and
 // theme are the existing LangProvider/ThemeProvider state, applied
 // immediately; the two notification switches are local-only state, since
 // there's no notification system to back them yet.
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { IconBuilding } from "@tabler/icons-react";
+import { ApiError, getProfile, patchProfile } from "../../../lib/api";
+import type { PatchProfileRequest, SMEProfile } from "../../../types";
 import { useAuth } from "../../auth/AuthProvider";
 import { useLang, type Lang } from "../../../i18n/LangProvider";
 import { useTheme, type Theme } from "../../../lib/theme";
@@ -55,40 +56,107 @@ function SettingsNavButton({
 
 function BusinessProfileSection() {
   const { t } = useLang();
+
+  // Live profile — loaded once from GET /api/v1/me/profile.
+  const [profile, setProfile] = useState<SMEProfile | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  // Form fields — reset to profile values on cancel.
   const [name, setName] = useState("");
-  const [crNumber, setCrNumber] = useState("");
   const [year, setYear] = useState("");
-  const [sector, setSector] = useState<(typeof SECTORS)[number]>("logistics");
+  const [sector, setSector] = useState<(typeof SECTORS)[number]>(SECTORS[0]);
   const [district, setDistrict] = useState("");
   const [description, setDescription] = useState("");
-  const [showPendingNote, setShowPendingNote] = useState(false);
+
+  const [saving, setSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState<{ ok: boolean; text: string } | null>(null);
+
+  function applyProfileToForm(p: SMEProfile) {
+    setName(p.company_name ?? "");
+    setYear(p.established_year != null ? String(p.established_year) : "");
+    setSector((SECTORS.find((s) => s === p.sector) ?? SECTORS[0]) as (typeof SECTORS)[number]);
+    setDistrict(p.district ?? "");
+    setDescription(p.backstory ?? "");
+  }
+
+  useEffect(() => {
+    getProfile()
+      .then((p) => { setProfile(p); applyProfileToForm(p); })
+      .catch((err) => {
+        setLoadError(err instanceof ApiError ? err.message : t("sme.settings.biz.loadError"));
+      });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function handleSave() {
+    if (!profile) return;
+    setSaving(true);
+    setSaveMessage(null);
+    try {
+      const patch: PatchProfileRequest = {
+        company_name: name || undefined,
+        sector: sector || undefined,
+        district: district || undefined,
+        established_year: year ? parseInt(year, 10) : null,
+        backstory: description || null,
+      };
+      const updated = await patchProfile(patch);
+      setProfile(updated);
+      applyProfileToForm(updated);
+      setSaveMessage({ ok: true, text: t("sme.settings.biz.saved") });
+    } catch (err) {
+      setSaveMessage({
+        ok: false,
+        text: err instanceof ApiError ? err.message : t("sme.settings.biz.saveError"),
+      });
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (loadError) {
+    return (
+      <div>
+        <h2 className="text-[19px] font-bold text-ink">{t("sme.settings.biz.title")}</h2>
+        <p className="mt-4 text-sm text-flag">{loadError}</p>
+      </div>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <div>
+        <h2 className="text-[19px] font-bold text-ink">{t("sme.settings.biz.title")}</h2>
+        <p className="mt-4 text-sm text-text-3">{t("sme.settings.biz.loadingProfile")}</p>
+      </div>
+    );
+  }
 
   return (
     <div>
       <h2 className="text-[19px] font-bold text-ink">{t("sme.settings.biz.title")}</h2>
       <p className="mb-6 mt-1 text-sm text-text-2">{t("sme.settings.biz.lead")}</p>
 
-      <div className="mb-5 rounded-lg border border-dashed border-line-strong bg-surface-2 px-3.5 py-2.5 text-[13px] text-text-2">
-        {t("sme.settings.biz.pendingNote")}
-      </div>
-
       <div className="mb-5">
         <Input label={t("sme.settings.biz.nameLabel")} value={name} onChange={(e) => setName(e.target.value)} />
       </div>
 
       <div className="mb-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        {/* cr_number is enforced read-only server-side — never included in PATCH */}
         <Input
           label={t("sme.settings.biz.crLabel")}
-          hint={t("sme.settings.biz.crHint")}
+          hint={t("sme.settings.biz.crReadOnly")}
           dir="ltr"
-          value={crNumber}
-          onChange={(e) => setCrNumber(e.target.value)}
+          value={profile.cr_number}
+          readOnly
+          className="cursor-not-allowed text-text-2"
         />
         <Input
           label={t("sme.settings.biz.yearLabel")}
           dir="ltr"
+          inputMode="numeric"
           value={year}
-          onChange={(e) => setYear(e.target.value)}
+          onChange={(e) => setYear(e.target.value.replace(/\D/g, ""))}
         />
       </div>
 
@@ -120,27 +188,18 @@ function BusinessProfileSection() {
         />
       </div>
 
-      {showPendingNote && <p className="mb-3 text-sm text-text-3">{t("sme.settings.biz.savePending")}</p>}
+      {saveMessage && (
+        <p className={`mb-3 text-sm ${saveMessage.ok ? "text-pass" : "text-flag"}`}>{saveMessage.text}</p>
+      )}
 
       <div className="flex items-center gap-3 border-t border-line pt-5">
-        <Button
-          variant="accent"
-          title={t("sme.settings.biz.savePending")}
-          onClick={() => setShowPendingNote(true)}
-        >
-          {t("sme.settings.biz.save")}
+        <Button variant="accent" disabled={saving} onClick={handleSave}>
+          {saving ? t("sme.settings.biz.saving") : t("sme.settings.biz.save")}
         </Button>
         <Button
           variant="ghost"
-          onClick={() => {
-            setName("");
-            setCrNumber("");
-            setYear("");
-            setSector("logistics");
-            setDistrict("");
-            setDescription("");
-            setShowPendingNote(false);
-          }}
+          disabled={saving}
+          onClick={() => { applyProfileToForm(profile); setSaveMessage(null); }}
         >
           {t("sme.settings.biz.cancel")}
         </Button>

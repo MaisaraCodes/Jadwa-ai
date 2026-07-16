@@ -67,6 +67,7 @@ class ApplicationSummaryItem(BaseModel):
     status: ApplicationStatus
     created_at: str
     document_count: int
+    amount: float | None = None
 
 
 class ListApplicationsResponse(BaseModel):
@@ -178,7 +179,7 @@ async def list_applications(principal: Principal = Depends(require_sme)) -> List
 
     res = (
         svc.table(APPLICATIONS_TABLE)
-        .select(f"{APPLICATIONS_ID_COL},status,created_at")
+        .select(f"{APPLICATIONS_ID_COL},status,created_at,amount")
         .eq(APPLICATIONS_OWNER_COL, profile_id)
         .order("created_at", desc=True)
         .execute()
@@ -204,6 +205,7 @@ async def list_applications(principal: Principal = Depends(require_sme)) -> List
             status=a["status"],
             created_at=str(a["created_at"]),
             document_count=counts.get(str(a[APPLICATIONS_ID_COL]), 0),
+            amount=a.get("amount"),
         )
         for a in apps
     ]

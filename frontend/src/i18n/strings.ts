@@ -267,9 +267,7 @@ export const STRINGS = {
 
   // --- SME create-application flow (NewApplicationPage, POST /applications) ---
   // Copy matches design-mocks/jadwa_sme_screens.html "New application" exactly.
-  // Only application_id/status round-trip through POST /applications — amount,
-  // term, purpose, and description are PENDING BACKEND (captured in local
-  // state only, never sent — see the component for the // PENDING BACKEND note).
+  // POST /applications now sends amount, term_months, purpose, description.
   "sme.new.title": { ar: "طلب تمويل جديد", en: "New financing application" },
   "sme.new.subtitle": {
     ar: "ابدأ بتفاصيل التمويل، ثم أضِف مستنداتك.",
@@ -382,9 +380,7 @@ export const STRINGS = {
   "sme.settings.nav.account": { ar: "الحساب", en: "Account" },
   "sme.settings.nav.prefs": { ar: "التفضيلات", en: "Preferences" },
 
-  // Business profile — PENDING BACKEND: there is no SME-profile read or write
-  // endpoint yet (architecture.md §4 has no such route), so every field here
-  // is empty (never fabricated) and Save is a disabled placeholder.
+  // Business profile — wired to GET/PATCH /api/v1/me/profile; cr_number is read-only.
   "sme.settings.biz.title": { ar: "ملف المنشأة", en: "Business profile" },
   "sme.settings.biz.lead": {
     ar: "هذه البيانات تظهر للبنك مع كل طلب تمويل.",
@@ -414,7 +410,18 @@ export const STRINGS = {
     en: "A short note about what your business does",
   },
   "sme.settings.biz.save": { ar: "حفظ التغييرات", en: "Save changes" },
-  "sme.settings.biz.savePending": { ar: "الحفظ غير متاح بعد", en: "Saving isn't available yet" },
+  "sme.settings.biz.saving": { ar: "جارٍ الحفظ…", en: "Saving…" },
+  "sme.settings.biz.saved": { ar: "تم حفظ التغييرات.", en: "Changes saved." },
+  "sme.settings.biz.saveError": { ar: "تعذّر الحفظ. حاول مرة أخرى.", en: "Could not save. Try again." },
+  "sme.settings.biz.loadError": {
+    ar: "تعذّر تحميل ملف المنشأة. حاول مرة أخرى.",
+    en: "Could not load your business profile. Try again.",
+  },
+  "sme.settings.biz.crReadOnly": {
+    ar: "لا يمكن تعديله — يُستخدم لمطابقة الكشف البنكي.",
+    en: "Cannot be changed — used to match your bank ledger.",
+  },
+  "sme.settings.biz.loadingProfile": { ar: "جارٍ تحميل ملف المنشأة…", en: "Loading your business profile…" },
   "sme.settings.biz.cancel": { ar: "إلغاء", en: "Cancel" },
 
   // Account — email is real (Supabase session); password change is real too
@@ -550,6 +557,7 @@ export const STRINGS = {
   "bank.detail.submittedLabel": { ar: "أُرسل", en: "Submitted" },
   "bank.detail.amountLabel": { ar: "المبلغ", en: "Amount" },
   "bank.detail.amountPending": { ar: "غير متاح بعد", en: "Not available yet" },
+  "bank.detail.amountSar": { ar: "ر.س", en: "SAR" },
   "bank.detail.metric.reconciled": { ar: "المطابقة", en: "Reconciled" },
   "bank.detail.metric.businessModel": { ar: "نموذج العمل", en: "Business model" },
   "bank.detail.metric.documents": { ar: "المستندات", en: "Documents" },
@@ -561,6 +569,27 @@ export const STRINGS = {
     ar: "سياق السوق السعودي المستند إلى بيانات ساما ومنشآت.",
     en: "Saudi market context grounded in SAMA and Monsha'at data.",
   },
+  // Market verdict card — data comes from MarketVerdict shape (types.ts). Language rule:
+  // "grounded in / cites its source" — never "trained on" (it's RAG retrieval).
+  "bank.detail.market.trendLabel": { ar: "اتجاه القطاع", en: "Sector trend" },
+  "bank.detail.market.trend.growing": { ar: "نامٍ", en: "Growing" },
+  "bank.detail.market.trend.stable": { ar: "مستقر", en: "Stable" },
+  "bank.detail.market.trend.declining": { ar: "متراجع", en: "Declining" },
+  "bank.detail.market.saturationLabel": { ar: "كثافة المنطقة", en: "District saturation" },
+  "bank.detail.market.saturation.low": { ar: "منخفضة", en: "Low" },
+  "bank.detail.market.saturation.medium": { ar: "متوسطة", en: "Medium" },
+  "bank.detail.market.saturation.high": { ar: "مرتفعة", en: "High" },
+  "bank.detail.market.insightLabel": { ar: "الاستنتاج السوقي", en: "Market insight" },
+  "bank.detail.market.sourcesLabel": { ar: "المصادر المُستشهَد بها", en: "Sources cited" },
+  "bank.detail.market.groundedNote": {
+    ar: "مستند إلى بيانات سعودية رسمية · يُستشهد بكل استنتاج بمصدره",
+    en: "Grounded in official Saudi data · every insight cites its source",
+  },
+  "bank.detail.market.noData": {
+    ar: "لم تُحسب بيانات السوق لهذا الطلب بعد.",
+    en: "Market data for this application hasn't been computed yet.",
+  },
+
   "bank.detail.sandboxTitle": { ar: "مِنصّة المخاطر التفاعلية", en: "Risk sandbox" },
   "bank.detail.sandboxBody": {
     ar: "حرّك عوامل السيناريو وشاهد المخاطر تُحسب حيًّا.",

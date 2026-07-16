@@ -1,0 +1,2 @@
+- [Frontend-backend wiring conventions](frontend-backend-wiring.md) — how PENDING BACKEND stubs were eliminated and which patterns to follow for new endpoints.
+- [Smoke E2E prereqs](smoke-e2e-prereqs.md) — what's needed before smoke_e2e.py can run end-to-end on Replit Linux.

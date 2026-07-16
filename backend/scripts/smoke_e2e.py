@@ -55,9 +55,33 @@ DOCUMENTS_TABLE = "application_documents"
 AGENT_RESULTS_TABLE = "agent_results"
 APPLICATIONS_TABLE = "applications"
 
-FONT_REGULAR = "C:/Windows/Fonts/arial.ttf"
-FONT_BOLD = "C:/Windows/Fonts/arialbd.ttf"
-FONT_MONO = "C:/Windows/Fonts/consola.ttf"
+def _find_font(*candidates: str) -> "str | None":
+    """Return first existing path, or None (PIL default is used as fallback)."""
+    import os as _os
+    for p in candidates:
+        if p and _os.path.exists(p):
+            return p
+    return None
+
+import sys as _sys  # noqa: E402
+if _sys.platform == "win32":
+    FONT_REGULAR: "str | None" = "C:/Windows/Fonts/arial.ttf"
+    FONT_BOLD:    "str | None" = "C:/Windows/Fonts/arialbd.ttf"
+    FONT_MONO:    "str | None" = "C:/Windows/Fonts/consola.ttf"
+else:
+    # Linux / Replit — DejaVu ships on most distributions
+    FONT_REGULAR = _find_font(
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+        "/usr/share/fonts/dejavu/DejaVuSans.ttf",
+    )
+    FONT_BOLD = _find_font(
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+        "/usr/share/fonts/dejavu/DejaVuSans-Bold.ttf",
+    )
+    FONT_MONO = _find_font(
+        "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",
+        "/usr/share/fonts/dejavu/DejaVuSansMono.ttf",
+    )
 
 STATUS_POLL_INTERVAL_S = 3
 STATUS_POLL_TIMEOUT_S = 600
@@ -65,6 +89,19 @@ STATUS_POLL_TIMEOUT_S = 600
 
 class SmokeTestError(RuntimeError):
     pass
+
+
+def _load_font(path: "str | None", size: int) -> "ImageFont.FreeTypeFont | ImageFont.ImageFont":
+    """Load a TrueType font at `size` pt; falls back to PIL's built-in bitmap font."""
+    if path:
+        try:
+            return ImageFont.truetype(path, size)
+        except (OSError, IOError):
+            pass
+    try:
+        return ImageFont.load_default(size=size)  # Pillow >= 10.1
+    except TypeError:
+        return ImageFont.load_default()
 
 
 # ---------------------------------------------------------------------------
@@ -75,10 +112,10 @@ def render_receipt_image(doc: dict) -> bytes:
     img = Image.new("RGB", (W, H), "white")
     draw = ImageDraw.Draw(img)
 
-    title_font = ImageFont.truetype(FONT_BOLD, 34)
-    label_font = ImageFont.truetype(FONT_REGULAR, 26)
-    amount_font = ImageFont.truetype(FONT_BOLD, 30)  # bigger + bold: decimal points must survive OCR
-    mono_font = ImageFont.truetype(FONT_MONO, 16)
+    title_font = _load_font(FONT_BOLD, 34)
+    label_font = _load_font(FONT_REGULAR, 26)
+    amount_font = _load_font(FONT_BOLD, 30)  # bigger + bold: decimal points must survive OCR
+    mono_font = _load_font(FONT_MONO, 16)
 
     y = 40
     draw.text((40, y), doc["vendor"] or "Unknown Vendor", font=title_font, fill="black")

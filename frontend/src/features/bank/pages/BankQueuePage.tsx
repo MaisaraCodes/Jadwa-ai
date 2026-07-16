@@ -3,9 +3,8 @@
 // "Queue": a KPI strip derived client-side from the list, then a dense
 // hairline table with a sticky header.
 //
-// PENDING BACKEND: BankApplicationSummaryItem has no amount field (see
-// types.ts) — the Amount column shows a neutral placeholder, never a
-// fabricated figure.
+// Amount column reads BankApplicationSummaryItem.amount (now real; see
+// backend/routers/bank.py and migration 004).
 import { useNavigate } from "react-router-dom";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLang } from "../../../i18n/LangProvider";
@@ -169,11 +168,10 @@ export default function BankQueuePage() {
                       </StatusPill>
                     </td>
                     <td
-                      className="border-b border-line px-4 py-3 text-end tabular-nums text-text-3"
+                      className="border-b border-line px-4 py-3 text-end tabular-nums text-text-2"
                       dir="ltr"
-                      title={t("bank.queue.amountPendingTooltip")}
                     >
-                      —
+                      {app.amount != null ? app.amount.toLocaleString("en-US") : "—"}
                     </td>
                     <td className="border-b border-line px-4 py-3 text-end font-semibold tabular-nums text-ink" dir="ltr">
                       {app.business_model_score ?? "—"}

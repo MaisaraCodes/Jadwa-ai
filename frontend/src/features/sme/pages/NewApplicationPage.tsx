@@ -6,19 +6,16 @@
 // it creates a draft application, then this page hands off to the detail
 // spine which owns document upload + analysis + review + submit.
 //
-// PENDING BACKEND: amount, term, purpose, and description have no home on
-// the application yet (POST /applications only returns application_id +
-// status). They're captured in local state for the form to feel complete,
-// but never sent — createApplication() is called with no arguments. The
-// "confirm your business" card reads GET /me for whatever's real (display
-// name); the richer SMEProfile fields (company name, CR number, sector,
-// district) have no endpoint at all yet, so that card shows a clear pending
-// note instead of a fabricated business name.
+// POST /applications now receives amount, purpose, term_months, description
+// (migration 004 + routers/applications.py CreateApplicationRequest). The
+// "confirm your business" card reads GET /me/profile for real company name,
+// sector, and district from the SMEProfile endpoint.
 import { useEffect, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useLang } from "../../../i18n/LangProvider";
 import type { StringKey } from "../../../i18n/strings";
-import { ApiError, createApplication, getMe } from "../../../lib/api";
+import { ApiError, createApplication, getProfile } from "../../../lib/api";
+import type { SMEProfile } from "../../../types";
 import Button from "../../../components/Button";
 import Select from "../../../components/Select";
 import Textarea from "../../../components/Textarea";
@@ -67,15 +64,14 @@ export default function NewApplicationPage() {
   const { t } = useLang();
   const navigate = useNavigate();
 
-  const [businessName, setBusinessName] = useState<string | null>(null);
+  const [profile, setProfile] = useState<SMEProfile | null>(null);
 
   useEffect(() => {
-    getMe()
-      .then((me) => setBusinessName(me.display_name))
-      .catch(() => setBusinessName(null));
+    getProfile()
+      .then((p) => setProfile(p))
+      .catch(() => setProfile(null));
   }, []);
 
-  // PENDING BACKEND — captured for the form to feel complete, never sent.
   const [amount, setAmount] = useState("");
   const [term, setTerm] = useState<(typeof TERM_OPTIONS)[number]>("12");
   const [purpose, setPurpose] = useState<(typeof PURPOSE_OPTIONS)[number]>("workingCapital");
@@ -89,8 +85,12 @@ export default function NewApplicationPage() {
     setError(null);
     setBusy(true);
     try {
-      // amount/term/purpose/description are PENDING BACKEND — not sent.
-      const { application_id } = await createApplication();
+      const { application_id } = await createApplication({
+        amount: amount ? parseFloat(amount) : undefined,
+        purpose: purpose || undefined,
+        term_months: parseInt(term, 10),
+        description: description || undefined,
+      });
       navigate(`/sme/applications/${application_id}`, { replace: true });
     } catch (err) {
       setError(err instanceof ApiError ? err.message : t("sme.new.error"));
@@ -117,9 +117,13 @@ export default function NewApplicationPage() {
           <div className="mb-6 flex items-center justify-between gap-4 rounded-xl border border-line bg-surface-2 px-4 py-3.5">
             <div>
               <div className="text-[15px] font-semibold text-ink">
-                {businessName ?? t("sme.new.businessFallbackName")}
+                {profile?.company_name || t("sme.new.businessFallbackName")}
               </div>
-              <div className="mt-0.5 text-[13px] text-text-3">{t("sme.new.businessMetaPending")}</div>
+              <div className="mt-0.5 text-[13px] text-text-3">
+                {profile?.sector && profile.district
+                  ? `${profile.sector} · ${profile.district}`
+                  : t("sme.new.businessMetaPending")}
+              </div>
             </div>
             <Link
               to="/sme/settings"
