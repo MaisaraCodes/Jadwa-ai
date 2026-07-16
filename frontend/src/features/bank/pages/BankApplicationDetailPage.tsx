@@ -30,6 +30,7 @@ import { useLang } from "../../../i18n/LangProvider";
 import { GoldDiamond } from "../../../components/JadwaMark";
 import PortalHeader from "../../../components/PortalHeader";
 import PageFade from "../../../components/PageFade";
+import Skeleton from "../../../components/Skeleton";
 import LifecycleStatusPill from "../../../components/LifecycleStatusPill";
 import StatusPill, { type StatusTone } from "../../../components/StatusPill";
 import Card from "../../../components/Card";
@@ -193,7 +194,33 @@ export default function BankApplicationDetailPage() {
         />
         <main className="mx-auto max-w-[1200px] px-4 py-8">
           <BackButton to="/bank" label={t("common.back.queue")} />
-          <Card className="py-6 text-center text-[13px] text-text-2">{t("forensic.loading")}</Card>
+          <div role="status">
+            <span className="sr-only">{t("forensic.loading")}</span>
+            <div aria-hidden="true">
+              <div className="mb-5 flex flex-wrap items-start justify-between gap-3 border-b border-line pb-5">
+                <div className="space-y-2">
+                  <Skeleton className="h-6 w-52" />
+                  <Skeleton className="h-3 w-64" />
+                </div>
+                <Skeleton className="h-5 w-24 rounded-full" />
+              </div>
+              <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {[0, 1, 2, 3].map((i) => (
+                  <div key={i} className="rounded-xl bg-surface-2 p-3.5">
+                    <Skeleton className="h-3 w-16" />
+                    <Skeleton className="mt-2 h-6 w-12" />
+                  </div>
+                ))}
+              </div>
+              <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_320px]">
+                <div className="space-y-4">
+                  <Skeleton className="h-40 rounded-xl" />
+                  <Skeleton className="h-40 rounded-xl" />
+                </div>
+                <Skeleton className="h-64 rounded-xl" />
+              </div>
+            </div>
+          </div>
         </main>
       </div>
     );

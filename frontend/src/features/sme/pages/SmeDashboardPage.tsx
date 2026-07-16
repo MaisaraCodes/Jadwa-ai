@@ -23,6 +23,7 @@ import SaduBand from "../../../components/SaduBand";
 import Card from "../../../components/Card";
 import MetricTile from "../../../components/MetricTile";
 import Button from "../../../components/Button";
+import Skeleton from "../../../components/Skeleton";
 import { useReveal, staggerDelayMs } from "../../../lib/motion";
 
 const STAGE_TOTAL = 6;
@@ -150,7 +151,25 @@ export default function SmeDashboardPage() {
       )}
 
       {applications === null && !loadError && (
-        <Card className="mt-6 py-6 text-center text-[13px] text-text-2">{t("sme.dashboard.loading")}</Card>
+        <div className="mt-6 flex flex-col gap-3.5" role="status">
+          <span className="sr-only">{t("sme.dashboard.loading")}</span>
+          {[0, 1, 2].map((i) => (
+            <Card key={i} className="p-5" aria-hidden="true">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_auto_auto] sm:items-center sm:gap-6">
+                <div className="min-w-0 space-y-2">
+                  <Skeleton className="h-4 w-36" />
+                  <Skeleton className="h-3 w-44" />
+                </div>
+                <Skeleton className="h-11 w-40" />
+                <Skeleton className="h-5 w-20 justify-self-end" />
+              </div>
+              <div className="mt-4 flex items-center justify-between gap-3 border-t border-line pt-3.5">
+                <Skeleton className="h-5 w-24 rounded-full" />
+                <Skeleton className="h-[34px] w-24" />
+              </div>
+            </Card>
+          ))}
+        </div>
       )}
 
       {loadError && (

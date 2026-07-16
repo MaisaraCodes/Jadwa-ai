@@ -14,6 +14,7 @@ import MetricTile from "../../../components/MetricTile";
 import StatusPill, { type StatusTone } from "../../../components/StatusPill";
 import Card from "../../../components/Card";
 import Button from "../../../components/Button";
+import Skeleton from "../../../components/Skeleton";
 import { useReveal, staggerDelayMs } from "../../../lib/motion";
 
 const FORENSIC_TONE: Record<BankApplicationSummaryItem["forensic_status"], StatusTone> = {
@@ -98,7 +99,21 @@ export default function BankQueuePage() {
       )}
 
       {applications === null && !loadError && (
-        <Card className="mt-6 py-6 text-center text-[13px] text-text-2">{t("bank.queue.loading")}</Card>
+        <div className="mt-6 overflow-hidden rounded-2xl border border-line bg-surface" role="status">
+          <span className="sr-only">{t("bank.queue.loading")}</span>
+          <div aria-hidden="true">
+            {[0, 1, 2, 3, 4].map((i) => (
+              <div key={i} className="flex items-center gap-4 border-b border-line px-4 py-3.5 last:border-b-0">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="ms-auto h-5 w-16 rounded-full" />
+                <Skeleton className="h-4 w-16" />
+                <Skeleton className="h-4 w-10" />
+              </div>
+            ))}
+          </div>
+        </div>
       )}
 
       {loadError && (
