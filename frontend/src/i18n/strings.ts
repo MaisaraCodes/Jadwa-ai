@@ -258,17 +258,68 @@ export const STRINGS = {
   "sme.dashboard.action.view": { ar: "عرض", en: "View" },
 
   // --- SME create-application flow (NewApplicationPage, POST /applications) ---
-  "sme.new.title": { ar: "إنشاء طلب تمويل", en: "Create application" },
+  // Copy matches design-mocks/jadwa_sme_screens.html "New application" exactly.
+  // Only application_id/status round-trip through POST /applications — amount,
+  // term, purpose, and description are PENDING BACKEND (captured in local
+  // state only, never sent — see the component for the // PENDING BACKEND note).
+  "sme.new.title": { ar: "طلب تمويل جديد", en: "New financing application" },
   "sme.new.subtitle": {
-    ar: "أنشئ طلبًا جديدًا، ثم ارفع مستنداتك في الخطوة التالية.",
-    en: "Start a new application, then upload your documents in the next step.",
+    ar: "ابدأ بتفاصيل التمويل، ثم أضِف مستنداتك.",
+    en: "Start with the financing details, then add your documents.",
   },
-  "sme.new.amountLabel": { ar: "المبلغ المطلوب (اختياري)", en: "Requested amount (optional)" },
-  "sme.new.amountHint": { ar: "بالريال السعودي — يمكنك تعديله لاحقًا.", en: "In SAR — you can change this later." },
-  "sme.new.submit": { ar: "إنشاء الطلب", en: "Create application" },
+  "sme.new.step.details": { ar: "التفاصيل", en: "Details" },
+  "sme.new.step.documents": { ar: "المستندات", en: "Documents" },
+  "sme.new.step.review": { ar: "المراجعة", en: "Review" },
+  "sme.new.step.submit": { ar: "الإرسال", en: "Submit" },
+  "sme.new.formTitle": { ar: "تفاصيل التمويل", en: "Financing details" },
+  "sme.new.formLead": {
+    ar: "هذه التفاصيل تساعد البنك على تقييم طلبك بدقّة.",
+    en: "These details help the bank assess your request accurately.",
+  },
+  "sme.new.businessFallbackName": { ar: "منشأتك", en: "Your business" },
+  "sme.new.businessMetaPending": {
+    ar: "تفاصيل ملف المنشأة قيد الربط مع الخادم.",
+    en: "Business profile details are pending backend integration.",
+  },
+  "sme.new.editProfile": { ar: "تعديل الملف", en: "Edit profile" },
+  "sme.new.amountLabel": { ar: "المبلغ المطلوب", en: "Amount requested" },
+  "sme.new.termLabel": { ar: "مدة التمويل", en: "Financing term" },
+  "sme.new.term.6": { ar: "6 أشهر", en: "6 months" },
+  "sme.new.term.12": { ar: "12 شهرًا", en: "12 months" },
+  "sme.new.term.24": { ar: "24 شهرًا", en: "24 months" },
+  "sme.new.term.36": { ar: "36 شهرًا", en: "36 months" },
+  "sme.new.purposeLabel": { ar: "الغرض من التمويل", en: "Purpose of financing" },
+  "sme.new.purpose.workingCapital": { ar: "رأس مال عامل", en: "Working capital" },
+  "sme.new.purpose.equipment": { ar: "شراء معدات", en: "Equipment purchase" },
+  "sme.new.purpose.inventory": { ar: "تمويل مخزون", en: "Inventory" },
+  "sme.new.purpose.expansion": { ar: "توسعة", en: "Expansion" },
+  "sme.new.purpose.other": { ar: "غير ذلك", en: "Other" },
+  "sme.new.descriptionLabel": { ar: "وصف مختصر (اختياري)", en: "Short description (optional)" },
+  "sme.new.descriptionPlaceholder": {
+    ar: "اشرح باختصار كيف سيُستخدم التمويل",
+    en: "Briefly explain how the financing will be used",
+  },
+  "sme.new.submit": { ar: "أنشئ وتابِع إلى المستندات", en: "Create and continue to documents" },
   "sme.new.submitting": { ar: "جارٍ الإنشاء…", en: "Creating…" },
   "sme.new.error": { ar: "تعذّر إنشاء الطلب. حاول مرة أخرى.", en: "Couldn't create the application. Try again." },
   "sme.new.cancel": { ar: "إلغاء", en: "Cancel" },
+  "sme.new.whatsNextTitle": { ar: "ماذا يحدث بعد ذلك؟", en: "What happens next?" },
+  "sme.new.whatsNext1": {
+    ar: "ارفع فواتيرك وكشوفك بأي صيغة.",
+    en: "Upload your invoices and statements in any format.",
+  },
+  "sme.new.whatsNext2": {
+    ar: "تقرأ جدوى المستندات وتنظّمها تلقائيًا.",
+    en: "Jadwa reads and organizes your documents automatically.",
+  },
+  "sme.new.whatsNext3": {
+    ar: "راجِع الأرقام وصحّح أي خطأ قبل الإرسال.",
+    en: "Review the figures and fix anything before you submit.",
+  },
+  "sme.new.whatsNext4": {
+    ar: "أرسِل طلبك الجاهز إلى قائمة البنك.",
+    en: "Send your ready application to the bank queue.",
+  },
 
   // --- SME application detail spine (ApplicationDetailPage) ---
   "sme.detail.applicationLabel": { ar: "الطلب", en: "Application" },

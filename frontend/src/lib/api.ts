@@ -12,6 +12,7 @@ import type {
   CreateApplicationResponse,
   DecisionResponse,
   DocumentJSON,
+  Me,
   PatchDocumentRequest,
   ProcessResponse,
   SubmitResponse,
@@ -111,6 +112,10 @@ async function authedJson<T>(path: string, init?: RequestInit): Promise<T> {
     throw new ApiError(res.status, code, message);
   }
   return body as T;
+}
+
+export function getMe(): Promise<Me> {
+  return authedJson(`/me`);
 }
 
 export function listApplications(): Promise<{ applications: ApplicationSummaryItem[] }> {
