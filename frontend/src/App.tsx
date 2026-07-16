@@ -1,6 +1,8 @@
 // App router. Wraps everything in LangProvider + ThemeProvider (global,
 // user-controlled) then AuthProvider, then routes by role:
 //   /             → public landing page (signed-out) or the user's portal (signed-in)
+//   /home         → the landing page, always — even for a signed-in user (reachable
+//                   from the portal header's logo/Home link); does NOT redirect
 //   /data         → public data-sources / credibility page
 //   /login        → shared sign in / create account
 //   /sme/*        → SME portal (role "sme")
@@ -11,6 +13,7 @@ import { LangProvider } from "./i18n/LangProvider";
 import { ThemeProvider } from "./lib/theme";
 import { AuthProvider } from "./features/auth/AuthProvider";
 import { RequireRole, RedirectByRole, LandingOrRedirect } from "./features/auth/RequireRole";
+import LandingPage from "./features/landing/LandingPage";
 import DataSourcesPage from "./features/landing/DataSourcesPage";
 import LoginPage from "./features/auth/LoginPage";
 import SmePortalLayout from "./features/sme/SmePortalLayout";
@@ -70,6 +73,7 @@ export default function App() {
                 />
 
                 <Route path="/" element={<LandingOrRedirect />} />
+                <Route path="/home" element={<LandingPage />} />
                 <Route path="/data" element={<DataSourcesPage />} />
                 <Route path="*" element={<RedirectByRole />} />
               </Routes>

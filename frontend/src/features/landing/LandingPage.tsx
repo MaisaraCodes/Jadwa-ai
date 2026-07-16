@@ -77,7 +77,9 @@ export default function LandingPage() {
 
       <header className="sticky top-0 z-20 border-b border-line bg-[color-mix(in_srgb,var(--bg)_86%,transparent)] backdrop-blur-[10px]">
         <div className="mx-auto grid max-w-[1120px] grid-cols-[1fr_auto] items-center gap-3 px-4 py-3 sm:grid-cols-[1fr_auto_1fr] sm:px-6">
-          <JadwaWordmark markClassName="h-[26px] w-[26px]" textClassName="text-[25px]" diamondClassName="h-[11px] w-[11px]" />
+          <Link to="/" className={`rounded-lg ${FOCUS_CLASS}`}>
+            <JadwaWordmark markClassName="h-[26px] w-[26px]" textClassName="text-[25px]" diamondClassName="h-[11px] w-[11px]" />
+          </Link>
 
           <nav className="col-start-3 hidden items-center justify-self-center gap-[30px] text-sm text-text-2 sm:flex">
             <a href="#platform" className={`hover:text-ink ${FOCUS_CLASS}`}>

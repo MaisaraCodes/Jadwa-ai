@@ -13,11 +13,12 @@ export default function SmePortalLayout() {
   const nav = [
     { to: "/sme", label: t("sme.nav.dashboard"), end: true },
     { to: "/sme/settings", label: t("sme.nav.settings") },
+    { to: "/home", label: t("common.nav.home") },
   ];
 
   return (
     <div data-portal="sme" className="min-h-screen bg-bg">
-      <PortalHeader label={t("sme.portalLabel")} nav={nav} containerClassName="max-w-[1080px]" />
+      <PortalHeader label={t("sme.portalLabel")} nav={nav} containerClassName="max-w-[1080px]" homeTo="/sme" />
 
       <main className="mx-auto max-w-[1080px] px-[18px] py-6 sm:py-10">
         <Outlet />

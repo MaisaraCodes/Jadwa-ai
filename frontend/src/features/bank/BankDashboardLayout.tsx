@@ -8,11 +8,14 @@ import PortalHeader from "../../components/PortalHeader";
 export default function BankDashboardLayout() {
   const { t } = useLang();
 
-  const nav = [{ to: "/bank", label: t("bank.nav.queue"), end: true }];
+  const nav = [
+    { to: "/bank", label: t("bank.nav.queue"), end: true },
+    { to: "/home", label: t("common.nav.home") },
+  ];
 
   return (
     <div data-portal="bank" className="min-h-screen bg-bg">
-      <PortalHeader label={t("bank.dashboardLabel")} nav={nav} containerClassName="max-w-[1200px]" />
+      <PortalHeader label={t("bank.dashboardLabel")} nav={nav} containerClassName="max-w-[1200px]" homeTo="/bank" />
 
       <main className="mx-auto max-w-[1200px] px-4 py-8">
         <Outlet />

@@ -182,6 +182,7 @@ export const STRINGS = {
   },
 
   // --- common / auth ---
+  "common.nav.home": { ar: "الرئيسية", en: "Home" },
   "auth.signOut": { ar: "تسجيل الخروج", en: "Sign out" },
   "auth.workingEllipsis": { ar: "جارٍ العمل…", en: "Working…" },
   "auth.genericError": { ar: "حدث خطأ ما. حاول مرة أخرى.", en: "Something went wrong. Try again." },

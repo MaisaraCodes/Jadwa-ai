@@ -164,7 +164,12 @@ export default function BankApplicationDetailPage() {
   if (loadError) {
     return (
       <div data-portal="bank" className="min-h-screen bg-bg">
-        <PortalHeader label={t("bank.detail.deskLabel")} containerClassName="max-w-[1200px]" />
+        <PortalHeader
+          label={t("bank.detail.deskLabel")}
+          containerClassName="max-w-[1200px]"
+          homeTo="/bank"
+          nav={[{ to: "/home", label: t("common.nav.home") }]}
+        />
         <main className="mx-auto max-w-[1200px] px-4 py-8">
           <Card className="py-6 text-center">
             <p className="mb-2.5 text-[13px] text-flag">{loadError}</p>
@@ -180,7 +185,12 @@ export default function BankApplicationDetailPage() {
   if (!detail) {
     return (
       <div data-portal="bank" className="min-h-screen bg-bg">
-        <PortalHeader label={t("bank.detail.deskLabel")} containerClassName="max-w-[1200px]" />
+        <PortalHeader
+          label={t("bank.detail.deskLabel")}
+          containerClassName="max-w-[1200px]"
+          homeTo="/bank"
+          nav={[{ to: "/home", label: t("common.nav.home") }]}
+        />
         <main className="mx-auto max-w-[1200px] px-4 py-8">
           <Card className="py-6 text-center text-[13px] text-text-2">{t("forensic.loading")}</Card>
         </main>
@@ -193,7 +203,12 @@ export default function BankApplicationDetailPage() {
 
   return (
     <div data-portal="bank" className="min-h-screen bg-bg">
-      <PortalHeader label={t("bank.detail.deskLabel")} containerClassName="max-w-[1200px]" />
+      <PortalHeader
+        label={t("bank.detail.deskLabel")}
+        containerClassName="max-w-[1200px]"
+        homeTo="/bank"
+        nav={[{ to: "/home", label: t("common.nav.home") }]}
+      />
 
       <main className="mx-auto max-w-[1200px] px-4 py-6">
         <button

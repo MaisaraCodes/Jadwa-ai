@@ -5,7 +5,7 @@
 // Toggles between signing in and creating an account; account creation asks which
 // side you're on (SME or bank). On success, the router sends you to the right home.
 import { useEffect, useState, type FormEvent } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { IconEye, IconEyeOff } from "@tabler/icons-react";
 import { useAuth, type AppRole } from "./AuthProvider";
 import { useLang } from "../../i18n/LangProvider";
@@ -86,10 +86,13 @@ export default function LoginPage() {
       <div className="grid min-h-screen grid-cols-1 sm:grid-cols-2">
         {/* Brand panel — inline-start side */}
         <div className="flex flex-col justify-between border-b border-[#1D2A23] px-8 py-[34px] sm:border-b-0 sm:border-e sm:border-[#1D2A23]">
-          <div className="flex items-center gap-3">
+          <Link
+            to="/"
+            className="flex w-fit items-center gap-3 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+          >
             <FramedMark />
             <span className="font-display text-[22px] font-extrabold text-ink">{t("brand.wordmark")}</span>
-          </div>
+          </Link>
 
           <div className="py-10 sm:py-0">
             <div className="whitespace-pre-line text-start font-display text-[34px] font-extrabold leading-[1.45] text-ink">

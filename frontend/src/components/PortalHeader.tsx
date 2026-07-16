@@ -4,7 +4,7 @@
 // accent comes from the ambient `data-portal` the page wrapper sets — this
 // component never sets it itself, so it stays correct across sme/bank x
 // light/dark without forking (§6 one-component rule).
-import { NavLink } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 import { useAuth } from "../features/auth/AuthProvider";
 import { useLang } from "../i18n/LangProvider";
 import { JadwaWordmark } from "./JadwaMark";
@@ -22,9 +22,13 @@ interface PortalHeaderProps {
   label: string;
   nav?: PortalNavItem[];
   containerClassName?: string;
+  /** Where the logo (mark + wordmark) links to — the signed-in user's portal
+   * home. Every authed screen sets this so the logo always returns to the
+   * portal it's rendered inside of. */
+  homeTo: string;
 }
 
-export default function PortalHeader({ label, nav, containerClassName = "max-w-6xl" }: PortalHeaderProps) {
+export default function PortalHeader({ label, nav, containerClassName = "max-w-6xl", homeTo }: PortalHeaderProps) {
   const { user, signOut } = useAuth();
   const { t } = useLang();
 
@@ -34,12 +38,17 @@ export default function PortalHeader({ label, nav, containerClassName = "max-w-6
       <header className="border-b border-line bg-surface">
         <div className={`mx-auto flex h-[60px] items-center justify-between px-4 ${containerClassName}`}>
           <div className="flex items-center gap-2.5">
-            <JadwaWordmark
-              gapClassName="gap-2.5"
-              markClassName="h-6 w-6"
-              textClassName="text-[22px]"
-              diamondClassName="h-[10px] w-[10px]"
-            />
+            <Link
+              to={homeTo}
+              className="rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            >
+              <JadwaWordmark
+                gapClassName="gap-2.5"
+                markClassName="h-6 w-6"
+                textClassName="text-[22px]"
+                diamondClassName="h-[10px] w-[10px]"
+              />
+            </Link>
             <span className="mx-3.5 h-[22px] w-px bg-line-strong" />
             <span className="text-sm font-medium text-text-2">{label}</span>
           </div>
