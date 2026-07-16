@@ -16,8 +16,8 @@
 // WITHOUT claiming the server status changed — the header pill keeps showing
 // the real "Processing" status until the SME actually submits.
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { IconArrowLeft, IconFileDownload, IconSparkles } from "@tabler/icons-react";
+import { useParams } from "react-router-dom";
+import { IconFileDownload, IconSparkles } from "@tabler/icons-react";
 import { useLang } from "../../../i18n/LangProvider";
 import type { StringKey } from "../../../i18n/strings";
 import {
@@ -33,6 +33,7 @@ import LifecycleStatusPill from "../../../components/LifecycleStatusPill";
 import SaduBand, { type SaduStageState } from "../../../components/SaduBand";
 import Card from "../../../components/Card";
 import Button from "../../../components/Button";
+import BackButton from "../../../components/BackButton";
 import DocumentUpload from "../DocumentUpload";
 import { DocumentReviewPanel } from "./ReviewDocumentsPage";
 
@@ -55,7 +56,7 @@ type Phase = "draft" | "processing" | "analysis_done" | "locked";
 
 export default function ApplicationDetailPage() {
   const { applicationId } = useParams();
-  const { t, lang } = useLang();
+  const { t } = useLang();
 
   const [summary, setSummary] = useState<ApplicationSummaryItem | null>(null);
   const [statusInfo, setStatusInfo] = useState<ApplicationStatusResponse | null>(null);
@@ -188,7 +189,7 @@ export default function ApplicationDetailPage() {
   if (notFound) {
     return (
       <section>
-        <BackLink lang={lang} t={t} />
+        <BackButton to="/sme" label={t("common.back.dashboard")} />
         <Card className="py-6 text-center text-[13px] text-text-2">{t("sme.detail.notFound")}</Card>
       </section>
     );
@@ -197,7 +198,7 @@ export default function ApplicationDetailPage() {
   if (loadError) {
     return (
       <section>
-        <BackLink lang={lang} t={t} />
+        <BackButton to="/sme" label={t("common.back.dashboard")} />
         <Card className="py-6 text-center">
           <p className="mb-2.5 text-[13px] text-flag">{loadError}</p>
           <Button variant="ghost" size="sm" onClick={load}>
@@ -211,7 +212,7 @@ export default function ApplicationDetailPage() {
   if (!summary || !statusInfo || !applicationId) {
     return (
       <section>
-        <BackLink lang={lang} t={t} />
+        <BackButton to="/sme" label={t("common.back.dashboard")} />
         <Card className="py-6 text-center text-[13px] text-text-2">{t("sme.detail.loading")}</Card>
       </section>
     );
@@ -235,7 +236,7 @@ export default function ApplicationDetailPage() {
 
   return (
     <section>
-      <BackLink lang={lang} t={t} />
+      <BackButton to="/sme" label={t("common.back.dashboard")} />
 
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
@@ -382,14 +383,3 @@ function PdfPlaceholderButton() {
   );
 }
 
-function BackLink({ lang, t }: { lang: string; t: (key: StringKey, vars?: Record<string, string | number>) => string }) {
-  return (
-    <Link
-      to="/sme"
-      className="mb-3 inline-flex items-center gap-1.5 text-[12.5px] font-medium text-text-2 hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-    >
-      <IconArrowLeft size={14} className={lang === "ar" ? "rotate-180" : ""} aria-hidden="true" />
-      {t("review.backLink")}
-    </Link>
-  );
-}

@@ -27,8 +27,7 @@
 // placeholder unless the bank queue passed the real value through router
 // state (BankQueuePage does, on every row click) — never fabricated.
 import { useCallback, useEffect, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { IconArrowLeft } from "@tabler/icons-react";
+import { useLocation, useParams } from "react-router-dom";
 import { useLang } from "../../../i18n/LangProvider";
 import { GoldDiamond } from "../../../components/JadwaMark";
 import PortalHeader from "../../../components/PortalHeader";
@@ -37,6 +36,7 @@ import StatusPill, { type StatusTone } from "../../../components/StatusPill";
 import Card from "../../../components/Card";
 import MetricTile from "../../../components/MetricTile";
 import Button from "../../../components/Button";
+import BackButton from "../../../components/BackButton";
 import ForensicReportCard from "../components/ForensicReportCard";
 import WeaknessReportCard from "../components/WeaknessReportCard";
 import { ApiError, decideApplication, getBankApplication } from "../../../lib/api";
@@ -119,8 +119,7 @@ function ComingSoonCard({ title, body, badge }: { title: string; body: string; b
 export default function BankApplicationDetailPage() {
   const { applicationId: routeApplicationId } = useParams();
   const applicationId = routeApplicationId ?? "demo"; // mirrors ReviewDocumentsPage's fallback convention
-  const { t, lang } = useLang();
-  const navigate = useNavigate();
+  const { t } = useLang();
   const location = useLocation();
   const submittedAt = (location.state as { submittedAt?: string } | null)?.submittedAt;
 
@@ -171,6 +170,7 @@ export default function BankApplicationDetailPage() {
           nav={[{ to: "/home", label: t("common.nav.home") }]}
         />
         <main className="mx-auto max-w-[1200px] px-4 py-8">
+          <BackButton to="/bank" label={t("common.back.queue")} />
           <Card className="py-6 text-center">
             <p className="mb-2.5 text-[13px] text-flag">{loadError}</p>
             <Button variant="ghost" size="sm" onClick={loadDetail}>
@@ -192,6 +192,7 @@ export default function BankApplicationDetailPage() {
           nav={[{ to: "/home", label: t("common.nav.home") }]}
         />
         <main className="mx-auto max-w-[1200px] px-4 py-8">
+          <BackButton to="/bank" label={t("common.back.queue")} />
           <Card className="py-6 text-center text-[13px] text-text-2">{t("forensic.loading")}</Card>
         </main>
       </div>
@@ -211,14 +212,7 @@ export default function BankApplicationDetailPage() {
       />
 
       <main className="mx-auto max-w-[1200px] px-4 py-6">
-        <button
-          type="button"
-          onClick={() => navigate("/bank")}
-          className="mb-4 inline-flex items-center gap-1.5 text-[13px] font-semibold text-accent hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-        >
-          <IconArrowLeft size={14} className={lang === "ar" ? "rotate-180" : ""} aria-hidden="true" />
-          {t("review.backLink")}
-        </button>
+        <BackButton to="/bank" label={t("common.back.queue")} />
 
         <div className="mb-5 flex flex-wrap items-start justify-between gap-3 border-b border-line pb-5">
           <div>

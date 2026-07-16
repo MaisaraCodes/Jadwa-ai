@@ -23,6 +23,7 @@ import Select from "../../../components/Select";
 import Textarea from "../../../components/Textarea";
 import Switch from "../../../components/Switch";
 import SegmentedControl from "../../../components/SegmentedControl";
+import BackButton from "../../../components/BackButton";
 
 type Section = "biz" | "account" | "prefs";
 
@@ -312,6 +313,8 @@ export default function SmeSettingsPage() {
 
   return (
     <section>
+      <BackButton to="/sme" label={t("common.back.dashboard")} />
+
       <h1 className="font-display text-2xl font-extrabold text-ink sm:text-h1">{t("sme.settings.title")}</h1>
       <p className="mt-1 text-[13px] text-text-2">{t("sme.settings.subtitle")}</p>
 

@@ -22,6 +22,7 @@ import { ApiError, createApplication, getMe } from "../../../lib/api";
 import Button from "../../../components/Button";
 import Select from "../../../components/Select";
 import Textarea from "../../../components/Textarea";
+import BackButton from "../../../components/BackButton";
 
 type StepId = "details" | "documents" | "review" | "submit";
 const STEPS: { id: StepId; labelKey: StringKey }[] = [
@@ -99,6 +100,8 @@ export default function NewApplicationPage() {
 
   return (
     <section>
+      <BackButton to="/sme" label={t("common.back.dashboard")} />
+
       <h1 className="font-display text-2xl font-extrabold text-ink sm:text-h1">{t("sme.new.title")}</h1>
       <p className="mt-1 max-w-md text-[13px] text-text-2">{t("sme.new.subtitle")}</p>
 

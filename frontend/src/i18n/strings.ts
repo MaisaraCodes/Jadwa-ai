@@ -183,6 +183,8 @@ export const STRINGS = {
 
   // --- common / auth ---
   "common.nav.home": { ar: "الرئيسية", en: "Home" },
+  "common.back.dashboard": { ar: "العودة إلى لوحة الطلبات", en: "Back to dashboard" },
+  "common.back.queue": { ar: "العودة إلى قائمة الطلبات", en: "Back to queue" },
   "auth.signOut": { ar: "تسجيل الخروج", en: "Sign out" },
   "auth.workingEllipsis": { ar: "جارٍ العمل…", en: "Working…" },
   "auth.genericError": { ar: "حدث خطأ ما. حاول مرة أخرى.", en: "Something went wrong. Try again." },
@@ -612,7 +614,6 @@ export const STRINGS = {
     ar: "تحقق من البيانات التي استخرجها الذكاء الاصطناعي من مستنداتك، وصحّح أي خطأ قبل المتابعة.",
     en: "Check what the AI extracted from your documents and correct anything that's wrong before continuing.",
   },
-  "review.backLink": { ar: "العودة إلى الرئيسية", en: "Back to home" },
   "review.loading": { ar: "جارٍ تحميل المستندات…", en: "Loading documents…" },
   "review.loadError": { ar: "تعذّر تحميل المستندات. حاول مرة أخرى.", en: "Couldn't load documents. Try again." },
   "review.retry": { ar: "إعادة المحاولة", en: "Retry" },
