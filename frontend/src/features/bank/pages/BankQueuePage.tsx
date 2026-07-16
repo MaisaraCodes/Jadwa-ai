@@ -14,6 +14,7 @@ import MetricTile from "../../../components/MetricTile";
 import StatusPill, { type StatusTone } from "../../../components/StatusPill";
 import Card from "../../../components/Card";
 import Button from "../../../components/Button";
+import { useReveal, staggerDelayMs } from "../../../lib/motion";
 
 const FORENSIC_TONE: Record<BankApplicationSummaryItem["forensic_status"], StatusTone> = {
   green: "pass",
@@ -23,7 +24,6 @@ const FORENSIC_TONE: Record<BankApplicationSummaryItem["forensic_status"], Statu
 
 export default function BankQueuePage() {
   const { t } = useLang();
-  const navigate = useNavigate();
 
   const [applications, setApplications] = useState<BankApplicationSummaryItem[] | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -143,46 +143,52 @@ export default function BankQueuePage() {
               </tr>
             </thead>
             <tbody>
-              {applications.map((app) => {
-                const to = `/bank/applications/${app.application_id}`;
-                const goToDetail = () => navigate(to, { state: { submittedAt: app.submitted_at } });
-                return (
-                  <tr
-                    key={app.application_id}
-                    tabIndex={0}
-                    role="link"
-                    onClick={goToDetail}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") goToDetail();
-                    }}
-                    className="cursor-pointer transition-colors last:[&>td]:border-b-0 hover:bg-surface-2 focus:outline-none focus-visible:bg-surface-2 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
-                  >
-                    <td className="border-b border-line px-4 py-3 font-medium text-ink">{app.sme_name}</td>
-                    <td className="border-b border-line px-4 py-3 text-text-2">{app.sector}</td>
-                    <td className="border-b border-line px-4 py-3 tabular-nums text-text-2" dir="ltr">
-                      {app.submitted_at.slice(0, 10)}
-                    </td>
-                    <td className="border-b border-line px-4 py-3">
-                      <StatusPill tone={FORENSIC_TONE[app.forensic_status]}>
-                        {t(`forensic.status.${app.forensic_status}`)}
-                      </StatusPill>
-                    </td>
-                    <td
-                      className="border-b border-line px-4 py-3 text-end tabular-nums text-text-2"
-                      dir="ltr"
-                    >
-                      {app.amount != null ? app.amount.toLocaleString("en-US") : "—"}
-                    </td>
-                    <td className="border-b border-line px-4 py-3 text-end font-semibold tabular-nums text-ink" dir="ltr">
-                      {app.business_model_score ?? "—"}
-                    </td>
-                  </tr>
-                );
-              })}
+              {applications.map((app, index) => (
+                <QueueRow key={app.application_id} app={app} index={index} />
+              ))}
             </tbody>
           </table>
         </div>
       )}
     </section>
+  );
+}
+
+function QueueRow({ app, index }: { app: BankApplicationSummaryItem; index: number }) {
+  const { t } = useLang();
+  const navigate = useNavigate();
+  const { ref, revealed } = useReveal<HTMLTableRowElement>();
+
+  const to = `/bank/applications/${app.application_id}`;
+  const goToDetail = () => navigate(to, { state: { submittedAt: app.submitted_at } });
+
+  return (
+    <tr
+      ref={ref}
+      data-revealed={revealed}
+      tabIndex={0}
+      role="link"
+      onClick={goToDetail}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") goToDetail();
+      }}
+      style={{ transitionDelay: `${staggerDelayMs(index)}ms` }}
+      className="reveal-fade cursor-pointer transition-[opacity,background-color] duration-base ease-out last:[&>td]:border-b-0 hover:bg-surface-2 focus:outline-none focus-visible:bg-surface-2 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent motion-reduce:transition-none"
+    >
+      <td className="border-b border-line px-4 py-3 font-medium text-ink">{app.sme_name}</td>
+      <td className="border-b border-line px-4 py-3 text-text-2">{app.sector}</td>
+      <td className="border-b border-line px-4 py-3 tabular-nums text-text-2" dir="ltr">
+        {app.submitted_at.slice(0, 10)}
+      </td>
+      <td className="border-b border-line px-4 py-3">
+        <StatusPill tone={FORENSIC_TONE[app.forensic_status]}>{t(`forensic.status.${app.forensic_status}`)}</StatusPill>
+      </td>
+      <td className="border-b border-line px-4 py-3 text-end tabular-nums text-text-2" dir="ltr">
+        {app.amount != null ? app.amount.toLocaleString("en-US") : "—"}
+      </td>
+      <td className="border-b border-line px-4 py-3 text-end font-semibold tabular-nums text-ink" dir="ltr">
+        {app.business_model_score ?? "—"}
+      </td>
+    </tr>
   );
 }

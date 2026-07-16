@@ -23,7 +23,10 @@ const Card = forwardRef<HTMLDivElement, CardProps>(function Card({ edge, classNa
     <div
       ref={ref}
       className={[
-        "rounded-xl border border-line bg-surface p-4 transition-[border-color,box-shadow] duration-base ease-out motion-reduce:transition-none",
+        // Property list covers both a hover border refinement (item 3) and
+        // the .reveal entrance fade (opacity/transform) — see index.css's
+        // note on why .reveal itself can't declare `transition`.
+        "rounded-xl border border-line bg-surface p-4 transition-[border-color,opacity,transform] duration-base ease-out motion-reduce:transition-none",
         edge && `rounded-s-none border-s-[3px] ${EDGE_CLASSES[edge]}`,
         className,
       ]

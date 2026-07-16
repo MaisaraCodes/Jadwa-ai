@@ -9,15 +9,30 @@
 @layer utilities {
   /* Scroll/mount entrance: fade + small rise. Toggled via data-revealed,
      set by useReveal() once an IntersectionObserver reports the element in
-     view (or immediately, when JS/observer/reduced-motion says to skip). */
+     view (or immediately, when JS/observer/reduced-motion says to skip).
+     Deliberately doesn't declare `transition` itself (a shorthand here would
+     silently clobber whatever transition-property a hover/focus utility on
+     the same element declares, since only one `transition-property` value
+     can win) — the consuming element's own transition-[...], duration-base
+     and ease-out utility classes own the timing, and must include `opacity`
+     (+ `transform`) in their property list. */
   .reveal {
     opacity: 0;
     transform: translateY(6px);
-    transition: opacity var(--motion-base) var(--motion-ease), transform var(--motion-base) var(--motion-ease);
   }
   .reveal[data-revealed="true"] {
     opacity: 1;
     transform: translateY(0);
+  }
+
+  /* Opacity-only variant of .reveal for elements where `transform` is
+     unreliable (table rows: transform on `display: table-row` boxes is
+     inconsistently supported). No rise, otherwise the same contract. */
+  .reveal-fade {
+    opacity: 0;
+  }
+  .reveal-fade[data-revealed="true"] {
+    opacity: 1;
   }
 
   /* Route-change content fade, keyed by pathname in <PageFade>. */
@@ -41,7 +56,8 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .reveal {
+    .reveal,
+    .reveal-fade {
       opacity: 1 !important;
       transform: none !important;
       transition: none !important;
