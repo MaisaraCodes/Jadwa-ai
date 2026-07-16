@@ -18,11 +18,13 @@ outputs. It does NOT touch market_knowledge_base (that's the Oracle corpus, Phas
 Run:  python data/generate_synthetic_data.py          (idempotent — safe to re-run)
       python data/generate_synthetic_data.py --reset  (explicitly clear prior seed first)
 
-Env (backend/.env):
-  DATABASE_URL, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
+Env (backend/.env or Replit Secrets):
+  SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
   SEED_DEMO_PASSWORD   (optional; a default is used if unset — fine for a demo)
 
-Deps: psycopg2-binary, supabase>=2.0, python-dotenv
+Deps: supabase>=2.0, python-dotenv
+NOTE: Uses the Supabase REST client only (no psycopg2 / direct TCP) so it works
+      from Replit's sandboxed container environment.
 """
 from __future__ import annotations
 
@@ -37,8 +39,6 @@ import uuid
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
-import psycopg2
-import psycopg2.extras
 from dotenv import load_dotenv
 from supabase import create_client
 
@@ -352,17 +352,24 @@ def upsert_auth_user(sb, email: str, role: str, display_name: str) -> str:
     return created.user.id
 
 
-def clean_previous(cur, sb, cr_numbers, emails):
+def clean_previous(sb, cr_numbers, emails):
     """Remove any prior seed so the run is reproducible/idempotent."""
-    cur.execute(f"select a.id from {APPLICATIONS_TABLE} a "
-                f"join {SME_PROFILES_TABLE} p on p.id = a.sme_profile_id "
-                f"where p.cr_number = any(%s)", (cr_numbers,))
-    app_ids = [r[0] for r in cur.fetchall()]
-    if app_ids:
-        cur.execute(f"delete from {AGENT_RESULTS_TABLE} where {AGENT_RESULTS_PK} = any(%s::uuid[])", (app_ids,))
-        cur.execute(f"delete from {APPLICATIONS_TABLE} where id = any(%s::uuid[])", (app_ids,))
-    cur.execute(f"delete from {LEDGER_TABLE} where cr_number = any(%s)", (cr_numbers,))
-    cur.execute(f"delete from {SME_PROFILES_TABLE} where cr_number = any(%s)", (cr_numbers,))
+    emails_set = set(emails)
+
+    # Find profile IDs → application IDs → cascade delete
+    profiles_res = sb.table(SME_PROFILES_TABLE).select("id").in_("cr_number", list(cr_numbers)).execute()
+    profile_ids = [r["id"] for r in (profiles_res.data or [])]
+
+    if profile_ids:
+        apps_res = sb.table(APPLICATIONS_TABLE).select("id").in_("sme_profile_id", profile_ids).execute()
+        app_ids = [r["id"] for r in (apps_res.data or [])]
+        if app_ids:
+            sb.table(AGENT_RESULTS_TABLE).delete().in_(AGENT_RESULTS_PK, app_ids).execute()
+            sb.table(APPLICATIONS_TABLE).delete().in_("id", app_ids).execute()
+
+    sb.table(LEDGER_TABLE).delete().in_("cr_number", list(cr_numbers)).execute()
+    sb.table(SME_PROFILES_TABLE).delete().in_("cr_number", list(cr_numbers)).execute()
+
     # delete prior demo auth users
     try:
         page = 1
@@ -372,7 +379,7 @@ def clean_previous(cur, sb, cr_numbers, emails):
             if not users:
                 break
             for u in users:
-                if getattr(u, "email", None) in emails:
+                if getattr(u, "email", None) in emails_set:
                     sb.auth.admin.delete_user(u.id)
             if len(users) < 200:
                 break
@@ -381,109 +388,97 @@ def clean_previous(cur, sb, cr_numbers, emails):
         pass
 
 
+_LEDGER_BATCH = 200   # rows per REST insert — keeps payloads well under PostgREST's 2 MB limit
+
+
 def main(reset: bool) -> None:
     load_dotenv(Path(__file__).resolve().parents[1] / "backend" / ".env")
     rng = random.Random(RANDOM_SEED)
 
-    dsn = os.environ["DATABASE_URL"]
     sb = create_client(os.environ["SUPABASE_URL"], os.environ["SUPABASE_SERVICE_ROLE_KEY"])
 
     cr_numbers = [p["cr_number"] for p in PERSONAS]
     emails = [p["email"] for p in PERSONAS] + [BANK_LOGIN["email"]]
-
-    conn = psycopg2.connect(dsn)
-    conn.autocommit = False
-    cur = conn.cursor()
 
     ground_truth = {"generated_at": datetime.now(timezone.utc).isoformat(), "seed": RANDOM_SEED, "smes": []}
     credentials = {"password": DEMO_PASSWORD, "bank": BANK_LOGIN["email"], "smes": {}}
     summary = {"n_smes": len(PERSONAS), "months_of_history": MONTHS_OF_HISTORY,
                "totals": {"ledger_rows": 0, "documents": 0, "fabricated": 0, "mismatch": 0, "legit": 0}}
 
-    try:
-        if reset:
-            clean_previous(cur, sb, cr_numbers, emails)
-            conn.commit()
+    if reset:
+        print("Resetting previous seed data …")
+        clean_previous(sb, cr_numbers, emails)
 
-        # bank login (idempotent) — needed to demo the bank side
-        upsert_auth_user(sb, BANK_LOGIN["email"], "bank", BANK_LOGIN["display_name"])
+    # bank login (idempotent) — needed to demo the bank side
+    upsert_auth_user(sb, BANK_LOGIN["email"], "bank", BANK_LOGIN["display_name"])
 
-        for persona in PERSONAS:
-            # 1. auth login for this SME
-            user_id = upsert_auth_user(sb, persona["email"], "sme", persona["company_name"])
-            credentials["smes"][persona["company_name"]] = persona["email"]
+    for persona in PERSONAS:
+        print(f"  Seeding {persona['company_name']} …")
 
-            # 2. profile (idempotent on cr_number)
-            cur.execute(
-                f"insert into {SME_PROFILES_TABLE} (user_id, company_name, cr_number, sector, district) "
-                f"values (%s,%s,%s,%s,%s) "
-                f"on conflict (cr_number) do update set user_id = excluded.user_id, "
-                f"company_name = excluded.company_name, sector = excluded.sector, district = excluded.district "
-                f"returning id",
-                (user_id, persona["company_name"], persona["cr_number"], persona["sector"], persona["district"]),
-            )
-            row = cur.fetchone()
-            if row:
-                profile_id = row[0]
-            else:
-                cur.execute(f"select id from {SME_PROFILES_TABLE} where cr_number = %s", (persona["cr_number"],))
-                profile_id = cur.fetchone()[0]
+        # 1. auth login for this SME
+        user_id = upsert_auth_user(sb, persona["email"], "sme", persona["company_name"])
+        credentials["smes"][persona["company_name"]] = persona["email"]
 
-            # 3. application
-            cur.execute(
-                f"insert into {APPLICATIONS_TABLE} (sme_profile_id, requested_amount, status) "
-                f"values (%s,%s,%s) returning id",
-                (profile_id, persona["requested_amount"], SEEDED_APP_STATUS),
-            )
-            application_id = cur.fetchone()[0]
+        # 2. profile (idempotent on cr_number)
+        profile_res = sb.table(SME_PROFILES_TABLE).upsert(
+            {
+                "user_id": user_id,
+                "company_name": persona["company_name"],
+                "cr_number": persona["cr_number"],
+                "sector": persona["sector"],
+                "district": persona["district"],
+            },
+            on_conflict="cr_number",
+        ).execute()
+        profile_id = profile_res.data[0]["id"]
 
-            # 4. ledger + extracted documents
-            ledger, docs, truth = build_ledger_and_docs(rng, persona)
-            ledger_rows = [
-                dict(
-                    cr_number=r["cr_number"],
-                    transaction_date=r["date"],
-                    amount=r["amount"],
-                    description=f"{r['description']} — {r['counterparty']}" if r["counterparty"] else r["description"],
-                    transaction_type="credit" if r["amount"] > 0 else "debit",
-                )
-                for r in ledger
-            ]
-            psycopg2.extras.execute_batch(
-                cur,
-                f"insert into {LEDGER_TABLE} (cr_number, transaction_date, amount, description, transaction_type) "
-                f"values (%(cr_number)s,%(transaction_date)s,%(amount)s,%(description)s,%(transaction_type)s)",
-                ledger_rows,
-            )
-            cur.execute(
-                f"insert into {AGENT_RESULTS_TABLE} ({AGENT_RESULTS_PK}, {AGENT_RESULTS_DOCS_COL}) "
-                f"values (%s, %s) on conflict ({AGENT_RESULTS_PK}) do update "
-                f"set {AGENT_RESULTS_DOCS_COL} = excluded.{AGENT_RESULTS_DOCS_COL}",
-                (application_id, json.dumps(docs)),
-            )
+        # 3. application
+        app_res = sb.table(APPLICATIONS_TABLE).insert(
+            {
+                "sme_profile_id": profile_id,
+                "requested_amount": persona["requested_amount"],
+                "status": SEEDED_APP_STATUS,
+            }
+        ).execute()
+        application_id = app_res.data[0]["id"]
 
-            # 5. manifest + counts
-            for t in truth:
-                t["sme"] = persona["company_name"]
-                t["application_id"] = application_id
-            ground_truth["smes"].append({
-                "company_name": persona["company_name"], "cr_number": persona["cr_number"],
-                "sector": persona["sector"], "district": persona["district"],
-                "application_id": application_id, "backstory": persona["backstory"],
-                "documents": truth,
-            })
-            summary["totals"]["ledger_rows"] += len(ledger)
-            summary["totals"]["documents"] += len(docs)
-            for t in truth:
-                summary["totals"][t["bucket"]] += 1
+        # 4. ledger + extracted documents
+        ledger, docs, truth = build_ledger_and_docs(rng, persona)
+        ledger_rows = [
+            {
+                "cr_number": r["cr_number"],
+                "transaction_date": str(r["date"]),
+                "amount": r["amount"],
+                "description": (
+                    f"{r['description']} — {r['counterparty']}" if r["counterparty"] else r["description"]
+                ),
+                "transaction_type": "credit" if r["amount"] > 0 else "debit",
+            }
+            for r in ledger
+        ]
+        # Insert in batches to stay within PostgREST payload limits
+        for i in range(0, len(ledger_rows), _LEDGER_BATCH):
+            sb.table(LEDGER_TABLE).insert(ledger_rows[i : i + _LEDGER_BATCH]).execute()
 
-        conn.commit()
-    except Exception:
-        conn.rollback()
-        raise
-    finally:
-        cur.close()
-        conn.close()
+        sb.table(AGENT_RESULTS_TABLE).upsert(
+            {AGENT_RESULTS_PK: application_id, AGENT_RESULTS_DOCS_COL: docs},
+            on_conflict=AGENT_RESULTS_PK,
+        ).execute()
+
+        # 5. manifest + counts
+        for t in truth:
+            t["sme"] = persona["company_name"]
+            t["application_id"] = application_id
+        ground_truth["smes"].append({
+            "company_name": persona["company_name"], "cr_number": persona["cr_number"],
+            "sector": persona["sector"], "district": persona["district"],
+            "application_id": application_id, "backstory": persona["backstory"],
+            "documents": truth,
+        })
+        summary["totals"]["ledger_rows"] += len(ledger)
+        summary["totals"]["documents"] += len(docs)
+        for t in truth:
+            summary["totals"][t["bucket"]] += 1
 
     # emit artifacts
     (DATA_DIR / "ground_truth.json").write_text(json.dumps(ground_truth, indent=2, ensure_ascii=False), encoding="utf-8")
