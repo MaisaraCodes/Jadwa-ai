@@ -33,6 +33,17 @@ export default {
         overline: ["0.6875rem", { lineHeight: "1.3", letterSpacing: "0.08em", fontWeight: "600" }],
       },
       borderRadius: { lg: "8px", xl: "12px" },
+      // Motion tokens (tokens.css) — durations 120-260ms, ease-out only, no
+      // bounce. Defined once, reused via duration-fast/base/slow + ease-out.
+      transitionDuration: { fast: "var(--motion-fast)", base: "var(--motion-base)", slow: "var(--motion-slow)" },
+      transitionTimingFunction: { out: "var(--motion-ease)" },
+      keyframes: {
+        shimmer: { "0%": { backgroundPosition: "150% 0" }, "100%": { backgroundPosition: "-150% 0" } },
+      },
+      animation: {
+        // The one sanctioned infinite loop (DESIGN_SYSTEM.md §8, motion brief item 5).
+        shimmer: "shimmer 1.6s linear infinite",
+      },
     },
   },
   plugins: [],

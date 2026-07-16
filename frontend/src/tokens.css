@@ -1,5 +1,11 @@
 /* tokens.css — the single source of visual truth */
 :root {
+  /* motion (DESIGN_SYSTEM.md §8: "Motion 150ms; nothing bounces") — fast and
+     confident, ease-out only, no bounce/elastic/spring. Defined once here,
+     consumed via tailwind.config.js's transitionDuration/transitionTimingFunction
+     extensions and the .reveal/.page-fade/.skeleton utilities in index.css. */
+  --motion-fast:120ms;   --motion-base:180ms;   --motion-slow:260ms;
+  --motion-ease:cubic-bezier(0.16, 1, 0.3, 1);
   /* core */
   --bg:#F8F6F0;          --surface:#FFFFFF;      --surface-2:#F1EEE4;
   --ink:#111D18;         --text-2:#54615B;       --text-3:#8A948D;

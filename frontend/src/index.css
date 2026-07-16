@@ -1,3 +1,57 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Motion utilities (DESIGN_SYSTEM.md §8/§10) — defined once, reused by the
+   useReveal hook (lib/motion.ts), Reveal/PageFade components, and Skeleton.
+   Every one of these collapses to an instant, static end-state under
+   prefers-reduced-motion: reduce — no exceptions. */
+@layer utilities {
+  /* Scroll/mount entrance: fade + small rise. Toggled via data-revealed,
+     set by useReveal() once an IntersectionObserver reports the element in
+     view (or immediately, when JS/observer/reduced-motion says to skip). */
+  .reveal {
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity var(--motion-base) var(--motion-ease), transform var(--motion-base) var(--motion-ease);
+  }
+  .reveal[data-revealed="true"] {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Route-change content fade, keyed by pathname in <PageFade>. */
+  .page-fade {
+    animation: page-fade-in var(--motion-base) var(--motion-ease) both;
+  }
+  @keyframes page-fade-in {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Loading shimmer placeholder — the one sanctioned infinite loop. */
+  .skeleton {
+    background-image: linear-gradient(
+      90deg,
+      var(--surface-2) 25%,
+      var(--line) 50%,
+      var(--surface-2) 75%
+    );
+    background-size: 300% 100%;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal {
+      opacity: 1 !important;
+      transform: none !important;
+      transition: none !important;
+    }
+    .page-fade {
+      animation: none !important;
+    }
+    .skeleton {
+      animation: none !important;
+      background-position: 0 0 !important;
+    }
+  }
+}
