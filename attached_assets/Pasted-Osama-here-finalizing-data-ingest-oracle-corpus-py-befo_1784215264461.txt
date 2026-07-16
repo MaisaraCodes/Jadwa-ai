@@ -1,0 +1,42 @@
+Osama here — finalizing data/ingest_oracle_corpus.py before the real ingest run.
+Read that file first, plus CONVENTIONS.md. Keep the good parts intact (deterministic
+uuid5 chunk ids, batching, the core.llm.embed() helper, schema report). Environment is
+Replit/Linux: run with `python`, DATABASE_URL is the Supabase IPv4 session pooler.
+
+MIGRATION 003 IS ALREADY APPLIED. market_knowledge_base now has real columns:
+  id uuid, sector text, content text, embedding vector(1536),
+  source_agency text, source_filename text, citation text, chunk_index int.
+
+CHANGES:
+
+1. REPLACE the JSON-in-content approach. Write clean chunk text into `content`, and
+   populate source_agency, source_filename, citation, chunk_index as REAL columns.
+   Update the INSERT column list + execute_values template + ON CONFLICT DO UPDATE set
+   to match. `sector` stays NULL (these are general regulator reports, not per-SME-sector;
+   a hard sector filter would drop them — the retrieval node searches by vector only).
+
+2. NORMALIZE: in extract_pdf_text, apply unicodedata.normalize("NFKC", text) before return.
+
+3. EXTRACTION QUALITY GATE (per file, before chunking) — a safety net:
+   - Count Arabic-block codepoints (U+0600–U+06FF) vs Arabic presentation-forms
+     (U+FB50–U+FDFF, U+FE70–U+FEFF) vs total non-whitespace.
+   - Quarantine a file (do NOT embed, add to files_skipped with a specific reason) if
+     it extracts < MIN_EXTRACT_CHARS ("image-only: N chars") OR, among Arabic-ish
+     codepoints, >15% are presentation-forms after NFKC ("likely garbled: N% pres-forms").
+   - Print a one-line per-file diagnostic (agency, filename, char count, arabic%, presform%).
+     This makes the real run its own extraction QA — the summary tells us file-by-file.
+   Confirmed sample from this corpus is normal-block logical-order Arabic, so it must PASS
+   this gate; tune the threshold so it does.
+
+4. --reset flag: when passed, DELETE existing rows per file (by source_filename) before
+   re-inserting, so changing CHUNK_SIZE/OVERLAP can't orphan stale chunks. Default keeps
+   the current uuid5-upsert idempotent behavior.
+
+5. --ocr flag (default OFF) + ocr_extract(path) stub: if a file is quarantined as image-only
+   AND --ocr is set, route through pytesseract (lang="ara+eng") via page.get_pixmap IF
+   pytesseract imports; else log "OCR requested but pytesseract unavailable — skipping" and
+   continue. Never hard-fail on missing OCR.
+
+Do NOT run a full ingest yourself. Compile-check, and add DB/LLM-free unit tests for the
+quality gate (clean Arabic passes; presentation-form-heavy string quarantines; empty
+quarantines). Report what changed and the exact run command.

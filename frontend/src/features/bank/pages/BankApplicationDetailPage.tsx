@@ -21,11 +21,9 @@
 // already recorded (or before the application has even reached
 // "review_ready").
 //
-// PENDING BACKEND: BankApplicationDetail has no requested-amount field, and
-// no submitted-at field either (architecture.md §4) — the fact header shows
-// a neutral placeholder for amount, and for "submitted" falls back to a
-// placeholder unless the bank queue passed the real value through router
-// state (BankQueuePage does, on every row click) — never fabricated.
+// Amount comes from the real BankApplicationDetail.amount field (Task 2,
+// migration 004). Submitted-at still falls back to router state passed by
+// BankQueuePage on each row click — it is not a separate endpoint field.
 import { useCallback, useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { useLang } from "../../../i18n/LangProvider";
@@ -39,6 +37,7 @@ import Button from "../../../components/Button";
 import BackButton from "../../../components/BackButton";
 import ForensicReportCard from "../components/ForensicReportCard";
 import WeaknessReportCard from "../components/WeaknessReportCard";
+import MarketVerdictCard from "../components/MarketVerdictCard";
 import { ApiError, decideApplication, getBankApplication } from "../../../lib/api";
 import type { BankApplicationDetail, BankDecision, DocumentJSON } from "../../../types";
 
@@ -241,7 +240,12 @@ export default function BankApplicationDetailPage() {
               </span>
               <span>·</span>
               <span>
-                {t("bank.detail.amountLabel")} <span className="text-text-3/80">{t("bank.detail.amountPending")}</span>
+                {t("bank.detail.amountLabel")}{" "}
+                <span className="tabular-nums text-text-3/80" dir="ltr">
+                  {detail.amount != null
+                    ? `${detail.amount.toLocaleString("en-US")} ${t("bank.detail.amountSar")}`
+                    : t("bank.detail.amountPending")}
+                </span>
               </span>
             </div>
           </div>
@@ -406,11 +410,7 @@ export default function BankApplicationDetailPage() {
               )}
             </Card>
 
-            <ComingSoonCard
-              title={t("bank.detail.marketTitle")}
-              body={t("bank.detail.marketBody")}
-              badge={t("bank.detail.comingSoon")}
-            />
+            <MarketVerdictCard verdict={detail.market_verdict} />
             <ComingSoonCard
               title={t("bank.detail.sandboxTitle")}
               body={t("bank.detail.sandboxBody")}

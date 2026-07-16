@@ -7,12 +7,10 @@
 // Layout matches design-mocks/jadwa_sme_screens.html "Dashboard": metric strip
 // + rich application cards (mini Sadu progress, amount, lifecycle pill, action).
 //
-// PENDING BACKEND: ApplicationSummaryItem has no `amount` field yet (see
-// types.ts) — the "Total requested" metric and each card's amount are real
-// UI slots with a neutral placeholder, never a fabricated number. Per-card
-// progress IS real: for any "processing" row we additionally call the real
-// GET /applications/:id/status (the same endpoint ApplicationDetailPage
-// polls) to read live nodes_completed — no invented progress either.
+// Amount comes from ApplicationSummaryItem.amount (now real — migration 004
+// and backend/routers/applications.py list handler). "Total requested" sums
+// all non-null amounts. Per-card progress is also real: "processing" rows
+// call GET /applications/:id/status to read live nodes_completed.
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { IconFileUpload, IconPlus } from "@tabler/icons-react";
@@ -99,10 +97,15 @@ export default function SmeDashboardPage() {
 
   const metrics = useMemo(() => {
     if (!applications) return null;
+    const withAmount = applications.filter((a) => a.amount != null);
+    const totalRequested = withAmount.length > 0
+      ? withAmount.reduce((sum, a) => sum + (a.amount ?? 0), 0)
+      : null;
     return {
       active: applications.filter((a) => a.status === "draft" || a.status === "processing").length,
       inReview: applications.filter((a) => a.status === "review_ready").length,
       approved: applications.filter((a) => a.status === "approved").length,
+      totalRequested,
     };
   }, [applications]);
 
@@ -131,8 +134,16 @@ export default function SmeDashboardPage() {
             <span className="text-2xl font-semibold tabular-nums text-ink">{metrics.approved}</span>
           </MetricTile>
           <MetricTile label={t("sme.dashboard.metric.totalRequested")}>
-            <span className="text-2xl font-semibold tabular-nums text-text-3">—</span>
-            <div className="mt-0.5 text-[11px] font-normal text-text-3">{t("sme.dashboard.metric.totalPending")}</div>
+            {metrics.totalRequested != null ? (
+              <span className="text-2xl font-semibold tabular-nums text-ink" dir="ltr">
+                {metrics.totalRequested.toLocaleString("en-US")}
+              </span>
+            ) : (
+              <>
+                <span className="text-2xl font-semibold tabular-nums text-text-3">—</span>
+                <div className="mt-0.5 text-[11px] font-normal text-text-3">{t("sme.dashboard.metric.totalPending")}</div>
+              </>
+            )}
           </MetricTile>
         </div>
       )}
@@ -187,8 +198,19 @@ export default function SmeDashboardPage() {
                   <SaduBand size="mini" done={done} total={STAGE_TOTAL} />
 
                   <div className="text-end sm:min-w-[110px]">
-                    <div className="text-[17px] font-semibold tabular-nums text-text-3">—</div>
-                    <div className="text-xs text-text-3">{t("sme.dashboard.amountNotSet")}</div>
+                    {app.amount != null ? (
+                      <>
+                        <div className="text-[17px] font-semibold tabular-nums text-ink" dir="ltr">
+                          {app.amount.toLocaleString("en-US")}
+                        </div>
+                        <div className="text-xs text-text-3">SAR</div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="text-[17px] font-semibold tabular-nums text-text-3">—</div>
+                        <div className="text-xs text-text-3">{t("sme.dashboard.amountNotSet")}</div>
+                      </>
+                    )}
                   </div>
                 </div>
 

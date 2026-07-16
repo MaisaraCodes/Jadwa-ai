@@ -36,6 +36,8 @@ from nodes.devils_advocate.signals import compute_all_signals
 from nodes.forensic.explain import write_flag_descriptions
 from nodes.forensic.matching import reconcile_against_ledger
 from nodes.forensic.scoring import build_forensic_report
+from nodes.saudi_market_oracle.retrieve import retrieve_market_chunks
+from nodes.saudi_market_oracle.verdict import assemble_verdict
 
 logger = logging.getLogger(__name__)
 
@@ -187,11 +189,28 @@ def devils_advocate_node(state: ApplicationState) -> dict:
 
 
 def saudi_market_oracle_node(state: ApplicationState) -> dict:
-    # TODO(owner: market oracle): real pgvector similarity search over
-    # market_knowledge_base, keyed by sme_profile.sector / .district.
-    verdict = MarketVerdict(
-        sector_trend="stable", district_saturation="medium", oracle_insight="", sources_cited=[]
-    )
+    """Retrieval-augmented market verdict (architecture.md §1,
+    schema_mapping.md Node 4). pgvector cosine retrieval over
+    market_knowledge_base keyed by sme_profile.sector / .district
+    (nodes/saudi_market_oracle/retrieve.py — no sector WHERE clause; the
+    corpus rows are general regulator reports with sector NULL), then ONE
+    GPT-5.4 Mini call grounded strictly in the retrieved chunks
+    (verdict.py). sources_cited is built deterministically in Python from
+    the retrieved citations — the model never invents them. Any retrieval
+    or LLM failure falls back to a deterministic honest MarketVerdict; this
+    node never crashes the graph.
+    """
+    sme_profile = state["sme_profile"]
+    sector = sme_profile.sector
+    district = sme_profile.district
+
+    try:
+        rows = retrieve_market_chunks(sector, district)
+    except Exception as exc:  # embed()/DB failures — fall back, never crash
+        logger.warning("oracle: retrieval failed, using fallback verdict: %s", exc)
+        rows = []
+
+    verdict = assemble_verdict(rows, sector=sector, district=district)
     _persist_column(state["application_id"], "market_verdict", verdict.model_dump(mode="json"))
     return {"market_verdict": verdict}
 

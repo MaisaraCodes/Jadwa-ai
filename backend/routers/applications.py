@@ -32,7 +32,7 @@ from core.errors import APIError
 from core.orchestrator import run_pipeline
 from core.pipeline import ALL_NODES, TERMINAL_STATUSES
 from core.supabase import get_service_client
-from models import ApplicationStatus, DocumentJSON, WeaknessReport
+from models import ApplicationFinancing, ApplicationStatus, DocumentJSON, WeaknessReport
 from routers.documents import (
     APPLICATIONS_ID_COL,
     APPLICATIONS_OWNER_COL,
@@ -50,6 +50,11 @@ router = APIRouter(prefix="/api/v1/applications", tags=["applications"])
 # --- request/response DTOs (shapes not already in models.py) ---------------
 class CreateApplicationRequest(BaseModel):
     requested_amount: float | None = None
+    # financing detail fields (migration 004)
+    amount: float | None = None
+    purpose: str | None = None
+    term_months: int | None = None
+    description: str | None = None
 
 
 class CreateApplicationResponse(BaseModel):
@@ -62,6 +67,7 @@ class ApplicationSummaryItem(BaseModel):
     status: ApplicationStatus
     created_at: str
     document_count: int
+    amount: float | None = None
 
 
 class ListApplicationsResponse(BaseModel):
@@ -147,6 +153,11 @@ async def create_application(
                     APPLICATIONS_OWNER_COL: profile_id,
                     "requested_amount": body.requested_amount or 0,
                     "status": "draft",
+                    # financing fields — NULL when not supplied
+                    "amount": body.amount,
+                    "purpose": body.purpose,
+                    "term_months": body.term_months,
+                    "description": body.description,
                 }
             )
             .execute()
@@ -168,7 +179,7 @@ async def list_applications(principal: Principal = Depends(require_sme)) -> List
 
     res = (
         svc.table(APPLICATIONS_TABLE)
-        .select(f"{APPLICATIONS_ID_COL},status,created_at")
+        .select(f"{APPLICATIONS_ID_COL},status,created_at,amount")
         .eq(APPLICATIONS_OWNER_COL, profile_id)
         .order("created_at", desc=True)
         .execute()
@@ -194,6 +205,7 @@ async def list_applications(principal: Principal = Depends(require_sme)) -> List
             status=a["status"],
             created_at=str(a["created_at"]),
             document_count=counts.get(str(a[APPLICATIONS_ID_COL]), 0),
+            amount=a.get("amount"),
         )
         for a in apps
     ]

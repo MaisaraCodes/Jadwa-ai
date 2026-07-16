@@ -78,8 +78,7 @@ export type ApplicationStatus =
 // Mirrors backend routers/*.py GET /me (architecture.md §4 "Shared") — the
 // only endpoint that returns anything about the signed-in user themselves.
 // It has no business-specific fields (company_name, cr_number, sector,
-// district) — those stay PENDING BACKEND until a real SME profile endpoint
-// ships; never fabricate them from this shape.
+// district) — full profile comes from GET /api/v1/me/profile (SMEProfile).
 export interface Me {
   user_id: string;
   role: "sme" | "bank";
@@ -93,6 +92,18 @@ export interface SMEProfile {
   sector: string;
   district: string;
   user_id: string | null;
+  established_year?: number | null;
+  backstory?: string | null;
+}
+
+// Mirrors backend routers/profile.py PatchProfileRequest — cr_number is
+// intentionally absent (server enforces read-only; omit it from all PATCH calls).
+export interface PatchProfileRequest {
+  company_name?: string;
+  sector?: string;
+  district?: string;
+  established_year?: number | null;
+  backstory?: string | null;
 }
 
 export interface WeaknessReport {
@@ -122,6 +133,7 @@ export interface ApplicationSummaryItem {
   status: ApplicationStatus;
   created_at: string; // ISO datetime
   document_count: number;
+  amount: number | null;
 }
 
 // Mirrors backend routers/applications.py DTOs for the application detail
@@ -162,8 +174,7 @@ export interface DecisionResponse {
 }
 
 // Mirrors backend routers/bank.py GET /bank/applications (architecture.md §4
-// "the pre-scored queue"). No amount field — requested amount is PENDING
-// BACKEND everywhere in the bank portal, never fabricated.
+// "the pre-scored queue").
 export interface BankApplicationSummaryItem {
   application_id: string;
   sme_name: string;
@@ -172,6 +183,7 @@ export interface BankApplicationSummaryItem {
   submitted_at: string; // ISO datetime
   forensic_status: ForensicStatus;
   business_model_score: number | null;
+  amount: number | null;
 }
 
 export interface BankApplicationDetail {
@@ -183,4 +195,5 @@ export interface BankApplicationDetail {
   weakness_report: WeaknessReport | null;
   market_verdict: MarketVerdict | null;
   risk_baseline: RiskBaseline | null;
+  amount: number | null;
 }

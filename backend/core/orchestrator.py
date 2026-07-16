@@ -125,6 +125,14 @@ async def run_pipeline(application_id: str) -> None:
         # Same reasoning as above: the graph's own nodes block just as hard,
         # so this also runs off the event loop.
         await asyncio.to_thread(_run_graph_sync, application_id, initial_state)
+
+        # Lifecycle transition: processing → review_ready (architecture.md §4).
+        # Written here so the status is reload-safe server state — the SME portal
+        # can poll /status and get the correct final state even after a page refresh.
+        get_service_client().table(APPLICATIONS_TABLE).update(
+            {"status": "review_ready"}
+        ).eq("id", application_id).execute()
+
     except Exception:
         # Leave `status` at "processing" — /status will report a stalled
         # progress bar (nodes_completed short of ALL_NODES) instead of lying

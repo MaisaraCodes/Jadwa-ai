@@ -66,6 +66,7 @@ class BankApplicationListItem(BaseModel):
     submitted_at: str
     forensic_status: str | None
     business_model_score: int | None
+    amount: float | None = None  # financing amount (SAR) — migration 004
 
 
 class BankApplicationListResponse(BaseModel):
@@ -81,6 +82,7 @@ class BankApplicationDetail(BaseModel):
     weakness_report: WeaknessReport | None
     market_verdict: MarketVerdict | None
     risk_baseline: RiskBaseline | None
+    amount: float | None = None  # financing amount (SAR) — migration 004
 
 
 class SandboxRequest(BaseModel):
@@ -143,7 +145,7 @@ async def list_bank_applications(
     svc = get_service_client()
     apps_res = (
         svc.table(APPLICATIONS_TABLE)
-        .select(f"{APPLICATIONS_ID_COL},status,updated_at,sme_profile_id")
+        .select(f"{APPLICATIONS_ID_COL},status,updated_at,sme_profile_id,amount")
         .eq("status", status)
         .order(sort_col, desc=descending)
         .execute()
@@ -187,6 +189,7 @@ async def list_bank_applications(
                 submitted_at=str(a["updated_at"]),
                 forensic_status=forensic_report.get("overall_status"),
                 business_model_score=weakness_report.get("business_model_score"),
+                amount=a.get("amount"),
             )
         )
     return BankApplicationListResponse(applications=items)
@@ -238,6 +241,7 @@ async def get_bank_application(
         weakness_report=WeaknessReport.model_validate(raw_weakness) if raw_weakness else None,
         market_verdict=MarketVerdict.model_validate(raw_market) if raw_market else None,
         risk_baseline=RiskBaseline.model_validate(raw_risk) if raw_risk else None,
+        amount=app.get("amount"),
     )
 
 
