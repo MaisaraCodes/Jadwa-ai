@@ -548,6 +548,7 @@ export const STRINGS = {
   "bank.detail.metric.businessModel": { ar: "نموذج العمل", en: "Business model" },
   "bank.detail.metric.documents": { ar: "المستندات", en: "Documents" },
   "bank.detail.metric.forensic": { ar: "التدقيق الجنائي", en: "Forensic" },
+  "bank.detail.notComputedShort": { ar: "لم يُحتسب", en: "Not computed" },
   "bank.detail.rail.title": { ar: "ملخص القرار", en: "Decision summary" },
   "bank.detail.marketTitle": { ar: "حكم السوق", en: "Market verdict" },
   "bank.detail.marketBody": {
@@ -563,23 +564,6 @@ export const STRINGS = {
   "bank.detail.phase4": { ar: "المرحلة الرابعة", en: "Phase 4" },
   "bank.detail.documentsEmpty": { ar: "لا توجد مستندات مستخرجة بعد.", en: "No extracted documents yet." },
 
-  // TODO(bank-detail-restyle): the following are used only by the current
-  // tabbed BankApplicationDetailPage and will be deleted along with the tabs
-  // + fabricated demo metrics in that page's restyle — kept here only so this
-  // commit (queue rebuild) doesn't break the not-yet-restyled detail page.
-  "bank.detail.tab.overview": { ar: "نظرة عامة", en: "Overview" },
-  "bank.detail.tab.forensic": { ar: "التدقيق المالي", en: "Financial audit" },
-  "bank.detail.tab.weakness": { ar: "نقاط الضعف", en: "Weakness report" },
-  "bank.detail.tab.market": { ar: "السوق", en: "Market verdict" },
-  "bank.detail.tab.comingSoon": { ar: "قريبًا", en: "Coming soon" },
-  "bank.detail.metric.sectorTrend": { ar: "اتجاه القطاع", en: "Sector trend" },
-  "bank.detail.metric.riskClass": { ar: "فئة المخاطر", en: "Risk class" },
-  "bank.detail.growing": { ar: "نمو +14%", en: "Growing +14%" },
-  "bank.detail.riskMedium": { ar: "متوسطة", en: "Medium" },
-  "bank.detail.sandboxDisabled": {
-    ar: "غير مفعّلة بعد، خارج نطاق هذا التحديث.",
-    en: "Not enabled yet, out of scope for this refurbish.",
-  },
   "bank.detail.matchHighConfidence": { ar: "ثقة عالية", en: "High confidence" },
   "bank.detail.matchLowConfidence": { ar: "ثقة منخفضة", en: "Low confidence" },
   "bank.detail.approve": { ar: "الموافقة", en: "Approve" },
