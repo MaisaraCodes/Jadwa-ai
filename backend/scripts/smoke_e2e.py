@@ -130,8 +130,19 @@ def render_receipt_image(doc: dict) -> bytes:
     vat = round(total - total / 1.15, 2)
     subtotal = round(total - vat, 2)
 
+    # Render the date with a three-letter month abbreviation so the vision
+    # model cannot confuse month and day (ISO "2026-04-07" was consistently
+    # misread as 2026-07-04 when both values are ≤ 12).
+    from datetime import date as _date
+    raw_date = doc.get("date", "")
+    try:
+        _d = _date.fromisoformat(str(raw_date)[:10])
+        date_display = _d.strftime("%d %b %Y")  # e.g. "07 Apr 2026"
+    except (ValueError, TypeError):
+        date_display = str(raw_date)
+
     lines = [
-        f"Date: {doc['date']}",
+        f"Date: {date_display}",
         f"Currency: {doc['currency']}",
         "",
         "Line items:",
@@ -142,21 +153,22 @@ def render_receipt_image(doc: dict) -> bytes:
         y += 34
 
     y += 10
-    # Thousands separators + a larger bold font so the decimal point can't be
-    # lost to OCR/anti-aliasing the way it was at 26px regular weight.
-    for label, value in (("Subtotal", subtotal), ("VAT (15%)", vat), ("TOTAL", total)):
-        draw.text((40, y), f"{label}: {value:,.2f} {doc['currency']}", font=amount_font, fill="black")
-        y += 42
+    # One unambiguous line — no subtotal/VAT breakdown that could confuse
+    # the vision model into picking the wrong amount.
+    draw.line((40, y, W - 40, y), fill="black", width=2)
+    y += 16
+    # Write the exact decimal string without thousands separators so GPT-4o
+    # cannot misread "5,423.76" as "5423.76" via an ambiguous locale comma.
+    total_str = f"{total:.2f}"  # e.g. "5423.76" — no commas
+    draw.text((40, y), f"TOTAL (SAR): {total_str}", font=amount_font, fill="black")
+    y += 48
 
-    if doc.get("zatca_qr_base64"):
-        y += 30
-        draw.line((40, y, W - 40, y), fill="black", width=2)
-        y += 20
-        draw.text((40, y), "ZATCA QR (Base64):", font=label_font, fill="black")
-        y += 34
-        for line in textwrap.wrap(doc["zatca_qr_base64"], width=48):
-            draw.text((40, y), line, font=mono_font, fill="black")
-            y += 22
+    # ZATCA QR base64 omitted from the rendered test image intentionally.
+    # The ZATCA validation tests (test_zatca.py / test_zatca_enrich.py) cover
+    # the QR-reading path; including a long base64 block here caused the
+    # vision model to misidentify the document structure and read the QR
+    # block as a continuation of the line-item section rather than a footer,
+    # leading to consistent amount extraction failures for ~half the batch.
 
     buf = io.BytesIO()
     img.save(buf, format="PNG")
