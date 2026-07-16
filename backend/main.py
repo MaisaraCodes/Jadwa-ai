@@ -16,7 +16,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from core.errors import APIError, api_error_handler
-from routers import applications, bank, documents, shared
+from routers import applications, bank, documents, profile, shared
 
 
 def create_app() -> FastAPI:
@@ -42,6 +42,7 @@ def create_app() -> FastAPI:
 
     app.add_exception_handler(APIError, api_error_handler)
     app.include_router(shared.router)
+    app.include_router(profile.router)
     app.include_router(applications.router)
     app.include_router(bank.router)
     app.include_router(documents.router)

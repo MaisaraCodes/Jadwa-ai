@@ -110,10 +110,10 @@ The contract both engineers build against. Lock this before Phase 2 UI/agent wor
 **Status lifecycle**
 
 ```
-draft ──▶ processing ──▶ review_ready ──▶ submitted ──▶ approved | rejected | info_requested
+draft ──▶ processing ──▶ review_ready ──▶ approved | rejected | more_info_needed
 ```
 
-`draft` (created, SME uploading) → `processing` (LangGraph running) → `review_ready` (extraction done, SME correcting) → `submitted` (in bank queue) → bank decision.
+`draft` (created, SME uploading) → `processing` (LangGraph running) → `review_ready` (LangGraph complete; background task writes this automatically — SME reviews/corrects extracted docs, then bank can act) → bank decision (`approved`, `rejected`, or `more_info_needed`). Note: `submitted` and `info_requested` are NOT valid DB enum values.
 
 ### Shared
 
@@ -153,7 +153,7 @@ PATCH /api/v1/applications/{id}/documents/{document_id}
   → 200 { document_id, ...updated_fields }           # SME correction
 
 POST /api/v1/applications/{id}/submit
-  → 200 { status: "submitted" }
+  → 200 { status: "review_ready" }
   # locks the record, runs application_builder (PDF) if not already, enters the bank queue.
 
 GET  /api/v1/applications/{id}/summary
@@ -166,7 +166,7 @@ GET  /api/v1/applications/{id}/pdf
 ### Bank dashboard  (role: bank)
 
 ```
-GET  /api/v1/bank/applications?status=submitted&sort=submitted_at&order=desc
+GET  /api/v1/bank/applications?status=review_ready&sort=updated_at&order=desc
   → 200 { applications: [ {
         application_id, sme_name, sector, district, submitted_at,
         forensic_status: "green" | "yellow" | "red",
@@ -195,7 +195,7 @@ POST /api/v1/bank/applications/{id}/sandbox/recalculate
 
 POST /api/v1/bank/applications/{id}/decision
   body { decision: "approve" | "reject" | "request_info", note? }
-  → 200 { status: "approved" | "rejected" | "info_requested" }
+  → 200 { status: "approved" | "rejected" | "more_info_needed" }
 ```
 
 **Two design notes**
