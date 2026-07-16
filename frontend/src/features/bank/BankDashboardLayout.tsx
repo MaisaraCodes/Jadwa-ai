@@ -12,9 +12,9 @@ export default function BankDashboardLayout() {
 
   return (
     <div data-portal="bank" className="min-h-screen bg-bg">
-      <PortalHeader label={t("bank.dashboardLabel")} nav={nav} />
+      <PortalHeader label={t("bank.dashboardLabel")} nav={nav} containerClassName="max-w-[1200px]" />
 
-      <main className="mx-auto max-w-6xl px-4 py-8">
+      <main className="mx-auto max-w-[1200px] px-4 py-8">
         <Outlet />
       </main>
     </div>

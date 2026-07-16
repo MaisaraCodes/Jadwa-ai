@@ -500,43 +500,88 @@ export const STRINGS = {
   "upload.statusUploaded": { ar: "تم الرفع", en: "Uploaded" },
   "upload.statusFailed": { ar: "فشل", en: "Failed" },
 
-  // --- bank dashboard shell / queue ---
+  // --- bank dashboard shell / queue --- (design-mocks/jadwa_bank_screens.html "Queue")
   "bank.dashboardLabel": { ar: "لوحة تحكم البنك", en: "Bank dashboard" },
   "bank.nav.queue": { ar: "قائمة الطلبات", en: "Application queue" },
   "bank.queue.subtitle": {
     ar: "الطلبات المُقدَّمة، مُقيَّمة مسبقًا، الأحدث أولاً.",
-    en: "Submitted applications, pre-scored, newest first.",
+    en: "Submitted applications, pre scored, newest first.",
   },
   "bank.queue.filterSubmitted": { ar: "مُقدَّم", en: "Submitted" },
   "bank.queue.filterTooltip": {
     ar: "متاح عندما تتوفر طلبات في القائمة",
     en: "Available once applications are in the queue",
   },
+  "bank.queue.kpi.inQueue": { ar: "في القائمة", en: "In queue" },
+  "bank.queue.kpi.flagged": { ar: "أعلام حمراء", en: "Flagged" },
+  "bank.queue.kpi.needsReview": { ar: "بحاجة لمراجعة", en: "Needs review" },
+  "bank.queue.kpi.avgScore": { ar: "متوسط الدرجة", en: "Average score" },
+  "bank.queue.kpi.scorePending": { ar: "غير متاح", en: "Not available" },
   "bank.queue.colBusiness": { ar: "المنشأة", en: "Business" },
   "bank.queue.colSector": { ar: "القطاع", en: "Sector" },
+  "bank.queue.colSubmitted": { ar: "تاريخ الإرسال", en: "Submitted" },
   "bank.queue.colForensic": { ar: "التدقيق", en: "Forensic" },
+  "bank.queue.colAmount": { ar: "المبلغ", en: "Amount" },
   "bank.queue.colScore": { ar: "الدرجة", en: "Score" },
-  "bank.demo.company": { ar: "شركة رواد اللوجستية", en: "Rawad Logistics" },
-  "bank.demo.sector": { ar: "الخدمات اللوجستية · الخرج", en: "Logistics · Al-Kharj" },
-  "bank.demo.reviewNeeded": { ar: "بحاجة لمراجعة", en: "Review needed" },
+  "bank.queue.amountPendingTooltip": {
+    ar: "بيانات المبلغ غير متاحة بعد",
+    en: "Amount data isn't available yet",
+  },
+  "bank.queue.loading": { ar: "جارٍ تحميل القائمة…", en: "Loading the queue…" },
+  "bank.queue.loadError": { ar: "تعذّر تحميل القائمة. حاول مرة أخرى.", en: "Couldn't load the queue. Try again." },
+  "bank.queue.retry": { ar: "إعادة المحاولة", en: "Retry" },
+  "bank.queue.emptyTitle": { ar: "لا توجد طلبات في القائمة", en: "No applications in the queue" },
+  "bank.queue.emptyBody": {
+    ar: "الطلبات المُقدَّمة ستظهر هنا، مُقيَّمة مسبقًا.",
+    en: "Submitted applications land here, pre scored.",
+  },
 
-  // --- bank application detail ---
+  // --- bank application detail --- (design-mocks/jadwa_bank_screens.html "Application detail")
   // REVIEW: "underwriting desk" — banking-domain term, confirm preferred AR phrasing.
   "bank.detail.deskLabel": { ar: "مكتب التحليل الائتماني", en: "Underwriting desk" },
   "bank.detail.subtitleNoCr": { ar: "{{sector}} · {{district}}", en: "{{sector}} · {{district}}" },
   "bank.detail.crLabel": { ar: "السجل التجاري", en: "CR" },
+  "bank.detail.submittedLabel": { ar: "أُرسل", en: "Submitted" },
+  "bank.detail.amountLabel": { ar: "المبلغ", en: "Amount" },
+  "bank.detail.amountPending": { ar: "غير متاح بعد", en: "Not available yet" },
   "bank.detail.metric.reconciled": { ar: "المطابقة", en: "Reconciled" },
   "bank.detail.metric.businessModel": { ar: "نموذج العمل", en: "Business model" },
+  "bank.detail.metric.documents": { ar: "المستندات", en: "Documents" },
+  "bank.detail.metric.forensic": { ar: "التدقيق الجنائي", en: "Forensic" },
+  "bank.detail.rail.title": { ar: "ملخص القرار", en: "Decision summary" },
+  "bank.detail.marketTitle": { ar: "حكم السوق", en: "Market verdict" },
+  "bank.detail.marketBody": {
+    ar: "سياق السوق السعودي المستند إلى بيانات ساما ومنشآت.",
+    en: "Saudi market context grounded in SAMA and Monsha'at data.",
+  },
+  "bank.detail.sandboxTitle": { ar: "مِنصّة المخاطر التفاعلية", en: "Risk sandbox" },
+  "bank.detail.sandboxBody": {
+    ar: "حرّك عوامل السيناريو وشاهد المخاطر تُحسب حيًّا.",
+    en: "Move scenario levers and watch the risk recalculate live.",
+  },
+  "bank.detail.comingSoon": { ar: "قريبًا", en: "Coming soon" },
+  "bank.detail.phase4": { ar: "المرحلة الرابعة", en: "Phase 4" },
+  "bank.detail.documentsEmpty": { ar: "لا توجد مستندات مستخرجة بعد.", en: "No extracted documents yet." },
+
+  // TODO(bank-detail-restyle): the following are used only by the current
+  // tabbed BankApplicationDetailPage and will be deleted along with the tabs
+  // + fabricated demo metrics in that page's restyle — kept here only so this
+  // commit (queue rebuild) doesn't break the not-yet-restyled detail page.
+  "bank.detail.tab.overview": { ar: "نظرة عامة", en: "Overview" },
+  "bank.detail.tab.forensic": { ar: "التدقيق المالي", en: "Financial audit" },
+  "bank.detail.tab.weakness": { ar: "نقاط الضعف", en: "Weakness report" },
+  "bank.detail.tab.market": { ar: "السوق", en: "Market verdict" },
+  "bank.detail.tab.comingSoon": { ar: "قريبًا", en: "Coming soon" },
   "bank.detail.metric.sectorTrend": { ar: "اتجاه القطاع", en: "Sector trend" },
   "bank.detail.metric.riskClass": { ar: "فئة المخاطر", en: "Risk class" },
   "bank.detail.growing": { ar: "نمو +14%", en: "Growing +14%" },
   "bank.detail.riskMedium": { ar: "متوسطة", en: "Medium" },
-  "bank.detail.sandboxTitle": { ar: "بيئة اختبار المخاطر", en: "Risk sandbox" },
   "bank.detail.sandboxDisabled": {
-    ar: "غير مفعّلة بعد — خارج نطاق هذا التحديث.",
-    en: "Not enabled yet — out of scope for this refurbish.",
+    ar: "غير مفعّلة بعد، خارج نطاق هذا التحديث.",
+    en: "Not enabled yet, out of scope for this refurbish.",
   },
-  "bank.detail.documentsEmpty": { ar: "لا توجد مستندات مستخرجة بعد.", en: "No extracted documents yet." },
+  "bank.detail.matchHighConfidence": { ar: "ثقة عالية", en: "High confidence" },
+  "bank.detail.matchLowConfidence": { ar: "ثقة منخفضة", en: "Low confidence" },
   "bank.detail.approve": { ar: "الموافقة", en: "Approve" },
   "bank.detail.requestInfo": { ar: "طلب معلومات", en: "Request info" },
   "bank.detail.reject": { ar: "الرفض", en: "Reject" },
@@ -555,7 +600,7 @@ export const STRINGS = {
   "bank.detail.notYetSubmitted": { ar: "لم يُقدَّم للمراجعة بعد.", en: "Not yet submitted for review." },
   "bank.detail.signOff": {
     ar: "تم التحقق من كل رقم بواسطة جدوى",
-    en: "Every figure cross-checked by Jadwa",
+    en: "Every figure cross checked by Jadwa",
   },
 
   // --- forensic report card (ForensicReportCard, mirrors ForensicReport in models.py) ---
@@ -610,12 +655,6 @@ export const STRINGS = {
   "review.continue": { ar: "متابعة", en: "Continue" },
   "review.amountValidation": { ar: "أدخل مبلغًا صحيحًا أكبر من صفر.", en: "Enter a valid amount greater than zero." },
 
-  // --- bank application detail: tabs ---
-  "bank.detail.tab.overview": { ar: "نظرة عامة", en: "Overview" },
-  "bank.detail.tab.forensic": { ar: "التدقيق المالي", en: "Financial audit" },
-  "bank.detail.tab.weakness": { ar: "نقاط الضعف", en: "Weakness report" },
-  "bank.detail.tab.market": { ar: "السوق", en: "Market verdict" },
-  "bank.detail.tab.comingSoon": { ar: "قريبًا", en: "Coming soon" },
 
   // --- weakness report card (WeaknessReportCard, mirrors WeaknessReport in models.py) ---
   "weakness.title": { ar: "تقرير نقاط الضعف", en: "Weakness report" },

@@ -161,6 +161,19 @@ export interface DecisionResponse {
   status: ApplicationStatus;
 }
 
+// Mirrors backend routers/bank.py GET /bank/applications (architecture.md §4
+// "the pre-scored queue"). No amount field — requested amount is PENDING
+// BACKEND everywhere in the bank portal, never fabricated.
+export interface BankApplicationSummaryItem {
+  application_id: string;
+  sme_name: string;
+  sector: string;
+  district: string;
+  submitted_at: string; // ISO datetime
+  forensic_status: ForensicStatus;
+  business_model_score: number | null;
+}
+
 export interface BankApplicationDetail {
   application_id: string;
   status: ApplicationStatus;

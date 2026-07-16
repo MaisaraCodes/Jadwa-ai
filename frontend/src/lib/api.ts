@@ -8,6 +8,7 @@ import type {
   ApplicationSummaryItem,
   ApplicationSummaryResponse,
   BankApplicationDetail,
+  BankApplicationSummaryItem,
   BankDecision,
   CreateApplicationResponse,
   DecisionResponse,
@@ -147,6 +148,10 @@ export function getApplicationSummary(applicationId: string): Promise<Applicatio
 
 export function getExtractedDocuments(applicationId: string): Promise<{ documents: DocumentJSON[] }> {
   return authedJson(`/applications/${applicationId}/extracted`);
+}
+
+export function listBankApplications(): Promise<{ applications: BankApplicationSummaryItem[] }> {
+  return authedJson(`/bank/applications?status=submitted&sort=submitted_at&order=desc`);
 }
 
 export function getBankApplication(applicationId: string): Promise<BankApplicationDetail> {
