@@ -16,8 +16,8 @@
 // WITHOUT claiming the server status changed — the header pill keeps showing
 // the real "Processing" status until the SME actually submits.
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { IconArrowLeft, IconFileDownload, IconSparkles } from "@tabler/icons-react";
+import { useParams } from "react-router-dom";
+import { IconFileDownload, IconSparkles } from "@tabler/icons-react";
 import { useLang } from "../../../i18n/LangProvider";
 import type { StringKey } from "../../../i18n/strings";
 import {
@@ -31,6 +31,9 @@ import {
 import type { ApplicationStatusResponse, ApplicationSummaryItem, ApplicationSummaryResponse } from "../../../types";
 import LifecycleStatusPill from "../../../components/LifecycleStatusPill";
 import SaduBand, { type SaduStageState } from "../../../components/SaduBand";
+import Card from "../../../components/Card";
+import Button from "../../../components/Button";
+import BackButton from "../../../components/BackButton";
 import DocumentUpload from "../DocumentUpload";
 import { DocumentReviewPanel } from "./ReviewDocumentsPage";
 
@@ -53,7 +56,7 @@ type Phase = "draft" | "processing" | "analysis_done" | "locked";
 
 export default function ApplicationDetailPage() {
   const { applicationId } = useParams();
-  const { t, lang } = useLang();
+  const { t } = useLang();
 
   const [summary, setSummary] = useState<ApplicationSummaryItem | null>(null);
   const [statusInfo, setStatusInfo] = useState<ApplicationStatusResponse | null>(null);
@@ -186,10 +189,8 @@ export default function ApplicationDetailPage() {
   if (notFound) {
     return (
       <section>
-        <BackLink lang={lang} t={t} />
-        <p className="rounded-xl border border-line bg-surface px-4 py-6 text-center text-[13px] text-text-2">
-          {t("sme.detail.notFound")}
-        </p>
+        <BackButton to="/sme" label={t("common.back.dashboard")} />
+        <Card className="py-6 text-center text-[13px] text-text-2">{t("sme.detail.notFound")}</Card>
       </section>
     );
   }
@@ -197,17 +198,13 @@ export default function ApplicationDetailPage() {
   if (loadError) {
     return (
       <section>
-        <BackLink lang={lang} t={t} />
-        <div className="rounded-xl border border-line bg-surface px-4 py-6 text-center">
+        <BackButton to="/sme" label={t("common.back.dashboard")} />
+        <Card className="py-6 text-center">
           <p className="mb-2.5 text-[13px] text-flag">{loadError}</p>
-          <button
-            type="button"
-            onClick={load}
-            className="rounded-lg border border-line-strong px-3 py-1.5 text-xs font-medium text-accent-strong hover:bg-accent-soft focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-          >
+          <Button variant="ghost" size="sm" onClick={load}>
             {t("sme.detail.retry")}
-          </button>
-        </div>
+          </Button>
+        </Card>
       </section>
     );
   }
@@ -215,10 +212,8 @@ export default function ApplicationDetailPage() {
   if (!summary || !statusInfo || !applicationId) {
     return (
       <section>
-        <BackLink lang={lang} t={t} />
-        <p className="rounded-xl border border-line bg-surface px-4 py-6 text-center text-[13px] text-text-2">
-          {t("sme.detail.loading")}
-        </p>
+        <BackButton to="/sme" label={t("common.back.dashboard")} />
+        <Card className="py-6 text-center text-[13px] text-text-2">{t("sme.detail.loading")}</Card>
       </section>
     );
   }
@@ -241,11 +236,11 @@ export default function ApplicationDetailPage() {
 
   return (
     <section>
-      <BackLink lang={lang} t={t} />
+      <BackButton to="/sme" label={t("common.back.dashboard")} />
 
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="font-display text-2xl font-extrabold text-ink">
+          <h1 className="font-display text-2xl font-extrabold text-ink sm:text-h1">
             {t("sme.detail.applicationLabel")}{" "}
             <span dir="ltr" className="tabular-nums text-lg font-normal text-text-3" title={applicationId}>
               {applicationId.slice(0, 8)}…
@@ -262,7 +257,7 @@ export default function ApplicationDetailPage() {
       </div>
 
       {(phase === "draft" || phase === "analysis_done") && (
-        <div className="mb-4 rounded-xl border border-line bg-surface px-4 py-3.5">
+        <Card className="mb-4">
           <div className="mb-2.5 flex items-center justify-between">
             <span className="text-[13.5px] font-semibold text-ink">{t("sme.home.documentsTitle")}</span>
             {summary.document_count > 0 && (
@@ -275,11 +270,11 @@ export default function ApplicationDetailPage() {
             applicationId={applicationId}
             onUploaded={() => setUploadedThisSession((n) => n + 1)}
           />
-        </div>
+        </Card>
       )}
 
       {phase === "draft" && (
-        <div className="mb-4 flex flex-col items-start gap-2 rounded-xl border border-line bg-surface px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between">
+        <Card className="mb-4 flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-[13px] font-medium text-ink">{t("sme.detail.analyzeButton")}</p>
             {!hasDocuments && (
@@ -287,20 +282,15 @@ export default function ApplicationDetailPage() {
             )}
             {analyzeError && <p className="mt-0.5 text-xs text-flag">{analyzeError}</p>}
           </div>
-          <button
-            type="button"
-            onClick={onAnalyze}
-            disabled={!hasDocuments || analyzeBusy}
-            className="inline-flex h-10 shrink-0 items-center gap-2 rounded-lg bg-accent px-5 text-sm font-medium text-on-accent disabled:opacity-50 hover:bg-accent-strong focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
-          >
+          <Button variant="accent" onClick={onAnalyze} disabled={!hasDocuments || analyzeBusy} className="shrink-0">
             <IconSparkles size={16} aria-hidden="true" />
             {analyzeBusy ? t("sme.detail.analyzeStarting") : t("sme.detail.analyzeButton")}
-          </button>
-        </div>
+          </Button>
+        </Card>
       )}
 
       {phase === "processing" && (
-        <div className="mb-4 rounded-xl border border-line bg-surface px-4 py-5 text-center">
+        <Card className="mb-4 text-center">
           <h2 className="text-title font-semibold text-ink">{t("sme.detail.processingTitle")}</h2>
           <p className="mx-auto mt-1 max-w-sm text-[12.5px] text-text-2">{t("sme.detail.processingHint")}</p>
           <div className="mt-4 flex justify-center overflow-x-auto">
@@ -311,14 +301,14 @@ export default function ApplicationDetailPage() {
             {" · "}
             {t("sme.detail.stageProgress", { done: nodesCompletedCount, total: STAGE_LABEL_KEYS.length })}
           </p>
-        </div>
+        </Card>
       )}
 
       {phase === "analysis_done" && (
         <>
-          <div className="mb-4 rounded-xl border border-line bg-surface px-4 py-4 text-center">
+          <Card className="mb-4 text-center">
             <p className="text-[13px] text-ink">{t("sme.detail.analysisCompleteNotice")}</p>
-          </div>
+          </Card>
 
           <div className="mb-4">
             <DocumentReviewPanel applicationId={applicationId} onAllConfirmedChange={onReviewProgressChange} />
@@ -327,32 +317,25 @@ export default function ApplicationDetailPage() {
           {summaryInfo && <HealthSummaryCard summary={summaryInfo} />}
           {summaryError && <p className="mb-4 text-center text-xs text-text-3">{t("sme.detail.summaryUnavailable")}</p>}
 
-          <div className="flex flex-wrap items-center gap-2.5 rounded-xl border border-line bg-surface px-4 py-3.5">
-            <button
-              type="button"
-              onClick={onSubmit}
-              disabled={!reviewProgress?.allConfirmed || submitBusy}
-              className="inline-flex h-10 items-center gap-2 rounded-lg bg-accent px-5 text-sm font-medium text-on-accent disabled:opacity-50 hover:bg-accent-strong focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
-            >
+          <Card className="flex flex-wrap items-center gap-2.5">
+            <Button variant="accent" onClick={onSubmit} disabled={!reviewProgress?.allConfirmed || submitBusy}>
               {submitBusy ? t("sme.detail.submitting") : t("sme.detail.submitButton")}
-            </button>
+            </Button>
             {submitError && <p className="text-xs text-flag">{submitError}</p>}
-          </div>
+          </Card>
         </>
       )}
 
       {phase === "locked" && (
         <>
-          <div className="mb-4 rounded-xl border border-line bg-surface px-4 py-6 text-center text-[13px] text-text-2">
-            {t("sme.detail.lockedNote")}
-          </div>
+          <Card className="mb-4 text-center text-[13px] text-text-2">{t("sme.detail.lockedNote")}</Card>
 
           {summaryInfo && <HealthSummaryCard summary={summaryInfo} />}
           {summaryError && <p className="mb-4 text-center text-xs text-text-3">{t("sme.detail.summaryUnavailable")}</p>}
 
-          <div className="flex items-center justify-end rounded-xl border border-line bg-surface px-4 py-3.5">
+          <Card className="flex items-center justify-end">
             <PdfPlaceholderButton />
-          </div>
+          </Card>
         </>
       )}
     </section>
@@ -362,7 +345,7 @@ export default function ApplicationDetailPage() {
 function HealthSummaryCard({ summary }: { summary: ApplicationSummaryResponse }) {
   const { t } = useLang();
   return (
-    <div className="mb-4 rounded-xl border border-line bg-surface px-4 py-3.5">
+    <Card className="mb-4">
       <div className="mb-2 flex items-center justify-between">
         <span className="text-[13.5px] font-semibold text-ink">{t("sme.detail.summaryTitle")}</span>
         {summary.business_model_score !== null && (
@@ -386,33 +369,17 @@ function HealthSummaryCard({ summary }: { summary: ApplicationSummaryResponse })
           </ul>
         </div>
       )}
-    </div>
+    </Card>
   );
 }
 
 function PdfPlaceholderButton() {
   const { t } = useLang();
   return (
-    <button
-      type="button"
-      disabled
-      title={t("sme.detail.pdfComingSoon")}
-      className="inline-flex cursor-not-allowed items-center gap-2 rounded-lg border border-line-strong px-4 py-2 text-sm text-text-3"
-    >
+    <Button variant="ghost" size="sm" disabled title={t("sme.detail.pdfComingSoon")}>
       <IconFileDownload size={15} aria-hidden="true" />
       {t("sme.detail.pdfButton")}
-    </button>
+    </Button>
   );
 }
 
-function BackLink({ lang, t }: { lang: string; t: (key: StringKey, vars?: Record<string, string | number>) => string }) {
-  return (
-    <Link
-      to="/sme"
-      className="mb-3 inline-flex items-center gap-1.5 text-[12.5px] font-medium text-text-2 hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-    >
-      <IconArrowLeft size={14} className={lang === "ar" ? "rotate-180" : ""} aria-hidden="true" />
-      {t("review.backLink")}
-    </Link>
-  );
-}

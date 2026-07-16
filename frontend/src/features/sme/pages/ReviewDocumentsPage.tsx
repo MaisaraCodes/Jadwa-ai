@@ -13,12 +13,13 @@
 // analysis-done phase, passing its own onContinue ("Submit application")
 // instead of the panel's default "back to dashboard" behavior.
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { IconArrowLeft, IconAlertTriangle, IconCheck, IconPencil } from "@tabler/icons-react";
+import { useNavigate, useParams } from "react-router-dom";
+import { IconAlertTriangle, IconCheck, IconPencil } from "@tabler/icons-react";
 import { useLang } from "../../../i18n/LangProvider";
 import type { StringKey } from "../../../i18n/strings";
 import { ApiError, getExtractedDocuments, patchExtractedDocument } from "../../../lib/api";
 import type { DocumentJSON, DocumentType } from "../../../types";
+import BackButton from "../../../components/BackButton";
 
 const LOW_CONFIDENCE_THRESHOLD = 0.85;
 const DOCUMENT_TYPES: DocumentType[] = ["zatca_receipt", "invoice", "bank_statement", "contract", "other"];
@@ -345,18 +346,12 @@ export function DocumentReviewPanel({
 export default function ReviewDocumentsPage() {
   const { applicationId: routeApplicationId } = useParams();
   const applicationId = routeApplicationId ?? "JDW-2026-0147"; // demo fallback, mirrors SmeHomePage's APP_REF
-  const { t, lang } = useLang();
+  const { t } = useLang();
   const navigate = useNavigate();
 
   return (
     <section>
-      <Link
-        to="/sme"
-        className="mb-3 inline-flex items-center gap-1.5 text-[12.5px] font-medium text-text-2 hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-      >
-        <IconArrowLeft size={14} className={lang === "ar" ? "rotate-180" : ""} aria-hidden="true" />
-        {t("review.backLink")}
-      </Link>
+      <BackButton to="/sme" label={t("common.back.dashboard")} />
 
       <h1 className="font-display text-2xl font-extrabold text-ink">{t("review.title")}</h1>
       <p className="mb-4 mt-0.5 max-w-xl text-[13px] text-text-2">{t("review.subtitle")}</p>

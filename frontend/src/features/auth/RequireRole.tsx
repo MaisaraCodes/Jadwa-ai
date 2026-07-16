@@ -3,17 +3,19 @@
 import type { ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth, type AppRole } from "./AuthProvider";
+import { useLang } from "../../i18n/LangProvider";
 import LandingPage from "../landing/LandingPage";
 
 const HOME: Record<AppRole, string> = { sme: "/sme", bank: "/bank" };
 
 function FullPageSpinner() {
+  const { t } = useLang();
   return (
     <div className="flex min-h-screen items-center justify-center bg-bg">
       <div
         className="h-6 w-6 animate-spin rounded-full border-2 border-line-strong border-t-ink motion-reduce:animate-none"
         role="status"
-        aria-label="Loading"
+        aria-label={t("common.loading")}
       />
     </div>
   );

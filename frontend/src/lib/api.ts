@@ -8,10 +8,12 @@ import type {
   ApplicationSummaryItem,
   ApplicationSummaryResponse,
   BankApplicationDetail,
+  BankApplicationSummaryItem,
   BankDecision,
   CreateApplicationResponse,
   DecisionResponse,
   DocumentJSON,
+  Me,
   PatchDocumentRequest,
   ProcessResponse,
   SubmitResponse,
@@ -113,6 +115,10 @@ async function authedJson<T>(path: string, init?: RequestInit): Promise<T> {
   return body as T;
 }
 
+export function getMe(): Promise<Me> {
+  return authedJson(`/me`);
+}
+
 export function listApplications(): Promise<{ applications: ApplicationSummaryItem[] }> {
   return authedJson(`/applications`);
 }
@@ -142,6 +148,10 @@ export function getApplicationSummary(applicationId: string): Promise<Applicatio
 
 export function getExtractedDocuments(applicationId: string): Promise<{ documents: DocumentJSON[] }> {
   return authedJson(`/applications/${applicationId}/extracted`);
+}
+
+export function listBankApplications(): Promise<{ applications: BankApplicationSummaryItem[] }> {
+  return authedJson(`/bank/applications?status=submitted&sort=submitted_at&order=desc`);
 }
 
 export function getBankApplication(applicationId: string): Promise<BankApplicationDetail> {

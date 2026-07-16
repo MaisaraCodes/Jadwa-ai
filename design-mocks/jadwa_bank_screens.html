@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Jadwa — bank screens concept</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Zain:wght@400;700;800&family=Alexandria:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg:#F8F6F0; --surface:#FFFFFF; --surface-2:#F1EEE4;
+  --ink:#111D18; --text-2:#54615B; --text-3:#8A948D;
+  --line:#E4E0D3; --line-strong:#CBC5B4;
+  --gold:#A9852F; --gold-soft:#F2E9D2;
+  --accent:#2E5AA6; --accent-strong:#24478C; --accent-soft:#E5EDF9; --on-accent:#FFFFFF;
+  --pass:#177A47; --pass-bg:#E5F3EA; --review:#9C6F12; --review-bg:#F8EED8; --flag:#B3352A; --flag-bg:#F9E9E7;
+}
+html.dark{
+  --bg:#0B1310; --surface:#121D18; --surface-2:#182620;
+  --ink:#F1EDE1; --text-2:#A9B3AB; --text-3:#6E7A72;
+  --line:#243129; --line-strong:#33443A;
+  --gold:#D6B36A; --gold-soft:#2A2415;
+  --accent:#7CA4E4; --accent-strong:#9FBDEB; --accent-soft:#14233C; --on-accent:#0D1B33;
+  --pass:#4CC38A; --pass-bg:#12281C; --review:#E0A93E; --review-bg:#2A2110; --flag:#E2604F; --flag-bg:#2B1512;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:Alexandria,system-ui,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+.zain{font-family:Zain,Alexandria,sans-serif}
+.tnum{font-variant-numeric:tabular-nums}
+.wrap{max-width:1200px;margin:0 auto;padding:0 28px}
+
+.topstrip{height:3px;background:var(--accent)}
+header{border-bottom:1px solid var(--line);background:var(--surface)}
+.hbar{display:flex;align-items:center;justify-content:space-between;height:60px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand .mark{width:24px;height:24px;color:var(--ink)}
+.brand .word{font-size:22px;font-weight:800}
+.brand .diamond{width:10px;height:10px}
+.brand .sep{width:1px;height:22px;background:var(--line-strong);margin-inline:14px}
+.brand .plabel{font-size:14px;color:var(--text-2);font-weight:500}
+.hact{display:flex;align-items:center;gap:12px}
+.toggle{display:flex;border:1px solid var(--line-strong);border-radius:8px;overflow:hidden}
+.toggle button{background:transparent;border:0;color:var(--text-3);font-family:inherit;font-size:12px;font-weight:600;padding:5px 9px;cursor:pointer}
+.toggle button.on{background:var(--surface-2);color:var(--ink)}
+.iconbtn{width:31px;height:31px;border:1px solid var(--line-strong);border-radius:8px;background:transparent;color:var(--text-2);cursor:pointer}
+.umail{font-size:13px;color:var(--text-3)}
+.btn{font-family:inherit;font-size:14px;font-weight:600;border-radius:8px;padding:0 16px;height:38px;display:inline-flex;align-items:center;gap:8px;cursor:pointer;text-decoration:none;border:1px solid transparent;transition:.15s;white-space:nowrap}
+.btn-accent{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.btn-accent:hover{background:var(--accent-strong)}
+.btn-ghost{background:transparent;color:var(--ink);border-color:var(--line-strong)}
+.btn-ghost:hover{background:var(--surface-2)}
+.btn-danger{background:transparent;color:var(--flag);border-color:color-mix(in srgb,var(--flag) 45%,transparent)}
+.btn-danger:hover{background:var(--flag-bg)}
+
+.mockbar{background:var(--surface-2);border-bottom:1px solid var(--line)}
+.mockbar .in{display:flex;align-items:center;gap:12px;height:44px}
+.mockbar .lbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-3);font-weight:600}
+.segs{display:flex;gap:6px}
+.seg{font-family:inherit;font-size:13px;font-weight:600;border:1px solid var(--line-strong);background:transparent;color:var(--text-2);border-radius:100px;padding:5px 14px;cursor:pointer}
+.seg.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+
+.page{padding:32px 0 72px}
+.pagehead{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:22px}
+.pagehead h1{font-size:30px;font-weight:800;line-height:1.1}
+.pagehead p{color:var(--text-2);font-size:14px;margin-top:7px}
+.filter{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-2)}
+.filter select{height:36px;border-radius:8px;background:var(--surface);border:1px solid var(--line-strong);color:var(--ink);padding:0 12px;font-family:inherit;font-size:13px}
+
+.strip{display:grid;grid-template-columns:repeat(3,auto);gap:28px;padding:16px 20px;background:var(--surface-2);border-radius:12px;margin-bottom:22px;width:fit-content}
+.strip .k{font-size:12px;color:var(--text-3);font-weight:500}
+.strip .v{font-size:22px;font-weight:600;margin-top:4px}
+.strip .v.flagv{color:var(--flag)}
+
+.tablecard{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+table{width:100%;border-collapse:collapse}
+thead th{text-align:start;font-size:12px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em;padding:14px 18px;border-bottom:1px solid var(--line);background:var(--surface)}
+html[dir=rtl] thead th{letter-spacing:normal;text-transform:none;font-size:13px}
+tbody td{padding:15px 18px;border-bottom:1px solid var(--line);font-size:14px}
+tbody tr:last-child td{border-bottom:0}
+tbody tr{cursor:pointer;transition:background .12s}
+tbody tr:hover{background:var(--surface-2)}
+.biz{font-weight:600}
+.end{text-align:end}
+.num{text-align:end;font-variant-numeric:tabular-nums;font-weight:600}
+.pill{display:inline-flex;align-items:center;gap:7px;border-radius:100px;padding:4px 11px;font-size:12px;font-weight:600}
+.pill .pd{width:6px;height:6px;border-radius:50%}
+.pill.pass{background:var(--pass-bg);color:var(--pass)} .pill.pass .pd{background:var(--pass)}
+.pill.review{background:var(--review-bg);color:var(--review)} .pill.review .pd{background:var(--review)}
+.pill.flag{background:var(--flag-bg);color:var(--flag)} .pill.flag .pd{background:var(--flag)}
+.pill.neutral{background:var(--surface-2);color:var(--text-2);border:1px solid var(--line)} .pill.neutral .pd{background:var(--text-3)}
+
+.back{font-size:13px;color:var(--accent);text-decoration:none;font-weight:600;display:inline-flex;gap:6px;align-items:center;margin-bottom:16px}
+html[dir=rtl] .back i{transform:scaleX(-1)}
+.dethead{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap;padding-bottom:22px;border-bottom:1px solid var(--line);margin-bottom:22px}
+.dethead h1{font-size:26px;font-weight:800}
+.dethead .sub{color:var(--text-3);font-size:14px;margin-top:6px;font-variant-numeric:tabular-nums}
+.decbar{display:flex;gap:10px;align-items:center}
+
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.metric{background:var(--surface-2);border-radius:12px;padding:15px 18px}
+.metric .k{font-size:12px;color:var(--text-3);font-weight:500;margin-bottom:8px}
+.metric .v{font-size:24px;font-weight:600;line-height:1}
+.metric .v small{font-size:13px;color:var(--text-3);font-weight:400}
+
+.detgrid{display:grid;grid-template-columns:1fr 340px;gap:22px;align-items:start}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin-bottom:18px}
+.card.edge{border-inline-start:3px solid var(--flag);border-start-start-radius:0;border-end-start-radius:0}
+.card h3{font-size:16px;font-weight:700;margin-bottom:2px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.card .sec-sub{font-size:13px;color:var(--text-3);margin-bottom:16px}
+.flags{list-style:none}
+.flags li{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line);font-size:14px;color:var(--ink);line-height:1.6}
+.flags li:last-child{border-bottom:0}
+.sev{flex:none;font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;margin-top:1px}
+.sev.high{background:var(--flag-bg);color:var(--flag)} .sev.med{background:var(--review-bg);color:var(--review)}
+.scorebox{display:flex;align-items:baseline;gap:10px;margin-bottom:16px}
+.scorebox .big{font-size:40px;font-weight:800;line-height:1} .scorebox .of{font-size:15px;color:var(--text-3)}
+.wlist{list-style:none;margin-bottom:6px}
+.wlist li{position:relative;padding-inline-start:18px;margin-bottom:10px;font-size:14px;color:var(--ink);line-height:1.6}
+.wlist li::before{content:"";position:absolute;inset-inline-start:0;top:8px;width:6px;height:6px;border-radius:50%;background:var(--flag)}
+.mlabel{font-size:12px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;margin:18px 0 10px}
+html[dir=rtl] .mlabel{letter-spacing:normal;text-transform:none}
+.mlist{list-style:none}
+.mlist li{position:relative;padding-inline-start:26px;margin-bottom:10px;font-size:14px;color:var(--text-2);line-height:1.6}
+.mlist li::before{content:"→";position:absolute;inset-inline-start:0;color:var(--accent)}
+html[dir=rtl] .mlist li::before{content:"←"}
+.docrow{display:grid;grid-template-columns:1fr auto auto;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);font-size:13px}
+.docrow:last-child{border-bottom:0}
+.docrow .dv{font-weight:600}
+.docrow .dm{color:var(--text-3);margin-top:3px;font-variant-numeric:tabular-nums}
+.docrow .da{font-variant-numeric:tabular-nums;font-weight:600}
+.miniflag{font-size:11px;font-weight:700;color:var(--flag);background:var(--flag-bg);padding:2px 7px;border-radius:6px}
+.placeholder{background:var(--surface);border:1px dashed var(--line-strong);border-radius:14px;padding:22px;margin-bottom:18px;text-align:center}
+.placeholder .pt{font-size:15px;font-weight:600;margin-bottom:6px;color:var(--text-2)}
+.placeholder .pp{font-size:13px;color:var(--text-3)}
+.placeholder .soon{display:inline-block;margin-top:12px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-3);border:1px solid var(--line-strong);border-radius:100px;padding:4px 12px}
+html[dir=rtl] .placeholder .soon{letter-spacing:normal;text-transform:none}
+
+.hidden{display:none}
+@media (max-width:900px){
+  .metrics{grid-template-columns:repeat(2,1fr)}
+  .detgrid{grid-template-columns:1fr}
+  .umail{display:none}
+  table{font-size:13px}
+}
+</style>
+</head>
+<body>
+<div class="topstrip"></div>
+
+<header>
+  <div class="wrap">
+    <div class="hbar">
+      <div class="brand">
+        <svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><rect x="22" y="24" width="56" height="13" fill="currentColor"/><rect x="65" y="37" width="13" height="28" fill="currentColor"/><rect x="10" y="52" width="68" height="13" fill="currentColor"/><path d="M38 38.5 L43.5 44.5 L38 50.5 L32.5 44.5 Z" fill="var(--accent)"/></svg>
+        <span class="word zain" data-ar="جدوى" data-en="Jadwa">جدوى</span>
+        <svg class="diamond" viewBox="0 0 14 14" aria-hidden="true"><path d="M7 .5 L13.5 7 L7 13.5 L.5 7 Z" fill="var(--gold)"/></svg>
+        <span class="sep"></span>
+        <span class="plabel" data-ar="لوحة البنك" data-en="Bank dashboard">لوحة البنك</span>
+      </div>
+      <div class="hact">
+        <div class="toggle" id="lang"><button data-lang="ar" class="on">ع</button><button data-lang="en">EN</button></div>
+        <button class="iconbtn" id="theme" aria-label="theme">☀</button>
+        <span class="umail">maisaraelmarakby@gmail.com</span>
+        <a href="#" class="btn btn-ghost" style="height:34px" data-ar="خروج" data-en="Sign out">خروج</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="mockbar">
+  <div class="wrap">
+    <div class="in">
+      <span class="lbl" data-ar="معاينة" data-en="Preview">معاينة</span>
+      <div class="segs">
+        <button class="seg on" data-screen="queue" data-ar="قائمة الطلبات" data-en="Queue">قائمة الطلبات</button>
+        <button class="seg" data-screen="detail" data-ar="تفاصيل الطلب" data-en="Application detail">تفاصيل الطلب</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="screen-queue" class="page">
+  <div class="wrap">
+    <div class="pagehead">
+      <div>
+        <h1 class="zain" data-ar="قائمة الطلبات" data-en="Application queue">قائمة الطلبات</h1>
+        <p data-ar="طلبات مُرسَلة، مُقيَّمة مسبقًا، الأحدث أولًا." data-en="Submitted applications, pre scored, newest first.">طلبات مُرسَلة، مُقيَّمة مسبقًا، الأحدث أولًا.</p>
+      </div>
+      <div class="filter">
+        <span data-ar="الحالة" data-en="Status">الحالة</span>
+        <select><option data-ar="مُرسَل" data-en="Submitted">مُرسَل</option><option data-ar="الكل" data-en="All">الكل</option></select>
+      </div>
+    </div>
+
+    <div class="strip">
+      <div><div class="k" data-ar="في القائمة" data-en="In queue">في القائمة</div><div class="v tnum">5</div></div>
+      <div><div class="k" data-ar="أعلام حمراء" data-en="Red flags">أعلام حمراء</div><div class="v flagv tnum">1</div></div>
+      <div><div class="k" data-ar="متوسط الدرجة" data-en="Average score">متوسط الدرجة</div><div class="v tnum">74</div></div>
+    </div>
+
+    <div class="tablecard">
+      <table>
+        <thead><tr>
+          <th data-ar="المنشأة" data-en="Business">المنشأة</th>
+          <th data-ar="القطاع" data-en="Sector">القطاع</th>
+          <th data-ar="تاريخ الإرسال" data-en="Submitted">تاريخ الإرسال</th>
+          <th data-ar="التدقيق الجنائي" data-en="Forensic">التدقيق الجنائي</th>
+          <th class="end" data-ar="درجة النموذج" data-en="Model score">درجة النموذج</th>
+          <th class="end" data-ar="المبلغ" data-en="Amount">المبلغ</th>
+        </tr></thead>
+        <tbody id="qbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div id="screen-detail" class="page hidden">
+  <div class="wrap">
+    <a href="#" class="back" id="backlink"><i>←</i> <span data-ar="عودة إلى القائمة" data-en="Back to queue">عودة إلى القائمة</span></a>
+    <div class="dethead">
+      <div>
+        <h1 class="zain">Rawad Logistics</h1>
+        <div class="sub" data-ar="لوجستيات · الخرج · السجل التجاري 1010XXXXXX · أُرسل 13 يوليو · المبلغ 180,000 SAR" data-en="Logistics · Al-Kharj · CR 1010XXXXXX · Submitted 13 Jul · 180,000 SAR requested">لوجستيات · الخرج · السجل التجاري 1010XXXXXX · أُرسل 13 يوليو · المبلغ 180,000 SAR</div>
+      </div>
+      <div class="decbar">
+        <a href="#" class="btn btn-accent" data-ar="اعتماد" data-en="Approve">اعتماد</a>
+        <a href="#" class="btn btn-ghost" data-ar="طلب معلومات" data-en="Request info">طلب معلومات</a>
+        <a href="#" class="btn btn-danger" data-ar="رفض" data-en="Reject">رفض</a>
+      </div>
+    </div>
+
+    <div class="metrics">
+      <div class="metric"><div class="k" data-ar="نسبة المطابقة" data-en="Reconciliation">نسبة المطابقة</div><div class="v tnum">85<small>%</small></div></div>
+      <div class="metric"><div class="k" data-ar="درجة النموذج" data-en="Model score">درجة النموذج</div><div class="v tnum">72<small>/100</small></div></div>
+      <div class="metric"><div class="k" data-ar="المستندات" data-en="Documents">المستندات</div><div class="v tnum">8</div></div>
+      <div class="metric"><div class="k" data-ar="التدقيق الجنائي" data-en="Forensic">التدقيق الجنائي</div><div class="v"><span class="pill flag" style="font-size:13px"><span class="pd"></span><span data-ar="مراجعة" data-en="Review">مراجعة</span></span></div></div>
+    </div>
+
+    <div class="detgrid">
+      <div>
+        <div class="card edge">
+          <h3><span data-ar="التقرير الجنائي" data-en="Forensic report">التقرير الجنائي</span><span class="pill flag"><span class="pd"></span><span data-ar="مراجعة مطلوبة" data-en="Review needed">مراجعة مطلوبة</span></span></h3>
+          <div class="sec-sub" data-ar="نسبة المطابقة مع السجل البنكي 85% · علَمان" data-en="85% reconciled against the bank ledger · 2 flags">نسبة المطابقة مع السجل البنكي 85% · علَمان</div>
+          <ul class="flags">
+            <li><span class="sev high" data-ar="عالٍ" data-en="High">عالٍ</span><span data-ar="لا توجد معاملة بنكية مطابقة لفاتورة مورد الوقود Gulf Fuel Depot بمبلغ 1,500.50." data-en="No matching bank ledger transaction for the Gulf Fuel Depot fuel invoice of 1,500.50.">لا توجد معاملة بنكية مطابقة لفاتورة مورد الوقود Gulf Fuel Depot بمبلغ 1,500.50.</span></li>
+            <li><span class="sev med" data-ar="متوسط" data-en="Medium">متوسط</span><span data-ar="مبلغ مُدوَّر متكرر لدى مقاول نسمة يستدعي الانتباه." data-en="Repeated round amount from Nesma Contracting worth a closer look.">مبلغ مُدوَّر متكرر لدى مقاول نسمة يستدعي الانتباه.</span></li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3><span data-ar="تقرير نقاط الضعف" data-en="Weakness report">تقرير نقاط الضعف</span></h3>
+          <div class="scorebox"><span class="big tnum">72</span><span class="of">/100 <span data-ar="درجة نموذج العمل" data-en="business model score">درجة نموذج العمل</span></span></div>
+          <ul class="wlist">
+            <li data-ar="اعتماد كبير على مورد وقود واحد يمثّل 68% من المصروفات." data-en="Heavy reliance on a single fuel supplier at 68% of total spend.">اعتماد كبير على مورد وقود واحد يمثّل 68% من المصروفات.</li>
+            <li data-ar="تذبذب ملحوظ في الإيرادات الشهرية عبر الموسم." data-en="Notable volatility in monthly revenue across the season.">تذبذب ملحوظ في الإيرادات الشهرية عبر الموسم.</li>
+          </ul>
+          <div class="mlabel" data-ar="إجراءات مقترحة" data-en="Recommended actions">إجراءات مقترحة</div>
+          <ul class="mlist">
+            <li data-ar="اطلب عقد مورد وقود ثانوي لتقليل التركّز." data-en="Request a secondary fuel supplier contract to reduce concentration.">اطلب عقد مورد وقود ثانوي لتقليل التركّز.</li>
+            <li data-ar="قدّم كشوف ثلاثة أشهر إضافية لتأكيد الموسمية." data-en="Provide three more months of statements to confirm seasonality.">قدّم كشوف ثلاثة أشهر إضافية لتأكيد الموسمية.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3><span data-ar="المستندات المستخرَجة" data-en="Extracted documents">المستندات المستخرَجة</span></h3>
+          <div class="sec-sub">&nbsp;</div>
+          <div id="docs"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="placeholder">
+          <div class="pt" data-ar="حكم السوق" data-en="Market verdict">حكم السوق</div>
+          <div class="pp" data-ar="سياق السوق السعودي المستند إلى بيانات SAMA و منشآت." data-en="Saudi market context grounded in SAMA and Monshaat data.">سياق السوق السعودي المستند إلى بيانات SAMA و منشآت.</div>
+          <span class="soon" data-ar="قريبًا" data-en="Coming soon">قريبًا</span>
+        </div>
+        <div class="placeholder">
+          <div class="pt" data-ar="مِنصّة المخاطر التفاعلية" data-en="Risk sandbox">مِنصّة المخاطر التفاعلية</div>
+          <div class="pp" data-ar="حرّك عوامل السيناريو وشاهد المخاطر تُحسب حيًّا." data-en="Move scenario levers and watch the risk recalculate live.">حرّك عوامل السيناريو وشاهد المخاطر تُحسب حيًّا.</div>
+          <span class="soon" data-ar="المرحلة الرابعة" data-en="Phase 4">المرحلة الرابعة</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const ROWS=[
+  {biz:"Rawad Logistics",biz_ar:"رواد للخدمات اللوجستية",sec_ar:"لوجستيات · الخرج",sec_en:"Logistics · Al-Kharj",date_ar:"13 يوليو",date_en:"13 Jul",f:"flag",fa:"مراجعة مطلوبة",fe:"Review needed",score:72,amt:"180,000"},
+  {biz:"Aseela Café",biz_ar:"مقهى الأصالة",sec_ar:"مقاهٍ · الرياض",sec_en:"Café · Riyadh",date_ar:"12 يوليو",date_en:"12 Jul",f:"pass",fa:"سليم",fe:"Clear",score:81,amt:"60,000"},
+  {biz:"Modern Build Supply",biz_ar:"البناء الحديث للتوريدات",sec_ar:"مواد بناء · الدمام",sec_en:"Construction · Dammam",date_ar:"12 يوليو",date_en:"12 Jul",f:"review",fa:"انتباه",fe:"Caution",score:68,amt:"240,000"},
+  {biz:"Naseem Retail",biz_ar:"متجر نسيم",sec_ar:"تجزئة · جدة",sec_en:"Retail · Jeddah",date_ar:"11 يوليو",date_en:"11 Jul",f:"pass",fa:"سليم",fe:"Clear",score:77,amt:"55,000"},
+  {biz:"Tamkeen Manufacturing",biz_ar:"مصنع تمكين",sec_ar:"تصنيع · الرياض",sec_en:"Manufacturing · Riyadh",date_ar:"11 يوليو",date_en:"11 Jul",f:"review",fa:"انتباه",fe:"Caution",score:70,amt:"300,000"}
+];
+const DOCS=[
+  {v:"Gulf Fuel Depot",a:"1,500.50",d:"12 Oct 2025",t_ar:"إيصال ZATCA",t_en:"ZATCA receipt",flag:true},
+  {v:"ADNOC Fuel",a:"8,881.37",d:"08 Oct 2025",t_ar:"فاتورة",t_en:"Invoice",flag:false},
+  {v:"Nesma Contracting",a:"5,000.00",d:"03 Oct 2025",t_ar:"فاتورة",t_en:"Invoice",flag:false},
+  {v:"Almarai",a:"2,340.00",d:"29 Sep 2025",t_ar:"إيصال ZATCA",t_en:"ZATCA receipt",flag:false}
+];
+function lang(){return document.documentElement.lang;}
+function renderQueue(){
+  const L=lang();
+  document.getElementById("qbody").innerHTML=ROWS.map(r=>`<tr onclick="goDetail()">
+    <td class="biz">${L==="ar"?r.biz_ar:r.biz}</td>
+    <td>${L==="ar"?r.sec_ar:r.sec_en}</td>
+    <td class="tnum">${L==="ar"?r.date_ar:r.date_en}</td>
+    <td><span class="pill ${r.f}"><span class="pd"></span>${L==="ar"?r.fa:r.fe}</span></td>
+    <td class="num">${r.score}</td>
+    <td class="num">${r.amt} <span style="color:var(--text-3);font-weight:400">SAR</span></td>
+  </tr>`).join("");
+}
+function renderDocs(){
+  const L=lang();
+  document.getElementById("docs").innerHTML=DOCS.map(d=>`<div class="docrow">
+    <div><div class="dv">${d.v} ${d.flag?`<span class="miniflag">${L==="ar"?"لا مطابقة":"No match"}</span>`:""}</div><div class="dm">${L==="ar"?d.t_ar:d.t_en} · ${d.d}</div></div>
+    <div class="da">${d.a}</div>
+    <div style="color:var(--text-3);font-size:12px">SAR</div>
+  </div>`).join("");
+}
+function goDetail(){
+  document.querySelectorAll(".seg").forEach(x=>x.classList.toggle("on",x.dataset.screen==="detail"));
+  document.getElementById("screen-queue").classList.add("hidden");
+  document.getElementById("screen-detail").classList.remove("hidden");
+  window.scrollTo(0,0);
+}
+document.getElementById("backlink").addEventListener("click",e=>{e.preventDefault();
+  document.querySelectorAll(".seg").forEach(x=>x.classList.toggle("on",x.dataset.screen==="queue"));
+  document.getElementById("screen-detail").classList.add("hidden");
+  document.getElementById("screen-queue").classList.remove("hidden");
+});
+function setLang(l){
+  document.documentElement.lang=l;document.documentElement.dir=l==="ar"?"rtl":"ltr";
+  document.querySelectorAll("[data-ar]").forEach(el=>{el.textContent=el.getAttribute("data-"+l);});
+  document.querySelectorAll("#lang button").forEach(b=>b.classList.toggle("on",b.dataset.lang===l));
+  renderQueue();renderDocs();
+}
+document.querySelectorAll("#lang button").forEach(b=>b.addEventListener("click",()=>setLang(b.dataset.lang)));
+document.getElementById("theme").addEventListener("click",()=>{
+  const d=document.documentElement.classList.toggle("dark");
+  document.getElementById("theme").textContent=d?"☾":"☀";
+});
+document.querySelectorAll(".seg").forEach(s=>s.addEventListener("click",()=>{
+  document.querySelectorAll(".seg").forEach(x=>x.classList.remove("on"));s.classList.add("on");
+  const sc=s.dataset.screen;
+  document.getElementById("screen-queue").classList.toggle("hidden",sc!=="queue");
+  document.getElementById("screen-detail").classList.toggle("hidden",sc!=="detail");
+}));
+renderQueue();renderDocs();
+</script>
+</body>
+</html>

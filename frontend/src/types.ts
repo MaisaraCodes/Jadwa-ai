@@ -75,6 +75,17 @@ export type ApplicationStatus =
   | "rejected"
   | "more_info_needed";
 
+// Mirrors backend routers/*.py GET /me (architecture.md §4 "Shared") — the
+// only endpoint that returns anything about the signed-in user themselves.
+// It has no business-specific fields (company_name, cr_number, sector,
+// district) — those stay PENDING BACKEND until a real SME profile endpoint
+// ships; never fabricate them from this shape.
+export interface Me {
+  user_id: string;
+  role: "sme" | "bank";
+  display_name: string | null;
+}
+
 export interface SMEProfile {
   id: string;
   company_name: string;
@@ -148,6 +159,19 @@ export type BankDecision = "approve" | "reject" | "request_info";
 
 export interface DecisionResponse {
   status: ApplicationStatus;
+}
+
+// Mirrors backend routers/bank.py GET /bank/applications (architecture.md §4
+// "the pre-scored queue"). No amount field — requested amount is PENDING
+// BACKEND everywhere in the bank portal, never fabricated.
+export interface BankApplicationSummaryItem {
+  application_id: string;
+  sme_name: string;
+  sector: string;
+  district: string;
+  submitted_at: string; // ISO datetime
+  forensic_status: ForensicStatus;
+  business_model_score: number | null;
 }
 
 export interface BankApplicationDetail {

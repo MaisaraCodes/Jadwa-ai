@@ -5,7 +5,7 @@
 // Toggles between signing in and creating an account; account creation asks which
 // side you're on (SME or bank). On success, the router sends you to the right home.
 import { useEffect, useState, type FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { IconEye, IconEyeOff } from "@tabler/icons-react";
 import { useAuth, type AppRole } from "./AuthProvider";
 import { useLang } from "../../i18n/LangProvider";
@@ -47,8 +47,13 @@ export default function LoginPage() {
   const { session, role, signIn, signUp } = useAuth();
   const navigate = useNavigate();
   const { t } = useLang();
+  const [searchParams] = useSearchParams();
 
-  const [mode, setMode] = useState<Mode>("signin");
+  // Lets the landing page's "Get started" and "Sign in" CTAs point at two
+  // distinct destinations (?mode=signup vs the bare /login) instead of both
+  // opening the same signin view — the toggle below still works normally
+  // from here on.
+  const [mode, setMode] = useState<Mode>(searchParams.get("mode") === "signup" ? "signup" : "signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -81,10 +86,13 @@ export default function LoginPage() {
       <div className="grid min-h-screen grid-cols-1 sm:grid-cols-2">
         {/* Brand panel — inline-start side */}
         <div className="flex flex-col justify-between border-b border-[#1D2A23] px-8 py-[34px] sm:border-b-0 sm:border-e sm:border-[#1D2A23]">
-          <div className="flex items-center gap-3">
+          <Link
+            to="/"
+            className="flex w-fit items-center gap-3 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+          >
             <FramedMark />
             <span className="font-display text-[22px] font-extrabold text-ink">{t("brand.wordmark")}</span>
-          </div>
+          </Link>
 
           <div className="py-10 sm:py-0">
             <div className="whitespace-pre-line text-start font-display text-[34px] font-extrabold leading-[1.45] text-ink">
@@ -117,7 +125,7 @@ export default function LoginPage() {
                 <legend className="mb-1.5 block text-xs font-medium text-text-2">
                   {t("login.signingUpAs")}
                 </legend>
-                <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Account type">
+                <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label={t("login.signingUpAs")}>
                   {(["sme", "bank"] as AppRole[]).map((r) => {
                     const active = accountRole === r;
                     return (
@@ -160,7 +168,7 @@ export default function LoginPage() {
             <label htmlFor="password" className="mb-1.5 block text-xs font-medium text-text-2">
               {t("login.password")}
             </label>
-            <div className="mb-5 flex items-center justify-between rounded-lg border border-line-strong bg-bg px-3 py-2.5 text-[13px]">
+            <div className="mb-5 flex items-center justify-between rounded-lg border border-line-strong bg-bg px-3 py-2.5 text-[13px] focus-within:border-gold focus-within:ring-2 focus-within:ring-gold">
               <input
                 id="password"
                 type={showPassword ? "text" : "password"}
@@ -175,7 +183,7 @@ export default function LoginPage() {
                 type="button"
                 onClick={() => setShowPassword((s) => !s)}
                 aria-label={showPassword ? t("login.hidePassword") : t("login.showPassword")}
-                className="shrink-0 text-text-3 hover:text-text-2"
+                className="shrink-0 rounded text-text-3 hover:text-text-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
               >
                 {showPassword ? <IconEyeOff size={15} /> : <IconEye size={15} />}
               </button>
@@ -206,7 +214,7 @@ export default function LoginPage() {
                     setMode("signup");
                     setError(null);
                   }}
-                  className="text-gold hover:underline"
+                  className="rounded text-gold hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
                 >
                   {t("login.createAnAccount")}
                 </button>
@@ -220,7 +228,7 @@ export default function LoginPage() {
                     setMode("signin");
                     setError(null);
                   }}
-                  className="text-gold hover:underline"
+                  className="rounded text-gold hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
                 >
                   {t("login.signInLink")}
                 </button>

@@ -10,6 +10,11 @@
   --pass:#177A47;   --pass-bg:#E5F3EA;
   --review:#9C6F12; --review-bg:#F8EED8;
   --flag:#B3352A;   --flag-bg:#F9E9E7;
+  /* pre-portal fallback: shared components (ThemeToggle, LangToggle, focus
+     rings) reference --accent unconditionally per the one-component rule;
+     outside a [data-portal] scope (landing, data sources, login) there is no
+     portal accent yet, so fall back to gold rather than resolving to nothing. */
+  --accent:var(--gold); --accent-strong:var(--gold-strong); --accent-soft:var(--gold-soft); --on-accent:var(--on-gold);
 }
 .dark {
   --bg:#0B1310;          --surface:#121D18;      --surface-2:#182620;

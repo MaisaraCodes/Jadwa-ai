@@ -23,6 +23,9 @@ export default {
       fontSize: {
         "display-xl": ["3rem", { lineHeight: "1.05", fontWeight: "800" }],
         display: ["2.25rem", { lineHeight: "1.1", fontWeight: "800" }],
+        h1: ["1.875rem", { lineHeight: "1.2", fontWeight: "700" }],
+        h2: ["1.5rem", { lineHeight: "1.25", fontWeight: "700" }],
+        h3: ["1.25rem", { lineHeight: "1.35", fontWeight: "600" }],
         title: ["1.125rem", { lineHeight: "1.4", fontWeight: "600" }],
         body: ["1rem", { lineHeight: "1.6" }],
         "body-sm": ["0.875rem", { lineHeight: "1.55" }],

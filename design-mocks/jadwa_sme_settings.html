@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Jadwa — profile and settings concept</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Zain:wght@400;700;800&family=Alexandria:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg:#F8F6F0; --surface:#FFFFFF; --surface-2:#F1EEE4;
+  --ink:#111D18; --text-2:#54615B; --text-3:#8A948D;
+  --line:#E4E0D3; --line-strong:#CBC5B4; --gold:#A9852F;
+  --accent:#0E7A6E; --accent-strong:#0A5F56; --accent-soft:#E0F1EE; --on-accent:#FFFFFF;
+}
+html.dark{
+  --bg:#0B1310; --surface:#121D18; --surface-2:#182620;
+  --ink:#F1EDE1; --text-2:#A9B3AB; --text-3:#6E7A72;
+  --line:#243129; --line-strong:#33443A; --gold:#D6B36A;
+  --accent:#37B3A2; --accent-strong:#5FC9BB; --accent-soft:#0F2B26; --on-accent:#07211D;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:Alexandria,system-ui,sans-serif;line-height:1.7;-webkit-font-smoothing:antialiased}
+.zain{font-family:Zain,Alexandria,sans-serif}
+.tnum{font-variant-numeric:tabular-nums}
+.wrap{max-width:1000px;margin:0 auto;padding:0 28px}
+
+.topstrip{height:3px;background:var(--accent)}
+header{border-bottom:1px solid var(--line);background:var(--surface)}
+.hbar{display:flex;align-items:center;justify-content:space-between;height:62px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand .mark{width:24px;height:24px;color:var(--ink)}
+.brand .word{font-size:22px;font-weight:800}
+.brand .diamond{width:10px;height:10px}
+.brand .sep{width:1px;height:22px;background:var(--line-strong);margin-inline:14px}
+.brand .plabel{font-size:14px;color:var(--text-2);font-weight:500}
+.hact{display:flex;align-items:center;gap:12px}
+.toggle{display:flex;border:1px solid var(--line-strong);border-radius:8px;overflow:hidden}
+.toggle button{background:transparent;border:0;color:var(--text-3);font-family:inherit;font-size:12px;font-weight:600;padding:5px 9px;cursor:pointer}
+.toggle button.on{background:var(--surface-2);color:var(--ink)}
+.iconbtn{width:31px;height:31px;border:1px solid var(--line-strong);border-radius:8px;background:transparent;color:var(--text-2);cursor:pointer}
+.umail{font-size:13px;color:var(--text-3)}
+.btn{font-family:inherit;font-size:14px;font-weight:600;border-radius:8px;padding:0 16px;height:38px;display:inline-flex;align-items:center;gap:7px;cursor:pointer;text-decoration:none;border:1px solid transparent;transition:.15s;white-space:nowrap}
+.btn-accent{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.btn-accent:hover{background:var(--accent-strong)}
+.btn-ghost{background:transparent;color:var(--ink);border-color:var(--line-strong)}
+.btn-ghost:hover{background:var(--surface-2)}
+
+.page{padding:36px 0 72px}
+.pagehead{margin-bottom:26px}
+.pagehead h1{font-size:32px;font-weight:800}
+.pagehead p{color:var(--text-2);font-size:15px;margin-top:6px}
+
+.idcard{display:flex;align-items:center;gap:16px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:26px}
+.idcard .av{width:52px;height:52px;border-radius:12px;background:var(--accent-soft);color:var(--accent-strong);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;font-family:Zain,sans-serif}
+.idcard .bn{font-size:18px;font-weight:600}
+.idcard .bm{font-size:13px;color:var(--text-3);margin-top:3px}
+
+.settgrid{display:grid;grid-template-columns:220px 1fr;gap:28px;align-items:start}
+.settnav{display:flex;flex-direction:column;gap:4px}
+.settnav button{font-family:inherit;text-align:start;background:transparent;border:0;color:var(--text-2);font-size:15px;font-weight:500;padding:11px 14px;border-radius:9px;cursor:pointer;transition:.12s}
+.settnav button:hover{background:var(--surface-2)}
+.settnav button.on{background:var(--accent-soft);color:var(--accent-strong);font-weight:600}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:28px}
+.card h2{font-size:19px;font-weight:700;margin-bottom:4px}
+.card .lead{font-size:14px;color:var(--text-2);margin-bottom:24px}
+.field{margin-bottom:20px}
+.field label{display:block;font-size:13px;color:var(--text-2);font-weight:500;margin-bottom:8px}
+.field .hint{font-size:12px;color:var(--text-3);margin-top:6px}
+.field .in,.field select,.field textarea{width:100%;height:46px;border-radius:8px;background:var(--surface);border:1px solid var(--line-strong);padding:0 14px;font-family:inherit;font-size:15px;color:var(--ink)}
+.field textarea{height:auto;padding:12px 14px;resize:vertical;min-height:90px}
+.field .in:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 22%,transparent)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.savebar{display:flex;gap:12px;margin-top:8px;padding-top:22px;border-top:1px solid var(--line)}
+
+.prefrow{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--line)}
+.prefrow:last-of-type{border-bottom:0}
+.prefrow .pt{font-size:15px;font-weight:500}
+.prefrow .ps{font-size:13px;color:var(--text-3);margin-top:3px}
+.segset{display:flex;border:1px solid var(--line-strong);border-radius:9px;overflow:hidden}
+.segset button{background:transparent;border:0;color:var(--text-2);font-family:inherit;font-size:13px;font-weight:600;padding:8px 16px;cursor:pointer}
+.segset button.on{background:var(--accent);color:var(--on-accent)}
+.switch{width:44px;height:25px;border-radius:100px;background:var(--line-strong);position:relative;cursor:pointer;transition:.15s;flex:none}
+.switch.on{background:var(--accent)}
+.switch::after{content:"";position:absolute;width:19px;height:19px;border-radius:50%;background:#fff;top:3px;inset-inline-start:3px;transition:.15s}
+.switch.on::after{inset-inline-start:22px}
+
+.hidden{display:none}
+@media (max-width:800px){
+  .settgrid{grid-template-columns:1fr;gap:18px}
+  .settnav{flex-direction:row;overflow-x:auto}
+  .two{grid-template-columns:1fr}
+  .umail{display:none}
+}
+</style>
+</head>
+<body>
+<div class="topstrip"></div>
+
+<header>
+  <div class="wrap">
+    <div class="hbar">
+      <div class="brand">
+        <svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><rect x="22" y="24" width="56" height="13" fill="currentColor"/><rect x="65" y="37" width="13" height="28" fill="currentColor"/><rect x="10" y="52" width="68" height="13" fill="currentColor"/><path d="M38 38.5 L43.5 44.5 L38 50.5 L32.5 44.5 Z" fill="var(--accent)"/></svg>
+        <span class="word zain" data-ar="جدوى" data-en="Jadwa">جدوى</span>
+        <svg class="diamond" viewBox="0 0 14 14" aria-hidden="true"><path d="M7 .5 L13.5 7 L7 13.5 L.5 7 Z" fill="var(--gold)"/></svg>
+        <span class="sep"></span>
+        <span class="plabel" data-ar="بوّابة المنشآت" data-en="Business portal">بوّابة المنشآت</span>
+      </div>
+      <div class="hact">
+        <div class="toggle" id="lang"><button data-lang="ar" class="on">ع</button><button data-lang="en">EN</button></div>
+        <button class="iconbtn" id="theme" aria-label="theme">☾</button>
+        <span class="umail">miso54232@gmail.com</span>
+        <a href="#" class="btn btn-ghost" style="height:34px" data-ar="خروج" data-en="Sign out">خروج</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="page">
+  <div class="wrap">
+    <div class="pagehead">
+      <h1 class="zain" data-ar="الملف والإعدادات" data-en="Profile and settings">الملف والإعدادات</h1>
+      <p data-ar="راجِع بيانات منشأتك وحدّثها، وأدِر حسابك وتفضيلاتك." data-en="Review and update your business details, and manage your account and preferences.">راجِع بيانات منشأتك وحدّثها، وأدِر حسابك وتفضيلاتك.</p>
+    </div>
+
+    <div class="idcard">
+      <div class="av zain">ر</div>
+      <div>
+        <div class="bn" data-ar="مؤسسة رواد للخدمات اللوجستية" data-en="Rawad Logistics">مؤسسة رواد للخدمات اللوجستية</div>
+        <div class="bm tnum" data-ar="السجل التجاري 1010XXXXXX · لوجستيات · الخرج" data-en="CR 1010XXXXXX · Logistics · Al-Kharj">السجل التجاري 1010XXXXXX · لوجستيات · الخرج</div>
+      </div>
+    </div>
+
+    <div class="settgrid">
+      <div class="settnav">
+        <button class="on" data-sec="biz" data-ar="ملف المنشأة" data-en="Business profile">ملف المنشأة</button>
+        <button data-sec="account" data-ar="الحساب" data-en="Account">الحساب</button>
+        <button data-sec="prefs" data-ar="التفضيلات" data-en="Preferences">التفضيلات</button>
+      </div>
+
+      <div>
+        <div class="card" id="sec-biz">
+          <h2 data-ar="ملف المنشأة" data-en="Business profile">ملف المنشأة</h2>
+          <p class="lead" data-ar="هذه البيانات تظهر للبنك مع كل طلب تمويل." data-en="These details are shown to the bank with every financing application.">هذه البيانات تظهر للبنك مع كل طلب تمويل.</p>
+          <div class="field">
+            <label data-ar="اسم المنشأة" data-en="Business name">اسم المنشأة</label>
+            <input class="in" value="مؤسسة رواد للخدمات اللوجستية" />
+          </div>
+          <div class="two">
+            <div class="field">
+              <label data-ar="رقم السجل التجاري" data-en="Commercial registration number">رقم السجل التجاري</label>
+              <input class="in tnum" value="1010XXXXXX" />
+              <div class="hint" data-ar="يُستخدم لمطابقة سجلّك البنكي، غيّره بحذر." data-en="Used to match your bank ledger. Change with care.">يُستخدم لمطابقة سجلّك البنكي، غيّره بحذر.</div>
+            </div>
+            <div class="field">
+              <label data-ar="سنة التأسيس" data-en="Established year">سنة التأسيس</label>
+              <input class="in tnum" value="2019" />
+            </div>
+          </div>
+          <div class="two">
+            <div class="field">
+              <label data-ar="القطaع" data-en="Sector">القطاع</label>
+              <select><option data-ar="لوجستيات" data-en="Logistics" selected>لوجستيات</option><option data-ar="أغذية ومشروبات" data-en="Food and beverage">أغذية ومشروبات</option><option data-ar="إنشاءات" data-en="Construction">إنشاءات</option><option data-ar="تجزئة" data-en="Retail">تجزئة</option><option data-ar="تصنيع" data-en="Manufacturing">تصنيع</option></select>
+            </div>
+            <div class="field">
+              <label data-ar="المدينة أو الحي" data-en="District or city">المدينة أو الحي</label>
+              <input class="in" value="الخرج" data-ar-v="الخرج" data-en-v="Al-Kharj" />
+            </div>
+          </div>
+          <div class="field">
+            <label data-ar="وصف المنشأة" data-en="Business description">وصف المنشأة</label>
+            <textarea data-ar-ph="نبذة قصيرة عن نشاط منشأتك" data-en-ph="A short note about what your business does">شركة نقل وخدمات لوجستية تخدم منطقة الرياض والخرج منذ 2019.</textarea>
+          </div>
+          <div class="savebar">
+            <a href="#" class="btn btn-accent" data-ar="حفظ التغييرات" data-en="Save changes">حفظ التغييرات</a>
+            <a href="#" class="btn btn-ghost" data-ar="إلغاء" data-en="Cancel">إلغاء</a>
+          </div>
+        </div>
+
+        <div class="card hidden" id="sec-account">
+          <h2 data-ar="الحساب" data-en="Account">الحساب</h2>
+          <p class="lead" data-ar="بيانات الدخول والأمان." data-en="Your sign in and security details.">بيانات الدخول والأمان.</p>
+          <div class="field">
+            <label data-ar="البريد الإلكتروني" data-en="Email">البريد الإلكتروني</label>
+            <input class="in" value="miso54232@gmail.com" />
+            <div class="hint" data-ar="يُستخدم لتسجيل الدخول." data-en="Used to sign in.">يُستخدم لتسجيل الدخول.</div>
+          </div>
+          <div class="field">
+            <label data-ar="كلمة المرور الحالية" data-en="Current password">كلمة المرور الحالية</label>
+            <input class="in" type="password" value="12345678" />
+          </div>
+          <div class="two">
+            <div class="field">
+              <label data-ar="كلمة مرور جديدة" data-en="New password">كلمة مرور جديدة</label>
+              <input class="in" type="password" />
+            </div>
+            <div class="field">
+              <label data-ar="تأكيد كلمة المرور" data-en="Confirm password">تأكيد كلمة المرور</label>
+              <input class="in" type="password" />
+            </div>
+          </div>
+          <div class="savebar">
+            <a href="#" class="btn btn-accent" data-ar="تحديث الحساب" data-en="Update account">تحديث الحساب</a>
+          </div>
+        </div>
+
+        <div class="card hidden" id="sec-prefs">
+          <h2 data-ar="التفضيلات" data-en="Preferences">التفضيلات</h2>
+          <p class="lead" data-ar="اللغة والمظهر والإشعارات." data-en="Language, appearance, and notifications.">اللغة والمظهر والإشعارات.</p>
+          <div class="prefrow">
+            <div><div class="pt" data-ar="اللغة" data-en="Language">اللغة</div><div class="ps" data-ar="لغة الواجهة الافتراضية" data-en="Default interface language">لغة الواجهة الافتراضية</div></div>
+            <div class="segset"><button class="on" data-ar="العربية" data-en="Arabic">العربية</button><button data-ar="الإنجليزية" data-en="English">الإنجليزية</button></div>
+          </div>
+          <div class="prefrow">
+            <div><div class="pt" data-ar="المظهر" data-en="Appearance">المظهر</div><div class="ps" data-ar="فاتح أو داكن أو حسب النظام" data-en="Light, dark, or match your system">فاتح أو داكن أو حسب النظام</div></div>
+            <div class="segset"><button class="on" data-ar="فاتح" data-en="Light">فاتح</button><button data-ar="داكن" data-en="Dark">داكن</button><button data-ar="النظام" data-en="System">النظام</button></div>
+          </div>
+          <div class="prefrow">
+            <div><div class="pt" data-ar="تحديثات حالة الطلب" data-en="Application status updates">تحديثات حالة الطلب</div><div class="ps" data-ar="إشعار عند تغيّر حالة أي طلب" data-en="Notify me when an application status changes">إشعار عند تغيّر حالة أي طلب</div></div>
+            <div class="switch on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="prefrow">
+            <div><div class="pt" data-ar="قرارات البنك" data-en="Bank decisions">قرارات البنك</div><div class="ps" data-ar="إشعار عند موافقة أو رفض أو طلب معلومات" data-en="Notify me on approve, reject, or request for info">إشعار عند موافقة أو رفض أو طلب معلومات</div></div>
+            <div class="switch on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="savebar">
+            <a href="#" class="btn btn-accent" data-ar="حفظ التفضيلات" data-en="Save preferences">حفظ التفضيلات</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function setLang(l){
+  document.documentElement.lang=l;document.documentElement.dir=l==="ar"?"rtl":"ltr";
+  document.querySelectorAll("[data-ar]").forEach(el=>{if(el.children.length===0)el.textContent=el.getAttribute("data-"+l);});
+  document.querySelectorAll("[data-ar-ph]").forEach(el=>el.setAttribute("placeholder",el.getAttribute("data-"+l+"-ph")));
+  document.querySelectorAll("[data-ar-v]").forEach(el=>el.value=el.getAttribute("data-"+l+"-v"));
+  document.querySelectorAll("#lang button").forEach(b=>b.classList.toggle("on",b.dataset.lang===l));
+}
+document.querySelectorAll("#lang button").forEach(b=>b.addEventListener("click",()=>setLang(b.dataset.lang)));
+document.getElementById("theme").addEventListener("click",()=>{
+  const d=document.documentElement.classList.toggle("dark");
+  document.getElementById("theme").textContent=d?"☾":"☀";
+});
+document.querySelectorAll(".settnav button").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll(".settnav button").forEach(x=>x.classList.remove("on"));b.classList.add("on");
+  ["biz","account","prefs"].forEach(s=>document.getElementById("sec-"+s).classList.toggle("hidden",s!==b.dataset.sec));
+}));
+document.querySelectorAll(".segset").forEach(g=>g.querySelectorAll("button").forEach(btn=>btn.addEventListener("click",()=>{
+  g.querySelectorAll("button").forEach(x=>x.classList.remove("on"));btn.classList.add("on");
+})));
+</script>
+</body>
+</html>

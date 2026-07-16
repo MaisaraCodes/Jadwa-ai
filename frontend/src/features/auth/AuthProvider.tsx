@@ -33,6 +33,10 @@ interface AuthValue {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, role: AppRole) => Promise<void>;
   signOut: () => Promise<void>;
+  /** Real Supabase Auth call (auth.updateUser) — the signed-in session is
+   * enough to authorize this, no current-password re-check needed. Used by
+   * the Settings page's Account tab. */
+  updatePassword: (newPassword: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthValue | null>(null);
@@ -78,6 +82,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
       async signOut() {
         await supabase.auth.signOut();
+      },
+      async updatePassword(newPassword) {
+        const { error } = await supabase.auth.updateUser({ password: newPassword });
+        if (error) throw new Error(error.message);
       },
     };
   }, [session, loading]);
