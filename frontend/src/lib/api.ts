@@ -17,6 +17,8 @@ import type {
   PatchDocumentRequest,
   PatchProfileRequest,
   ProcessResponse,
+  SandboxRecalculateResponse,
+  ScenarioDeltas,
   SMEProfile,
   SubmitResponse,
   UploadedDocument,
@@ -191,6 +193,24 @@ export function decideApplication(
   return authedJson(`/bank/applications/${applicationId}/decision`, {
     method: "POST",
     body: JSON.stringify({ decision, note: note || undefined }),
+  });
+}
+
+// Signed URL for the final generated PDF report; pdf_url is null while the
+// graph has not produced a report for this application yet.
+export function getBankApplicationPdf(applicationId: string): Promise<{ pdf_url: string | null }> {
+  return authedJson(`/bank/applications/${applicationId}/pdf`);
+}
+
+// Risk Sandbox (architecture.md §3/§4). The body carries ONLY deltas — the
+// risk_baseline is loaded server-side and never travels either direction.
+export function recalculateSandbox(
+  applicationId: string,
+  deltas: ScenarioDeltas,
+): Promise<SandboxRecalculateResponse> {
+  return authedJson(`/bank/applications/${applicationId}/sandbox/recalculate`, {
+    method: "POST",
+    body: JSON.stringify({ deltas }),
   });
 }
 

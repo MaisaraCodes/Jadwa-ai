@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+{#
+  The Arabic application report (core/application_builder.py).
+
+  Arabic-primary, RTL, A4. Rendered by WeasyPrint — NOT a browser and NOT part of
+  the React portals, so:
+    - no `data-portal`: this document is FOR the bank, so the falcon-blue accent
+      (DESIGN_SYSTEM.md §4) is hardcoded rather than switched.
+    - tokens are pinned to their LIGHT values: a PDF has no dark mode.
+    - layout is tables, not flex/grid: WeasyPrint's table model is its most
+      reliable one, and this document is genuinely tabular (metric rows, the
+      two-column weakness split).
+  Figures are Western digits + tabular-nums, wrapped dir="ltr" inside Arabic runs
+  (DESIGN_SYSTEM.md §3.2).
+#}
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <title>دراسة جدوى تمويل — {{ profile.company_name }}</title>
+  {# Fixed metadata: WeasyPrint maps these to PDF /CreationDate and /ModDate.
+     Pinned to a constant so the same record always renders byte-identical bytes;
+     wall-clock here would break the repeatable demo. #}
+  <meta name="dcterms.created" content="{{ metadata_epoch }}">
+  <meta name="dcterms.modified" content="{{ metadata_epoch }}">
+  <meta name="generator" content="Jadwa.ai">
+  <style>
+    /* --- tokens (DESIGN_SYSTEM.md §4, light values only) ------------------ */
+    :root {
+      --bg: #F8F6F0;        --surface: #FFFFFF;      --surface-2: #F1EEE4;
+      --ink: #111D18;       --text-2: #54615B;       --text-3: #8A948D;
+      --line: #E4E0D3;      --line-strong: #CBC5B4;
+      --gold: #A9852F;      --gold-strong: #8C6E28;  --gold-soft: #F2E9D2;
+      /* bank dashboard accent — falcon blue: this artifact is for the bank */
+      --accent: #2E5AA6;    --accent-strong: #24478C; --accent-soft: #E5EDF9;
+      --on-accent: #FFFFFF;
+      /* reserved: forensic + system status, 1:1 with ForensicStatus */
+      --pass: #177A47;      --pass-bg: #E5F3EA;
+      --review: #9C6F12;    --review-bg: #F8EED8;
+      --flag: #B3352A;      --flag-bg: #F9E9E7;
+    }
+
+    /* --- bundled fonts (SIL OFL 1.1) — see templates/fonts/*-OFL.txt ------ */
+    @font-face {
+      font-family: 'Zain';
+      src: url('fonts/Zain-Bold.ttf') format('truetype');
+      font-weight: 700;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'Zain';
+      src: url('fonts/Zain-ExtraBold.ttf') format('truetype');
+      font-weight: 800;
+      font-style: normal;
+    }
+    {# Alexandria ships from Google Fonts as a variable font (wght axis) — there
+       are no static instances upstream.
+
+       The font-weight descriptor is OMITTED on purpose. Do not "fix" this by
+       adding one:
+         - `font-weight: 400 600` (the correct CSS range syntax) → WeasyPrint
+           logs "invalid value" and drops it; it does not support ranges.
+         - `font-weight: normal` → pins this face to 400, so the 500/600 requests
+           below no longer match it and silently fall back — the PDF loses its
+           Alexandria-Medium/Semi-Bold subsets and every label flattens to one
+           weight. It renders "fine", just wrong.
+       With no descriptor the face matches any weight and Pango varies the wght
+       axis itself. Verified: the PDF embeds Alexandria, Alexandria-Medium and
+       Alexandria-Semi-Bold subsets (test_bundled_arabic_fonts_are_embedded). #}
+    @font-face {
+      font-family: 'Alexandria';
+      src: url('fonts/Alexandria-Variable.ttf') format('truetype');
+      font-style: normal;
+    }
+
+    /* --- page (requirement 7: A4, 25mm, RTL, page counter) ---------------- */
+    @page {
+      size: A4;
+      margin: 25mm;
+      @bottom-center {
+        content: "الصفحة " counter(page) " من " counter(pages);
+        font-family: 'Alexandria', sans-serif;
+        font-size: 8.5pt;
+        color: #8A948D;
+        direction: rtl;
+        margin-top: 6mm;
+      }
+    }
+    /* The cover carries the brand, not furniture. */
+    @page :first {
+      @bottom-center { content: none; }
+    }
+
+    /* --- base ------------------------------------------------------------- */
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Alexandria', sans-serif;
+      font-size: 9.5pt;
+      line-height: 1.9;          /* Arabic body leading (§3.1) */
+      color: var(--ink);
+      background: var(--bg);
+      margin: 0;
+      font-variant-numeric: tabular-nums;
+    }
+    h1, h2, h3 { font-family: 'Zain', 'Alexandria', sans-serif; margin: 0; }
+    p { margin: 0; }
+    ul { margin: 0; padding-inline-start: 1.1em; }
+    li { margin-bottom: 3mm; }
+    .num { font-variant-numeric: tabular-nums; }
+
+    /* --- cover ------------------------------------------------------------ */
+    .cover { height: 232mm; page-break-after: always; position: relative; }
+    .cover__brand { padding-top: 58mm; text-align: start; }
+    .wordmark {
+      font-family: 'Zain', sans-serif;
+      font-weight: 800;
+      font-size: 34pt;
+      line-height: 1.1;
+      color: var(--ink);
+    }
+    /* Every lockup ends with the gold diamond (§2.3); in RTL it visually
+       terminates the word on the leading side. */
+    .wordmark__diamond { margin-inline-end: 3mm; vertical-align: 6%; }
+    .cover__rule {
+      width: 26mm;
+      height: 3px;
+      background: var(--accent);
+      margin-top: 9mm;
+      margin-bottom: 9mm;
+    }
+    .cover__subtitle {
+      font-family: 'Zain', sans-serif;
+      font-weight: 700;
+      font-size: 19pt;
+      color: var(--accent);
+      line-height: 1.3;
+    }
+    .cover__title {
+      font-family: 'Zain', sans-serif;
+      font-weight: 800;
+      font-size: 27pt;
+      color: var(--ink);
+      margin-top: 4mm;
+      line-height: 1.25;
+    }
+    .cover__meta {
+      margin-top: 12mm;
+      padding-top: 6mm;
+      border-top: 0.5px solid var(--line-strong);
+      font-size: 9.5pt;
+      color: var(--text-2);
+    }
+    .cover__meta-row { margin-bottom: 1.5mm; }
+    .cover__meta-key { color: var(--text-3); margin-inline-end: 2mm; }
+
+    /* --- section ---------------------------------------------------------- */
+    .section { page-break-inside: avoid; margin-bottom: 9mm; }
+    .section__head {
+      display: table;
+      width: 100%;
+      margin-bottom: 4mm;
+      border-bottom: 0.5px solid var(--line-strong);
+      padding-bottom: 2.5mm;
+    }
+    .section__index {
+      display: table-cell;
+      width: 9mm;
+      padding-inline-end: 3mm;   /* keeps the index off the title in RTL */
+      font-family: 'Zain', sans-serif;
+      font-weight: 800;
+      font-size: 12pt;
+      color: var(--accent);
+      vertical-align: bottom;
+    }
+    .section__title {
+      display: table-cell;
+      font-family: 'Zain', sans-serif;
+      font-weight: 700;
+      font-size: 15pt;
+      color: var(--ink);
+      vertical-align: bottom;
+    }
+
+    /* Cards: hairline borders, 12px radius (§8). */
+    .card {
+      background: var(--surface);
+      border: 0.5px solid var(--line);
+      border-radius: 12px;
+      padding: 5mm;
+    }
+    /* Report card: status edge on the START side, square on that edge (§8.2). */
+    .card--status {
+      border-inline-start-width: 3px;
+      border-inline-start-style: solid;
+      border-start-start-radius: 0;
+      border-end-start-radius: 0;
+    }
+    .card--pass   { border-inline-start-color: var(--pass); }
+    .card--review { border-inline-start-color: var(--review); }
+    .card--flag   { border-inline-start-color: var(--flag); }
+
+    .empty {
+      background: var(--surface-2);
+      border: 0.5px solid var(--line);
+      border-radius: 12px;
+      padding: 5mm;
+      color: var(--text-3);
+      text-align: center;
+    }
+
+    /* --- profile header block (section a) --------------------------------- */
+    .profile {
+      background: var(--accent-soft);
+      border: 0.5px solid var(--line);
+      border-radius: 12px;
+      padding: 6mm;
+    }
+    .profile__name {
+      font-family: 'Zain', sans-serif;
+      font-weight: 800;
+      font-size: 21pt;
+      color: var(--ink);
+      margin-bottom: 4mm;
+    }
+    .profile__grid { display: table; width: 100%; border-spacing: 0; }
+    .profile__row { display: table-row; }
+    .profile__cell { display: table-cell; width: 25%; padding-top: 3mm; vertical-align: top; }
+    .profile__key { font-size: 8pt; font-weight: 500; color: var(--text-2); }
+    .profile__val { font-size: 10.5pt; font-weight: 600; color: var(--ink); margin-top: 0.8mm; }
+    /* NOTE: dir="ltr" belongs on the inline <span> around a figure, never on the
+       block that contains it — on a block it also flips `text-align: start` to
+       the left, which drags the figure away from its own label and into the
+       neighbouring cell. Blocks stay RTL; only the figure run is isolated. */
+
+    /* --- badges (§8.6) ---------------------------------------------------- */
+    .badge {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 1.2mm 3.5mm;
+      font-size: 9pt;
+      font-weight: 600;
+    }
+    .badge--pass   { background: var(--pass-bg);   color: var(--pass); }
+    .badge--review { background: var(--review-bg); color: var(--review); }
+    .badge--flag   { background: var(--flag-bg);   color: var(--flag); }
+    .badge--muted  { background: var(--surface-2); color: var(--text-2); }
+    .badge--sm { font-size: 7.5pt; padding: 0.5mm 2.5mm; }
+
+    /* --- metric row (§8.3) ------------------------------------------------ */
+    .metrics { display: table; width: 100%; border-spacing: 3mm 0; margin-inline: -3mm; }
+    .metrics__row { display: table-row; }
+    .metric {
+      display: table-cell;
+      width: 25%;
+      background: var(--surface-2);
+      border-radius: 12px;
+      padding: 4mm;
+      vertical-align: top;
+    }
+    .metric__key { font-size: 7.5pt; font-weight: 500; color: var(--text-2); line-height: 1.5; }
+    .metric__val {
+      font-family: 'Zain', sans-serif;
+      font-weight: 800;
+      font-size: 17pt;
+      color: var(--ink);
+      margin-top: 2mm;
+      line-height: 1.1;
+    }
+    .metric__unit { font-family: 'Alexandria', sans-serif; font-size: 8pt; font-weight: 400; color: var(--text-3); }
+
+    /* --- big number (section c) ------------------------------------------- */
+    .score { display: table; width: 100%; margin-bottom: 4mm; }
+    .score__val {
+      display: table-cell;
+      width: 34mm;
+      font-family: 'Zain', sans-serif;
+      font-weight: 800;
+      font-size: 40pt;
+      line-height: 1;
+      color: var(--accent);
+      vertical-align: middle;
+    }
+    .score__val-max { font-size: 14pt; color: var(--text-3); }
+    .score__label { display: table-cell; vertical-align: middle; font-size: 9.5pt; color: var(--text-2); }
+
+    /* --- two side-by-side columns (section c) ----------------------------- */
+    .split { display: table; width: 100%; border-spacing: 4mm 0; margin-inline: -4mm; }
+    .split__row { display: table-row; }
+    .split__col {
+      display: table-cell;
+      width: 50%;
+      vertical-align: top;
+      background: var(--surface-2);
+      border-radius: 12px;
+      padding: 4mm;
+    }
+    .split__head {
+      font-size: 8.5pt;
+      font-weight: 600;
+      color: var(--text-2);
+      padding-bottom: 2mm;
+      margin-bottom: 2.5mm;
+      border-bottom: 0.5px solid var(--line-strong);
+    }
+
+    /* --- misc ------------------------------------------------------------- */
+    .kv { display: table; width: 100%; margin-bottom: 4mm; }
+    .kv__cell { display: table-cell; width: 50%; vertical-align: top; }
+    .kv__key { font-size: 8pt; color: var(--text-2); margin-bottom: 1mm; }
+    .prose { color: var(--ink); font-size: 9.5pt; line-height: 1.9; }
+    .sources { margin-top: 4mm; padding-top: 3mm; border-top: 0.5px solid var(--line); }
+    .sources__head { font-size: 8pt; font-weight: 600; color: var(--text-3); margin-bottom: 1.5mm; }
+    .sources__item { font-size: 8.5pt; color: var(--text-2); margin-bottom: 1mm; }
+    .flag { padding-bottom: 3mm; margin-bottom: 3mm; border-bottom: 0.5px solid var(--line); }
+    .flag:last-child { border-bottom: 0; padding-bottom: 0; margin-bottom: 0; }
+    .flag__desc { margin-top: 1.5mm; color: var(--ink); }
+    .note { margin-top: 3mm; font-size: 8pt; color: var(--text-3); }
+    /* The gold sign-off — a verification/brand moment, one of gold's three
+       homes (§4.1). */
+    .signoff {
+      margin-top: 10mm;
+      padding-top: 4mm;
+      border-top: 0.5px solid var(--gold);
+      font-size: 8.5pt;
+      color: var(--gold-strong);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+{# ---------------------------------------------------------------------------
+   COVER (requirement 7): brand + title + date + one subtitle. No TOC.
+   --------------------------------------------------------------------------- #}
+<div class="cover">
+  <div class="cover__brand">
+    {# Diamond FIRST in DOM: in an RTL run the first inline box lands rightmost,
+       which is the leading side — "◆ جدوى", the diamond terminating the word
+       (DESIGN_SYSTEM.md §2.3). Putting it after the text would park it on the
+       left, i.e. the Latin lockup's arrangement. #}
+    <div class="wordmark">
+      <svg class="wordmark__diamond" viewBox="0 0 14 14" width="15" height="15" aria-hidden="true">
+        <path d="M7 0.5 L13.5 7 L7 13.5 L0.5 7 Z" fill="#A9852F"/>
+      </svg>
+      جدوى
+    </div>
+    <div class="cover__rule"></div>
+    <div class="cover__subtitle">دراسة جدوى تمويل</div>
+    <div class="cover__title">{{ profile.company_name }}</div>
+
+    <div class="cover__meta">
+      <div class="cover__meta-row">
+        <span class="cover__meta-key">رقم السجل التجاري</span>
+        <span class="num" dir="ltr">{{ profile.cr_number }}</span>
+      </div>
+      <div class="cover__meta-row">
+        <span class="cover__meta-key">القطاع</span>
+        <span>{{ profile.sector }}</span>
+      </div>
+      <div class="cover__meta-row">
+        <span class="cover__meta-key">رقم الطلب</span>
+        <span class="num" dir="ltr">{{ record.application_id }}</span>
+      </div>
+      {# Derived from the newest document, never from today's clock — see
+         application_builder.latest_document_date. Omitted entirely when the
+         record has no documents rather than fabricated. #}
+      {% if cover_date %}
+      <div class="cover__meta-row">
+        <span class="cover__meta-key">أحدث مستند بتاريخ</span>
+        <span class="num" dir="ltr">{{ cover_date.isoformat() }}</span>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{# ---------------------------------------------------------------------------
+   a. SME PROFILE — header block
+   --------------------------------------------------------------------------- #}
+<div class="section">
+  <div class="section__head">
+    <div class="section__index">1</div>
+    <div class="section__title">بيانات المنشأة</div>
+  </div>
+  <div class="profile">
+    <div class="profile__name">{{ profile.company_name }}</div>
+    <div class="profile__grid">
+      <div class="profile__row">
+        <div class="profile__cell">
+          <div class="profile__key">رقم السجل التجاري</div>
+          <div class="profile__val"><span class="num" dir="ltr">{{ profile.cr_number }}</span></div>
+        </div>
+        <div class="profile__cell">
+          <div class="profile__key">القطاع</div>
+          <div class="profile__val">{{ profile.sector }}</div>
+        </div>
+        <div class="profile__cell">
+          <div class="profile__key">الحي</div>
+          <div class="profile__val">{{ profile.district }}</div>
+        </div>
+        <div class="profile__cell">
+          <div class="profile__key">سنة التأسيس</div>
+          <div class="profile__val">
+            {% if profile.established_year %}
+            <span class="num" dir="ltr">{{ profile.established_year }}</span>
+            {% else %}—{% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# ---------------------------------------------------------------------------
+   b. FORENSIC SUMMARY — traffic-light badge + reconciliation rate + flags
+   --------------------------------------------------------------------------- #}
+<div class="section">
+  <div class="section__head">
+    <div class="section__index">2</div>
+    <div class="section__title">ملخص التدقيق المحاسبي</div>
+  </div>
+  {% if forensic %}
+  <div class="card card--status card--{{ forensic_status_token }}">
+    <div class="kv">
+      <div class="kv__cell">
+        <div class="kv__key">الحالة العامة</div>
+        <span class="badge badge--{{ forensic_status_token }}">{{ forensic_status_label }}</span>
+      </div>
+      <div class="kv__cell">
+        <div class="kv__key">نسبة المطابقة</div>
+        <span class="num" dir="ltr" style="font-family:'Zain',sans-serif;font-weight:800;font-size:17pt;">
+          {{ format_percent(forensic.reconciliation_rate) }}
+        </span>
+      </div>
+    </div>
+
+    <div class="split__head">ملاحظات التباين</div>
+    {% if forensic.discrepancy_flags %}
+    {% for item in forensic.discrepancy_flags %}
+    <div class="flag">
+      <span class="badge badge--sm badge--{{ severity_tokens.get(item.severity, 'muted') }}">
+        {{ severity_labels.get(item.severity, item.severity) }}
+      </span>
+      <div class="flag__desc">{{ item.description }}</div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <p style="color: var(--text-3);">لا توجد ملاحظات تباين.</p>
+    {% endif %}
+  </div>
+  {% else %}
+  <div class="empty">{{ not_available }}</div>
+  {% endif %}
+</div>
+
+{# ---------------------------------------------------------------------------
+   c. WEAKNESS REPORT — big score + two side-by-side columns
+   --------------------------------------------------------------------------- #}
+<div class="section">
+  <div class="section__head">
+    <div class="section__index">3</div>
+    <div class="section__title">تقرير نقاط الضعف</div>
+  </div>
+  {% if weakness %}
+  <div class="card">
+    <div class="score">
+      <div class="score__val">
+        <span class="num" dir="ltr">{{ weakness.business_model_score }}<span class="score__val-max">/100</span></span>
+      </div>
+      <div class="score__label">درجة نموذج العمل</div>
+    </div>
+    <div class="split">
+      <div class="split__row">
+        <div class="split__col">
+          <div class="split__head">نقاط الضعف الحرجة</div>
+          {% if weakness.critical_weaknesses %}
+          <ul>
+            {% for item in weakness.critical_weaknesses %}
+            <li>{{ item }}</li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p style="color: var(--text-3);">لا توجد نقاط ضعف حرجة.</p>
+          {% endif %}
+        </div>
+        <div class="split__col">
+          <div class="split__head">مقترحات المعالجة</div>
+          {% if weakness.mitigation_suggestions %}
+          <ul>
+            {% for item in weakness.mitigation_suggestions %}
+            <li>{{ item }}</li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p style="color: var(--text-3);">لا توجد مقترحات.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="empty">{{ not_available }}</div>
+  {% endif %}
+</div>
+
+{# ---------------------------------------------------------------------------
+   d. MARKET VIABILITY VERDICT
+   --------------------------------------------------------------------------- #}
+<div class="section">
+  <div class="section__head">
+    <div class="section__index">4</div>
+    <div class="section__title">جدوى السوق</div>
+  </div>
+  {% if market %}
+  <div class="card">
+    <div class="kv">
+      <div class="kv__cell">
+        <div class="kv__key">اتجاه القطاع</div>
+        <span class="badge badge--muted">
+          {{ sector_trend_labels.get(market.sector_trend, market.sector_trend) }}
+        </span>
+      </div>
+      <div class="kv__cell">
+        <div class="kv__key">إشباع الحي</div>
+        <span class="badge badge--muted">
+          {{ saturation_labels.get(market.district_saturation, market.district_saturation) }}
+        </span>
+      </div>
+    </div>
+    <div class="prose">{{ market.oracle_insight }}</div>
+    <div class="sources">
+      <div class="sources__head">المصادر</div>
+      {% if market.sources_cited %}
+      {% for src in market.sources_cited %}
+      <div class="sources__item">— {{ src }}</div>
+      {% endfor %}
+      {% else %}
+      <div class="sources__item">لا توجد مصادر مذكورة.</div>
+      {% endif %}
+    </div>
+  </div>
+  {% else %}
+  <div class="empty">{{ not_available }}</div>
+  {% endif %}
+</div>
+
+{# ---------------------------------------------------------------------------
+   e. FINANCIAL PROJECTIONS — the four risk_baseline coefficients.
+   The 12-month sandbox projection is deliberately NOT here: it's an interactive
+   tool driven by the bank's sliders (architecture.md §3), and a single frozen
+   frame of it in a static PDF would misrepresent it as a forecast.
+   --------------------------------------------------------------------------- #}
+<div class="section">
+  <div class="section__head">
+    <div class="section__index">5</div>
+    <div class="section__title">المؤشرات المالية</div>
+  </div>
+  {% if risk %}
+  <div class="card">
+    <div class="metrics">
+      <div class="metrics__row">
+        <div class="metric">
+          <div class="metric__key">احتمال التعثر الأساسي</div>
+          <div class="metric__val"><span class="num" dir="ltr">{{ format_percent(risk.base_default_probability) }}</span></div>
+        </div>
+        <div class="metric">
+          <div class="metric__key">شهور السيولة الاحتياطية</div>
+          <div class="metric__val">
+            <span class="num" dir="ltr">{{ format_number(risk.cash_buffer_months, 1) }}</span><span class="metric__unit"> شهر</span>
+          </div>
+        </div>
+        <div class="metric">
+          <div class="metric__key">سعر الفائدة الموصى به</div>
+          <div class="metric__val"><span class="num" dir="ltr">{{ format_percent(risk.recommended_interest_rate) }}</span></div>
+        </div>
+        <div class="metric">
+          <div class="metric__key">معامل تقلب الإيرادات</div>
+          <div class="metric__val"><span class="num" dir="ltr">{{ format_number(risk.revenue_volatility_multiplier) }}×</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="note">
+      نموذج المخاطر التفاعلي (توقّع التدفق النقدي لاثني عشر شهرًا) متاح في لوحة تحكم البنك.
+    </p>
+  </div>
+  {% else %}
+  <div class="empty">{{ not_available }}</div>
+  {% endif %}
+</div>
+
+<div class="signoff">كل رقم في هذا التقرير تم التحقق منه بواسطة جدوى</div>
+
+</body>
+</html>

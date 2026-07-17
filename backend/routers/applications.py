@@ -9,7 +9,7 @@ SME portal — application lifecycle (docs/API_CONTRACT.md).
     PATCH /api/v1/applications/{id}/documents/{document_id}     REAL
     POST  /api/v1/applications/{id}/submit                      REAL
     GET   /api/v1/applications/{id}/summary                     STUB
-    GET   /api/v1/applications/{id}/pdf                          STUB
+    GET   /api/v1/applications/{id}/pdf                          REAL
 
 Ownership resolves auth user -> sme_profiles row -> applications.sme_profile_id, same
 pattern (and the same helpers) as routers/documents.py — imported from there rather than
@@ -39,6 +39,7 @@ from routers.documents import (
     APPLICATIONS_TABLE,
     _assert_owned_application,
     _caller_profile_id,
+    _signed_url,
 )
 
 AGENT_RESULTS_TABLE = "agent_results"
@@ -375,6 +376,13 @@ async def application_pdf(
     svc = get_service_client()
     _assert_owned_application(svc, application_id, principal.user_id)
 
-    # STUB — Phase-4 PDF builder writes applications.final_pdf_url; null until then.
+    # application_builder_node stores the bare Storage object path (migration 005),
+    # not a URL — same convention as application_documents.file_url. Sign it here,
+    # the same way the upload response does, so the contract's "signed Supabase
+    # Storage URL" (architecture.md §4) is what actually goes out. Still null when
+    # the graph has not run for this application yet.
     app = _get_application(svc, application_id)
-    return PdfResponse(pdf_url=app.get("final_pdf_url"))
+    storage_path = app.get("final_pdf_url")
+    if not storage_path:
+        return PdfResponse(pdf_url=None)
+    return PdfResponse(pdf_url=_signed_url(svc, storage_path))

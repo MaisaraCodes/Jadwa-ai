@@ -10,3 +10,13 @@ psycopg2-binary>=2.9
 pymupdf>=1.24
 Pillow>=10.1
 tiktoken>=0.7
+# Application Builder (Arabic PDF). WeasyPrint needs the native Pango/GTK stack
+# in ADDITION to this pip install — `pip install weasyprint` alone is not enough:
+#   Debian/Replit: libpango-1.0-0 libpangoft2-1.0-0
+#   macOS:         brew install pango
+#   Windows:       GTK3 runtime or MSYS2 (pango) — otherwise `import weasyprint`
+#                  raises OSError: cannot load library 'libgobject-2.0-0'.
+# core/application_builder.py imports it lazily, so a machine without the native
+# libs can still run the API and the rest of the test suite.
+weasyprint==69.0
+jinja2>=3.1

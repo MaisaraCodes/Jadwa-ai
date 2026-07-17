@@ -20,7 +20,9 @@ from pydantic import BaseModel
 
 from core.auth import Principal, require_bank
 from core.errors import APIError
+from core.risk_calc_engine import recalculate
 from core.supabase import get_service_client
+from routers.documents import _signed_url
 from models import (
     ApplicationStatus,
     DocumentJSON,
@@ -245,52 +247,64 @@ async def get_bank_application(
     )
 
 
+# --- GET /bank/applications/{id}/pdf ----------------------------------------------
+# Bank-side mirror of GET /applications/{id}/pdf (routers/applications.py, which is
+# require_sme + ownership-checked and therefore unusable from the bank portal).
+# Same contract: signs the bare Storage path stored by application_builder_node,
+# null while the graph has not produced a PDF yet. Role guard only — no per-row
+# ownership on the bank side (see module docstring).
+class PdfResponse(BaseModel):
+    pdf_url: str | None
+
+
+@router.get("/applications/{application_id}/pdf", response_model=PdfResponse)
+async def bank_application_pdf(
+    application_id: str,
+    principal: Principal = Depends(require_bank),
+) -> PdfResponse:
+    svc = get_service_client()
+    app = _get_application(svc, application_id)
+    storage_path = app.get("final_pdf_url")
+    if not storage_path:
+        return PdfResponse(pdf_url=None)
+    return PdfResponse(pdf_url=_signed_url(svc, storage_path))
+
+
 # --- POST /bank/applications/{id}/sandbox/recalculate -----------------------------
-# STUB — Phase-4 risk_calc_engine replaces this pure-Python placeholder math.
-# The client sends ONLY deltas; the (currently-default, since risk_baseline isn't
-# seeded yet) baseline never leaves the server.
-_DEFAULT_BASELINE = RiskBaseline(
-    base_default_probability=0.05,
-    revenue_volatility_multiplier=1.0,
-    cash_buffer_months=3.0,
-    recommended_interest_rate=0.08,
-)
+# The live Risk Sandbox (architecture.md §3): pure Python, NO LLM, OUTSIDE the graph.
+# The client sends ONLY deltas; the risk_baseline (precomputed once by
+# risk_sandbox_init_node) never leaves the server. Target < 150ms — the engine is
+# sub-millisecond, so the only real cost is the single DB read below.
+def _load_risk_baseline(svc, application_id: str) -> RiskBaseline:
+    """Load and validate the precomputed baseline from agent_results.risk_baseline.
 
-
-def _recalculate(baseline: RiskBaseline, deltas: ScenarioDeltas) -> RiskProjection:
-    months = [f"M{i + 1}" for i in range(12)]
-    base_cash_flow = 100_000.0 * baseline.revenue_volatility_multiplier
-    net_growth_pct = (
-        deltas.revenue_growth - deltas.cost_increase - deltas.customer_churn + deltas.demand_shift
+    Narrowed SELECT (only application_id + the one JSONB column) — this endpoint is
+    on the interactive slider path, so it never pulls the whole record. A missing
+    row or a null/empty column means the graph hasn't produced a baseline yet.
+    """
+    res = (
+        svc.table(AGENT_RESULTS_TABLE)
+        .select("application_id,risk_baseline")
+        .eq("application_id", application_id)
+        .limit(1)
+        .execute()
     )
-
-    cash_flow: list[float] = []
-    value = base_cash_flow
-    for _ in months:
-        value *= 1 + (net_growth_pct / 100)
-        cash_flow.append(round(value, 2))
-
-    risk_score = baseline.base_default_probability + (
-        deltas.interest_rate
-        + deltas.oil_price_sensitivity
-        - deltas.revenue_growth
-        + deltas.cost_increase
-        + deltas.customer_churn
-    ) / 100
-    risk_score = max(0.0, min(1.0, round(risk_score, 4)))
-    risk_class: Literal["low", "medium", "high"] = (
-        "low" if risk_score < 0.15 else "medium" if risk_score < 0.35 else "high"
-    )
-    trend = "growth" if net_growth_pct >= 0 else "contraction"
-    summary_line = f"Projected {risk_class} risk with a {trend} trend under the given scenario."
-
-    return RiskProjection(
-        months=months,
-        cash_flow=cash_flow,
-        risk_score=risk_score,
-        risk_class=risk_class,
-        summary_line=summary_line,
-    )
+    rows = res.data or []
+    raw = rows[0].get("risk_baseline") if rows else None
+    if not raw:  # missing row, or column is null / {} ("not yet computed")
+        raise APIError(
+            404,
+            "risk_baseline_unavailable",
+            "Risk baseline has not been computed for this application yet.",
+        )
+    try:
+        return RiskBaseline.model_validate(raw)
+    except Exception:
+        raise APIError(
+            500,
+            "risk_baseline_invalid",
+            "Stored risk baseline is malformed and could not be loaded.",
+        )
 
 
 @router.post("/applications/{application_id}/sandbox/recalculate", response_model=SandboxResponse)
@@ -300,9 +314,9 @@ async def recalculate_sandbox(
     principal: Principal = Depends(require_bank),
 ) -> SandboxResponse:
     svc = get_service_client()
-    _get_application(svc, application_id)  # 404 if missing
+    baseline = _load_risk_baseline(svc, application_id)  # 404 if not yet computed
 
-    projection = _recalculate(_DEFAULT_BASELINE, body.deltas)
+    projection = recalculate(baseline, body.deltas)
     return SandboxResponse(projection=projection)
 
 

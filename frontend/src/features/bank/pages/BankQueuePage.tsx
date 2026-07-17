@@ -17,7 +17,7 @@ import Button from "../../../components/Button";
 import Skeleton from "../../../components/Skeleton";
 import { useReveal, staggerDelayMs } from "../../../lib/motion";
 
-const FORENSIC_TONE: Record<BankApplicationSummaryItem["forensic_status"], StatusTone> = {
+const FORENSIC_TONE: Record<NonNullable<BankApplicationSummaryItem["forensic_status"]>, StatusTone> = {
   green: "pass",
   yellow: "review",
   red: "flag",
@@ -196,7 +196,11 @@ function QueueRow({ app, index }: { app: BankApplicationSummaryItem; index: numb
         {app.submitted_at.slice(0, 10)}
       </td>
       <td className="border-b border-line px-4 py-3">
-        <StatusPill tone={FORENSIC_TONE[app.forensic_status]}>{t(`forensic.status.${app.forensic_status}`)}</StatusPill>
+        {app.forensic_status === null ? (
+          <StatusPill tone="neutral" dot={false}>{t("forensic.status.pending")}</StatusPill>
+        ) : (
+          <StatusPill tone={FORENSIC_TONE[app.forensic_status]}>{t(`forensic.status.${app.forensic_status}`)}</StatusPill>
+        )}
       </td>
       <td className="border-b border-line px-4 py-3 text-end tabular-nums text-text-2" dir="ltr">
         {app.amount != null ? app.amount.toLocaleString("en-US") : "—"}

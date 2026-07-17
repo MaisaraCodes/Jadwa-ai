@@ -191,6 +191,10 @@ class RiskProjection(BaseModel):
 # ---------------------------------------------------------------------------
 class ApplicationState(TypedDict):
     application_id: str
+    # App-level lifecycle status at graph start (architecture.md §4). Carried
+    # through unchanged into unified_application_record by aggregate_results_node
+    # — no node advances the lifecycle inside the graph.
+    status: ApplicationStatus
     sme_profile: SMEProfile
     raw_documents: list[UploadedFile]
 
@@ -205,6 +209,12 @@ class ApplicationState(TypedDict):
 
     # written by aggregate_results_node
     unified_application_record: ApplicationRecord | None
+
+    # written by application_builder_node — the bare Supabase Storage object path
+    # of the generated Arabic PDF (NOT a signed URL: signed URLs expire, the path
+    # doesn't, and GET /applications/{id}/pdf signs it on read). Mirrors the
+    # applications.final_pdf_url column. None when the build or upload failed.
+    final_pdf_url: str | None
 
 
 __all__ = [

@@ -563,6 +563,16 @@ export const STRINGS = {
   "bank.detail.metric.documents": { ar: "المستندات", en: "Documents" },
   "bank.detail.metric.forensic": { ar: "التدقيق الجنائي", en: "Forensic" },
   "bank.detail.notComputedShort": { ar: "لم يُحتسب", en: "Not computed" },
+  "bank.detail.pdfDownload": { ar: "تنزيل التقرير النهائي (PDF)", en: "Download PDF report" },
+  "bank.detail.pdfFetching": { ar: "جارٍ التجهيز…", en: "Preparing…" },
+  "bank.detail.pdfNotReady": {
+    ar: "لم يُنشأ التقرير النهائي لهذا الطلب بعد.",
+    en: "The final report has not been generated for this application yet.",
+  },
+  "bank.detail.pdfError": {
+    ar: "تعذّر جلب التقرير. حاول مرة أخرى.",
+    en: "Could not fetch the report. Try again.",
+  },
   "bank.detail.rail.title": { ar: "ملخص القرار", en: "Decision summary" },
   "bank.detail.marketTitle": { ar: "حكم السوق", en: "Market verdict" },
   "bank.detail.marketBody": {
@@ -586,8 +596,8 @@ export const STRINGS = {
     en: "Grounded in official Saudi data · every insight cites its source",
   },
   "bank.detail.market.noData": {
-    ar: "لم تُحسب بيانات السوق لهذا الطلب بعد.",
-    en: "Market data for this application hasn't been computed yet.",
+    ar: "الاستنتاج السوقي غير متاح — لم يعمل المستشار بعد على هذا الطلب.",
+    en: "Market verdict unavailable — Oracle has not yet run for this application.",
   },
 
   "bank.detail.sandboxTitle": { ar: "مِنصّة المخاطر التفاعلية", en: "Risk sandbox" },
@@ -624,6 +634,7 @@ export const STRINGS = {
 
   // --- forensic report card (ForensicReportCard, mirrors ForensicReport in models.py) ---
   "forensic.title": { ar: "التدقيق المالي", en: "Financial audit" },
+  "forensic.status.pending": { ar: "لم يُحلّل بعد", en: "Not yet analyzed" },
   "forensic.status.green": { ar: "مطابقة", en: "Reconciled" },
   "forensic.status.yellow": { ar: "بحاجة لمراجعة", en: "Review needed" },
   "forensic.status.red": { ar: "مخالفات مرصودة", en: "Discrepancies flagged" },
@@ -690,6 +701,48 @@ export const STRINGS = {
   "weakness.notComputed": {
     ar: "لم يكتمل تحليل نقاط الضعف لهذا الطلب بعد.",
     en: "The weakness analysis for this application hasn't run yet.",
+  },
+
+  // --- Risk Sandbox card (SandboxCard) ---
+  // Labels mirror backend/core/risk_calc_engine.py SLIDERS (source of truth for
+  // the 6 slider keys/ranges). The card sends ONLY deltas (fractions); the
+  // baseline never leaves the server (architecture.md §3).
+  "bank.detail.sandbox.title": { ar: "مِنصّة المخاطر التفاعلية", en: "Risk sandbox" },
+  "bank.detail.sandbox.reset": { ar: "إعادة الضبط", en: "Reset scenario" },
+  "bank.detail.sandbox.resetAria": {
+    ar: "إعادة ضبط كل العوامل إلى الأساس",
+    en: "Reset all scenario levers to baseline",
+  },
+  // Slider labels — one per ScenarioDeltas field.
+  "bank.detail.sandbox.slider.revenue_growth": { ar: "نمو الإيرادات", en: "Revenue growth" },
+  "bank.detail.sandbox.slider.cost_increase": { ar: "ارتفاع التكاليف", en: "Cost increase" },
+  "bank.detail.sandbox.slider.customer_churn": { ar: "تسرّب العملاء", en: "Customer churn" },
+  "bank.detail.sandbox.slider.demand_shift": { ar: "تحوّل الطلب", en: "Demand shift" },
+  "bank.detail.sandbox.slider.interest_rate": { ar: "سعر الفائدة", en: "Interest rate" },
+  "bank.detail.sandbox.slider.oil_price_sensitivity": {
+    ar: "حساسية سعر النفط",
+    en: "Oil price sensitivity",
+  },
+  // Risk-class badge (RiskClass) — informational, NOT a ForensicStatus verdict.
+  "bank.detail.sandbox.risk.low": { ar: "منخفض", en: "Low" },
+  "bank.detail.sandbox.risk.medium": { ar: "متوسط", en: "Medium" },
+  "bank.detail.sandbox.risk.high": { ar: "مرتفع", en: "High" },
+  "bank.detail.sandbox.riskLabel": { ar: "تصنيف المخاطر", en: "Risk class" },
+  "bank.detail.sandbox.unit.pp": { ar: "نقاط", en: "pp" },
+  "bank.detail.sandbox.baselineLegend": { ar: "الأساس", en: "Baseline" },
+  "bank.detail.sandbox.currentLegend": { ar: "السيناريو", en: "Scenario" },
+  "bank.detail.sandbox.summaryLabel": { ar: "الخلاصة", en: "Summary" },
+  "bank.detail.sandbox.chartDesc": {
+    ar: "توقّع التدفّق النقدي على 12 شهرًا تحت السيناريو الحالي مقابل الأساس.",
+    en: "12-month cash-flow projection under the current scenario versus baseline.",
+  },
+  "bank.detail.sandbox.error": {
+    ar: "تعذّر إعادة الحساب. تُعرض آخر نتيجة ناجحة.",
+    en: "Couldn't recalculate. Showing the last successful result.",
+  },
+  "bank.detail.sandbox.empty": {
+    ar: "لم يُحتسب أساس المخاطر بعد — شغّل التحليل أولًا.",
+    en: "Risk baseline not yet computed — run the analysis first.",
   },
 } as const;
 
