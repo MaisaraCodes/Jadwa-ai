@@ -181,7 +181,9 @@ export interface BankApplicationSummaryItem {
   sector: string;
   district: string;
   submitted_at: string; // ISO datetime
-  forensic_status: ForensicStatus;
+  // null until the Phase-2 agents have scored the application (backend
+  // routers/bank.py returns forensic_report.overall_status or None).
+  forensic_status: ForensicStatus | null;
   business_model_score: number | null;
   amount: number | null;
 }

@@ -624,6 +624,7 @@ export const STRINGS = {
 
   // --- forensic report card (ForensicReportCard, mirrors ForensicReport in models.py) ---
   "forensic.title": { ar: "التدقيق المالي", en: "Financial audit" },
+  "forensic.status.pending": { ar: "لم يُحلّل بعد", en: "Not yet analyzed" },
   "forensic.status.green": { ar: "مطابقة", en: "Reconciled" },
   "forensic.status.yellow": { ar: "بحاجة لمراجعة", en: "Review needed" },
   "forensic.status.red": { ar: "مخالفات مرصودة", en: "Discrepancies flagged" },
