@@ -1,0 +1,27 @@
+Osama here — building aggregate_results_node. Read docs/architecture.md §1 and §2, docs/schema_mapping.md §2 (aggregate_results_node), backend/models.py, and follow CONVENTIONS.md.
+
+CONTEXT
+The graph fans out: dispatch → [forensic_accountant_node, devils_advocate_node, saudi_market_oracle_node, risk_sandbox_init_node] → aggregate_results_node → application_builder_node. LangGraph joins all four edges automatically before this node runs, so the four agent outputs are already in state as their own typed keys. This node is a DETERMINISTIC MERGE — no LLM call, no conflict logic.
+
+TASK
+Implement aggregate_results_node (replace any stub in core/graph.py).
+
+REQUIREMENTS
+1. Read from ApplicationState: application_id, status, sme_profile, extracted_documents, and the four outputs forensic_report, weakness_report, market_verdict, risk_baseline.
+2. Merge into a single ApplicationRecord (import it from models.py — do NOT redefine the shape anywhere). Write ONLY to the state key unified_application_record. Do not touch any other node's key.
+3. Tolerate missing outputs: any of the four agent outputs may be None. Pass None through — ApplicationRecord already allows it. Do not fabricate defaults.
+4. Do NOT change the status lifecycle here — carry status through from state unchanged. If a processing→review_ready transition seems needed, FLAG it in your output, don't implement it.
+5. Persist unified_application_record to the agent_results.unified_application_record JSONB column, keyed by application_id, using the SAME persistence pattern the forensic and Devil's Advocate nodes already use (service-role Supabase client, model_dump(mode="json")). Match existing code — do not invent a new DB pattern.
+6. Add unit tests mirroring the existing node tests (DB-free and LLM-free): (a) full merge with all four outputs present; (b) merge with one or more outputs None; assert the result validates as ApplicationRecord and that no other state key is mutated.
+
+OUT OF SCOPE: the PDF builder, the market UI, anything in Phase 4. Only this node + tests + graph wiring.
+
+WHEN DONE, output the following back to me verbatim (do not summarize away detail):
+A. Files created/modified (paths).
+B. Full final source of the merge node.
+C. Persistence: which client, table, column, and the exact write/UPDATE call.
+D. How None agent outputs were handled.
+E. What status value the record carries + confirmation you added NO lifecycle transition.
+F. Test results: total passing/failing + names of the new tests.
+G. Any deviation from models.py / CONVENTIONS.md, or any assumption made.
+H. Confirm the graph now runs dispatch → 4 nodes → aggregate_results_node → application_builder_node with no stub left.
