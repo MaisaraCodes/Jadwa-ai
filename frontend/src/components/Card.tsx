@@ -2,7 +2,7 @@
 // with a forensic-status edge on the START side (logical — mirrors under RTL
 // automatically). Edge colour is always the card's forensic status: pass,
 // review, or flag — never a decorative choice.
-import type { HTMLAttributes } from "react";
+import { forwardRef, type HTMLAttributes } from "react";
 
 export type CardEdge = "pass" | "review" | "flag";
 
@@ -16,11 +16,17 @@ const EDGE_CLASSES: Record<CardEdge, string> = {
   flag: "border-s-flag",
 };
 
-export default function Card({ edge, className, ...props }: CardProps) {
+// forwardRef so callers can attach the useReveal() entrance observer (or any
+// other ref) directly to the card's own element — no extra wrapper div.
+const Card = forwardRef<HTMLDivElement, CardProps>(function Card({ edge, className, ...props }, ref) {
   return (
     <div
+      ref={ref}
       className={[
-        "rounded-xl border border-line bg-surface p-4",
+        // Property list covers both a hover border refinement (item 3) and
+        // the .reveal entrance fade (opacity/transform) — see index.css's
+        // note on why .reveal itself can't declare `transition`.
+        "rounded-xl border border-line bg-surface p-4 transition-[border-color,opacity,transform] duration-base ease-out motion-reduce:transition-none",
         edge && `rounded-s-none border-s-[3px] ${EDGE_CLASSES[edge]}`,
         className,
       ]
@@ -29,4 +35,6 @@ export default function Card({ edge, className, ...props }: CardProps) {
       {...props}
     />
   );
-}
+});
+
+export default Card;

@@ -34,6 +34,7 @@ import SaduBand, { type SaduStageState } from "../../../components/SaduBand";
 import Card from "../../../components/Card";
 import Button from "../../../components/Button";
 import BackButton from "../../../components/BackButton";
+import Skeleton from "../../../components/Skeleton";
 import DocumentUpload from "../DocumentUpload";
 import { DocumentReviewPanel } from "./ReviewDocumentsPage";
 
@@ -213,7 +214,26 @@ export default function ApplicationDetailPage() {
     return (
       <section>
         <BackButton to="/sme" label={t("common.back.dashboard")} />
-        <Card className="py-6 text-center text-[13px] text-text-2">{t("sme.detail.loading")}</Card>
+        <div role="status">
+          <span className="sr-only">{t("sme.detail.loading")}</span>
+          <div aria-hidden="true">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+              <div className="space-y-2">
+                <Skeleton className="h-6 w-56" />
+                <Skeleton className="h-3 w-32" />
+              </div>
+              <Skeleton className="h-5 w-24 rounded-full" />
+            </div>
+            <Card className="py-8">
+              <Skeleton className="mx-auto h-3 w-40" />
+              <div className="mx-auto mt-5 flex w-fit gap-3">
+                {[0, 1, 2, 3, 4, 5].map((i) => (
+                  <Skeleton key={i} className="h-11 w-16" />
+                ))}
+              </div>
+            </Card>
+          </div>
+        </div>
       </section>
     );
   }
