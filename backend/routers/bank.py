@@ -22,6 +22,7 @@ from core.auth import Principal, require_bank
 from core.errors import APIError
 from core.risk_calc_engine import recalculate
 from core.supabase import get_service_client
+from routers.documents import _signed_url
 from models import (
     ApplicationStatus,
     DocumentJSON,
@@ -244,6 +245,29 @@ async def get_bank_application(
         risk_baseline=RiskBaseline.model_validate(raw_risk) if raw_risk else None,
         amount=app.get("amount"),
     )
+
+
+# --- GET /bank/applications/{id}/pdf ----------------------------------------------
+# Bank-side mirror of GET /applications/{id}/pdf (routers/applications.py, which is
+# require_sme + ownership-checked and therefore unusable from the bank portal).
+# Same contract: signs the bare Storage path stored by application_builder_node,
+# null while the graph has not produced a PDF yet. Role guard only — no per-row
+# ownership on the bank side (see module docstring).
+class PdfResponse(BaseModel):
+    pdf_url: str | None
+
+
+@router.get("/applications/{application_id}/pdf", response_model=PdfResponse)
+async def bank_application_pdf(
+    application_id: str,
+    principal: Principal = Depends(require_bank),
+) -> PdfResponse:
+    svc = get_service_client()
+    app = _get_application(svc, application_id)
+    storage_path = app.get("final_pdf_url")
+    if not storage_path:
+        return PdfResponse(pdf_url=None)
+    return PdfResponse(pdf_url=_signed_url(svc, storage_path))
 
 
 # --- POST /bank/applications/{id}/sandbox/recalculate -----------------------------

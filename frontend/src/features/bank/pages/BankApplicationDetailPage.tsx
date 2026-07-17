@@ -41,7 +41,7 @@ import ForensicReportCard from "../components/ForensicReportCard";
 import WeaknessReportCard from "../components/WeaknessReportCard";
 import MarketVerdictCard from "../components/MarketVerdictCard";
 import SandboxCard from "../components/SandboxCard";
-import { ApiError, decideApplication, getBankApplication } from "../../../lib/api";
+import { ApiError, decideApplication, getBankApplication, getBankApplicationPdf } from "../../../lib/api";
 import type { BankApplicationDetail, BankDecision, DocumentJSON } from "../../../types";
 
 const DECIDED_STATUSES = new Set(["approved", "rejected", "more_info_needed"]);
@@ -116,6 +116,9 @@ export default function BankApplicationDetailPage() {
   const [detail, setDetail] = useState<BankApplicationDetail | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
 
+  const [pdfBusy, setPdfBusy] = useState(false);
+  const [pdfNotice, setPdfNotice] = useState<string | null>(null);
+
   const [decisionMode, setDecisionMode] = useState<"idle" | "request_info_note">("idle");
   const [note, setNote] = useState("");
   const [decisionBusy, setDecisionBusy] = useState<BankDecision | null>(null);
@@ -134,6 +137,26 @@ export default function BankApplicationDetailPage() {
   useEffect(() => {
     loadDetail();
   }, [loadDetail]);
+
+  // Fetch the short-lived signed Storage URL on demand (never cached — it
+  // expires) and hand it to the browser. pdf_url is null while the graph has
+  // not generated a report for this application: not an error, just not ready.
+  const downloadPdf = useCallback(async () => {
+    setPdfBusy(true);
+    setPdfNotice(null);
+    try {
+      const { pdf_url } = await getBankApplicationPdf(applicationId);
+      if (pdf_url) {
+        window.open(pdf_url, "_blank", "noopener");
+      } else {
+        setPdfNotice(t("bank.detail.pdfNotReady"));
+      }
+    } catch (err) {
+      setPdfNotice(err instanceof ApiError ? err.message : t("bank.detail.pdfError"));
+    } finally {
+      setPdfBusy(false);
+    }
+  }, [applicationId, t]);
 
   async function submitDecision(decision: BankDecision, noteValue?: string) {
     setDecisionError(null);
@@ -267,7 +290,28 @@ export default function BankApplicationDetailPage() {
                 </span>
               </div>
             </div>
-            <LifecycleStatusPill status={detail.status} />
+            <div className="flex flex-col items-end gap-2">
+              <div className="flex items-center gap-2.5">
+                <Button variant="ghost" size="sm" onClick={downloadPdf} disabled={pdfBusy}>
+                  {/* inline SVG per project convention — no icon library */}
+                  <svg
+                    viewBox="0 0 16 16"
+                    className="h-3.5 w-3.5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M8 2.5v7.5m0 0L5 7m3 3 3-3M2.5 12v1a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-1" />
+                  </svg>
+                  {pdfBusy ? t("bank.detail.pdfFetching") : t("bank.detail.pdfDownload")}
+                </Button>
+                <LifecycleStatusPill status={detail.status} />
+              </div>
+              {pdfNotice && <div className="text-[12px] text-text-3">{pdfNotice}</div>}
+            </div>
           </div>
 
           <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">

@@ -563,6 +563,16 @@ export const STRINGS = {
   "bank.detail.metric.documents": { ar: "المستندات", en: "Documents" },
   "bank.detail.metric.forensic": { ar: "التدقيق الجنائي", en: "Forensic" },
   "bank.detail.notComputedShort": { ar: "لم يُحتسب", en: "Not computed" },
+  "bank.detail.pdfDownload": { ar: "تنزيل التقرير النهائي (PDF)", en: "Download PDF report" },
+  "bank.detail.pdfFetching": { ar: "جارٍ التجهيز…", en: "Preparing…" },
+  "bank.detail.pdfNotReady": {
+    ar: "لم يُنشأ التقرير النهائي لهذا الطلب بعد.",
+    en: "The final report has not been generated for this application yet.",
+  },
+  "bank.detail.pdfError": {
+    ar: "تعذّر جلب التقرير. حاول مرة أخرى.",
+    en: "Could not fetch the report. Try again.",
+  },
   "bank.detail.rail.title": { ar: "ملخص القرار", en: "Decision summary" },
   "bank.detail.marketTitle": { ar: "حكم السوق", en: "Market verdict" },
   "bank.detail.marketBody": {
