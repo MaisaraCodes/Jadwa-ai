@@ -25,6 +25,8 @@ SUPABASE_STORAGE_BUCKET = "application-documents"
 VITE_API_BASE_URL = "/api/v1"
 VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxzbW1tbWFnaXppbnlyZ3VldGRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyMTcyNTcsImV4cCI6MjA5Nzc5MzI1N30.doz8b5D4Vvv5AYSmVrPMT6BTahef1ndaGki4EhV2f-E"
 VITE_SUPABASE_URL = "https://lsmmmmagizinyrguetde.supabase.co"
+SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxzbW1tbWFnaXppbnlyZ3VldGRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyMTcyNTcsImV4cCI6MjA5Nzc5MzI1N30.doz8b5D4Vvv5AYSmVrPMT6BTahef1ndaGki4EhV2f-E"
+SUPABASE_URL = "https://lsmmmmagizinyrguetde.supabase.co"
 
 [workflows]
 runButton = "Project"
