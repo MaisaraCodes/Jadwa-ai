@@ -126,6 +126,35 @@ export interface RiskBaseline {
   recommended_interest_rate: number;
 }
 
+// Mirrors backend/models.py ScenarioDeltas / RiskProjection / RiskClass — the
+// Risk Sandbox contract (architecture.md §3/§4). The client sends ONLY deltas
+// (fractions: 0.20 = +20%); the risk_baseline never leaves the server. Do not
+// redefine these shapes elsewhere.
+export type RiskClass = "low" | "medium" | "high";
+
+export interface ScenarioDeltas {
+  revenue_growth: number;
+  cost_increase: number;
+  customer_churn: number;
+  demand_shift: number;
+  interest_rate: number;
+  oil_price_sensitivity: number;
+}
+
+export interface RiskProjection {
+  months: string[]; // 12 labels
+  cash_flow: number[]; // 12 projected values, same order as months
+  risk_score: number;
+  risk_class: RiskClass;
+  summary_line: string;
+}
+
+// POST /bank/applications/:id/sandbox/recalculate request/response
+// (routers/bank.py SandboxRequest / SandboxResponse).
+export interface SandboxRecalculateResponse {
+  projection: RiskProjection;
+}
+
 // Mirrors backend routers/applications.py's ApplicationSummaryItem
 // (GET /applications — the SME's own applications list).
 export interface ApplicationSummaryItem {

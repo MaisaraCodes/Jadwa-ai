@@ -13,6 +13,7 @@ graph — see core/orchestrator.py for where they slot in around it.
 from __future__ import annotations
 
 import logging
+import statistics
 
 from langgraph.graph import END, START, StateGraph
 
@@ -215,16 +216,95 @@ def saudi_market_oracle_node(state: ApplicationState) -> dict:
     return {"market_verdict": verdict}
 
 
-def risk_sandbox_init_node(state: ApplicationState) -> dict:
-    # TODO(owner: risk sandbox): real coefficient precompute from
-    # extracted_documents. Pure Python, no LLM — this just needs a plausible
-    # placeholder so aggregate_results_node has something to merge.
-    baseline = RiskBaseline(
-        base_default_probability=0.1,
-        revenue_volatility_multiplier=1.0,
-        cash_buffer_months=1.0,
-        recommended_interest_rate=0.08,
+# --- risk_sandbox_init_node coefficient heuristics -------------------------
+# Pure-Python anchors for the RiskBaseline precompute (schema_mapping.md Node 5).
+# These are deliberately simple, documented heuristics — Salman owns the realism
+# pass. All are grounded loosely in the seeded invoice amounts (uniform 1.2k-18k,
+# median ~6k; data/generate_synthetic_data.py). NO LLM, NO ledger read.
+_NEUTRAL_DEFAULT_PROBABILITY = 0.10  # industry-ish anchor for a healthy SME
+_THIN_FILE_DOC_COUNT = 3             # < this many docs = too little signal -> nudge risk up
+_THIN_FILE_PENALTY = 0.05
+_LOW_TOTAL_REF_SAR = 10_000.0        # total extracted value below this = weak signal -> nudge up
+_LOW_TOTAL_PENALTY = 0.05
+_VOL_MULTIPLIER_MIN, _VOL_MULTIPLIER_MAX = 0.8, 1.4
+_BUFFER_REFERENCE_AMOUNT_SAR = 6_000.0   # median doc ~= this maps to the neutral buffer
+_NEUTRAL_BUFFER_MONTHS = 3.0
+_BUFFER_MIN_MONTHS, _BUFFER_MAX_MONTHS = 1.0, 6.0
+_BASE_INTEREST_RATE = 0.08
+_INTEREST_PER_VOL_UNIT = 0.02        # +2 rate points per unit of volatility above 1.0
+_INTEREST_MIN, _INTEREST_MAX = 0.05, 0.12
+
+
+def _clamp(value: float, low: float, high: float) -> float:
+    return max(low, min(high, value))
+
+
+def compute_risk_baseline(documents: list[DocumentJSON]) -> RiskBaseline:
+    """Deterministic RiskBaseline precompute from extracted_documents alone
+    (schema_mapping.md Node 5). Pure Python — no LLM, no ledger, no wall-clock,
+    no randomness. Empty/None docs -> neutral defaults; never throws.
+    """
+    if not documents:
+        return RiskBaseline(
+            base_default_probability=_NEUTRAL_DEFAULT_PROBABILITY,
+            revenue_volatility_multiplier=1.0,
+            cash_buffer_months=_NEUTRAL_BUFFER_MONTHS,
+            recommended_interest_rate=_BASE_INTEREST_RATE,
+        )
+
+    amounts = [float(d.extracted_amount) for d in documents]
+    n = len(amounts)
+    total = sum(amounts)
+    mean = total / n
+
+    # base_default_probability: anchor 0.10, nudged up for thin files / weak totals.
+    default_probability = _NEUTRAL_DEFAULT_PROBABILITY
+    if n < _THIN_FILE_DOC_COUNT:
+        default_probability += _THIN_FILE_PENALTY
+    if total < _LOW_TOTAL_REF_SAR:
+        default_probability += _LOW_TOTAL_PENALTY
+    default_probability = _clamp(default_probability, 0.0, 1.0)
+
+    # revenue_volatility_multiplier: 1.0 + coefficient of variation, needs >=3 docs
+    # for a meaningful spread; clamped to a sane band. Mean must be > 0 to divide.
+    if n >= _THIN_FILE_DOC_COUNT and mean > 0:
+        cv = statistics.pstdev(amounts) / mean
+        volatility = _clamp(1.0 + cv, _VOL_MULTIPLIER_MIN, _VOL_MULTIPLIER_MAX)
+    else:
+        volatility = 1.0
+
+    # cash_buffer_months: scale the neutral buffer by median doc size vs a reference.
+    median = statistics.median(amounts)
+    cash_buffer = _clamp(
+        _NEUTRAL_BUFFER_MONTHS * median / _BUFFER_REFERENCE_AMOUNT_SAR,
+        _BUFFER_MIN_MONTHS,
+        _BUFFER_MAX_MONTHS,
     )
+
+    # recommended_interest_rate: base + a premium for every unit of volatility > 1.0.
+    interest_rate = _clamp(
+        _BASE_INTEREST_RATE + _INTEREST_PER_VOL_UNIT * max(0.0, volatility - 1.0),
+        _INTEREST_MIN,
+        _INTEREST_MAX,
+    )
+
+    return RiskBaseline(
+        base_default_probability=round(default_probability, 4),
+        revenue_volatility_multiplier=round(volatility, 4),
+        cash_buffer_months=round(cash_buffer, 4),
+        recommended_interest_rate=round(interest_rate, 4),
+    )
+
+
+def risk_sandbox_init_node(state: ApplicationState) -> dict:
+    """Precompute risk_baseline coefficients ONCE per application so the live
+    Risk Sandbox never needs an LLM or a graph run (architecture.md §3,
+    schema_mapping.md Node 5). Pure Python; reads only extracted_documents (the
+    financial signal) — NOT the mock_open_banking_ledger (that's the forensic
+    node's job, CONVENTIONS.md rule 3). Writes ONLY risk_baseline (rule 5).
+    """
+    documents = state.get("extracted_documents", [])
+    baseline = compute_risk_baseline(documents)
     _persist_column(state["application_id"], "risk_baseline", baseline.model_dump(mode="json"))
     return {"risk_baseline": baseline}
 

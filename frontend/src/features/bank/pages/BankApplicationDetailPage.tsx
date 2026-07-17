@@ -40,6 +40,7 @@ import BackButton from "../../../components/BackButton";
 import ForensicReportCard from "../components/ForensicReportCard";
 import WeaknessReportCard from "../components/WeaknessReportCard";
 import MarketVerdictCard from "../components/MarketVerdictCard";
+import SandboxCard from "../components/SandboxCard";
 import { ApiError, decideApplication, getBankApplication } from "../../../lib/api";
 import type { BankApplicationDetail, BankDecision, DocumentJSON } from "../../../types";
 
@@ -101,18 +102,6 @@ function DocumentsListCard({ documents }: { documents: DocumentJSON[] }) {
           );
         })}
       </ul>
-    </Card>
-  );
-}
-
-function ComingSoonCard({ title, body, badge }: { title: string; body: string; badge: string }) {
-  return (
-    <Card className="mb-4 border-dashed text-center">
-      <p className="text-[15px] font-semibold text-text-2">{title}</p>
-      <p className="mt-1.5 text-[13px] text-text-3">{body}</p>
-      <span className="mt-3 inline-block rounded-full border border-line-strong px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-text-3">
-        {badge}
-      </span>
     </Card>
   );
 }
@@ -440,11 +429,7 @@ export default function BankApplicationDetailPage() {
               </Card>
 
               <MarketVerdictCard verdict={detail.market_verdict} />
-              <ComingSoonCard
-                title={t("bank.detail.sandboxTitle")}
-                body={t("bank.detail.sandboxBody")}
-                badge={t("bank.detail.phase4")}
-              />
+              <SandboxCard applicationId={applicationId} />
             </div>
           </div>
         </PageFade>
