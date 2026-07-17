@@ -7,13 +7,20 @@ only endpoint exempt from auth.
 from __future__ import annotations
 
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
 
 load_dotenv()
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+
+# Built React frontend (frontend/dist). Present in production (deployment
+# build step runs `npm run build`); absent in dev, where Vite serves the UI.
+FRONTEND_DIST = Path(__file__).resolve().parent.parent / "frontend" / "dist"
 
 from core.errors import APIError, api_error_handler
 from routers import applications, bank, documents, profile, shared
@@ -50,6 +57,45 @@ def create_app() -> FastAPI:
     @app.get("/health")
     async def health() -> dict[str, str]:
         return {"status": "ok"}
+
+    # Production: serve the built SPA from the same server as the API.
+    # API routes, /docs, /openapi.json and /health are registered above, so
+    # they always win; everything else falls back to the SPA's index.html so
+    # deep links like /bank/queue work.
+    index_html = FRONTEND_DIST / "index.html"
+    if index_html.is_file():
+        assets_dir = FRONTEND_DIST / "assets"
+        if assets_dir.is_dir():
+
+            class HashedAssets(StaticFiles):
+                """Vite emits content-hashed filenames — cache them forever."""
+
+                def file_response(self, *args, **kwargs):  # type: ignore[override]
+                    response = super().file_response(*args, **kwargs)
+                    response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+                    return response
+
+            app.mount("/assets", HashedAssets(directory=assets_dir), name="assets")
+
+        @app.get("/{full_path:path}", include_in_schema=False)
+        async def spa(full_path: str) -> FileResponse:
+            # Reserved backend namespaces must keep their own 404 semantics —
+            # an unknown /api/... path must never return the SPA shell.
+            first = full_path.split("/", 1)[0]
+            if first in {"api", "docs", "redoc", "openapi.json", "health"}:
+                raise HTTPException(status_code=404, detail="Not Found")
+            candidate = (FRONTEND_DIST / full_path).resolve()
+            if (
+                full_path
+                and candidate.is_file()
+                and candidate.is_relative_to(FRONTEND_DIST)
+            ):
+                return FileResponse(candidate)
+            # Never cache the SPA shell — a stale index.html would reference
+            # old hashed asset files after a redeploy.
+            return FileResponse(
+                index_html, headers={"Cache-Control": "no-cache"}
+            )
 
     return app
 
