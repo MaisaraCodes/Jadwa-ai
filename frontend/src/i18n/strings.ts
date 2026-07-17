@@ -586,8 +586,8 @@ export const STRINGS = {
     en: "Grounded in official Saudi data · every insight cites its source",
   },
   "bank.detail.market.noData": {
-    ar: "لم تُحسب بيانات السوق لهذا الطلب بعد.",
-    en: "Market data for this application hasn't been computed yet.",
+    ar: "الاستنتاج السوقي غير متاح — لم يعمل المستشار بعد على هذا الطلب.",
+    en: "Market verdict unavailable — Oracle has not yet run for this application.",
   },
 
   "bank.detail.sandboxTitle": { ar: "مِنصّة المخاطر التفاعلية", en: "Risk sandbox" },
