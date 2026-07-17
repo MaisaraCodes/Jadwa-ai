@@ -210,6 +210,12 @@ class ApplicationState(TypedDict):
     # written by aggregate_results_node
     unified_application_record: ApplicationRecord | None
 
+    # written by application_builder_node — the bare Supabase Storage object path
+    # of the generated Arabic PDF (NOT a signed URL: signed URLs expire, the path
+    # doesn't, and GET /applications/{id}/pdf signs it on read). Mirrors the
+    # applications.final_pdf_url column. None when the build or upload failed.
+    final_pdf_url: str | None
+
 
 __all__ = [
     "Role",

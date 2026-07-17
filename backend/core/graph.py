@@ -1,14 +1,14 @@
 """
-The compiled LangGraph StateGraph — dispatch -> 4 agent nodes -> aggregate
-(architecture.md §1, "Implementation note for whoever owns the orchestrator").
+The compiled LangGraph StateGraph — dispatch -> 4 agent nodes -> aggregate ->
+application_builder (architecture.md §1, "Implementation note for whoever owns
+the orchestrator").
 
-Only the SHAPE is this ticket's job. The 4 middle nodes below are STUBS: each
-one's real owner replaces the body of their function (the reconciliation
-math, the LLM call, the pgvector lookup...) but keeps the function's name,
-its read/write keys on ApplicationState, and its position in the graph
-exactly as wired here. document_intelligence_node and
-application_builder_node are separate tickets and are NOT part of this
-graph — see core/orchestrator.py for where they slot in around it.
+document_intelligence_node is NOT part of this graph — architecture.md keeps it
+outside, and core/orchestrator.py runs it just before the graph and feeds its
+output into the initial state. application_builder_node IS in the graph, as the
+terminal step: architecture.md §1's diagram is explicit about it
+(`aggregate --> record --> builder --> END`), and it needs nothing the graph
+doesn't already hold.
 """
 from __future__ import annotations
 
@@ -17,6 +17,7 @@ import statistics
 
 from langgraph.graph import END, START, StateGraph
 
+from core.application_builder import application_builder_node
 from core.supabase import get_service_client
 from core.zatca import ZatcaParseError, ZatcaQRParser
 from models import (
@@ -344,6 +345,7 @@ def build_graph():
     graph.add_node("saudi_market_oracle_node", saudi_market_oracle_node)
     graph.add_node("risk_sandbox_init_node", risk_sandbox_init_node)
     graph.add_node("aggregate_results_node", aggregate_results_node)
+    graph.add_node("application_builder_node", application_builder_node)
 
     graph.add_edge(START, "orchestrator_dispatch")
 
@@ -362,7 +364,9 @@ def build_graph():
     graph.add_edge("saudi_market_oracle_node", "aggregate_results_node")
     graph.add_edge("risk_sandbox_init_node", "aggregate_results_node")
 
-    graph.add_edge("aggregate_results_node", END)
+    # Terminal step: the Arabic PDF (architecture.md §1 — `record --> builder`).
+    graph.add_edge("aggregate_results_node", "application_builder_node")
+    graph.add_edge("application_builder_node", END)
 
     return graph.compile()
 
