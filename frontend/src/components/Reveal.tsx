@@ -18,7 +18,13 @@ export default function Reveal({ index, className, style, children, ...props }: 
     <div
       ref={ref}
       data-revealed={revealed}
-      className={["reveal", className].filter(Boolean).join(" ")}
+      // .reveal (index.css) only sets the opacity/transform VALUES — it
+      // deliberately doesn't declare `transition` itself (see index.css's
+      // comment on why), so this is the one place that must supply the
+      // property list. Card.tsx does the same for its own .reveal usage.
+      className={["reveal transition-[opacity,transform] duration-base ease-out motion-reduce:transition-none", className]
+        .filter(Boolean)
+        .join(" ")}
       style={index !== undefined ? { transitionDelay: `${staggerDelayMs(index)}ms`, ...style } : style}
       {...props}
     >
