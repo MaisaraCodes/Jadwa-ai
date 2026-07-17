@@ -20,6 +20,7 @@ import type { StringKey } from "../../../i18n/strings";
 import { ApiError, getExtractedDocuments, patchExtractedDocument } from "../../../lib/api";
 import type { DocumentJSON, DocumentType } from "../../../types";
 import BackButton from "../../../components/BackButton";
+import Skeleton from "../../../components/Skeleton";
 
 const LOW_CONFIDENCE_THRESHOLD = 0.85;
 const DOCUMENT_TYPES: DocumentType[] = ["zatca_receipt", "invoice", "bank_statement", "contract", "other"];
@@ -148,9 +149,24 @@ export function DocumentReviewPanel({
   return (
     <>
       {documents === null && !loadError && (
-        <p className="rounded-xl border border-line bg-surface px-4 py-6 text-center text-[13px] text-text-2">
-          {t("review.loading")}
-        </p>
+        <div className="space-y-2.5" role="status">
+          <span className="sr-only">{t("review.loading")}</span>
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="rounded-xl border border-line bg-surface px-4 py-3.5" aria-hidden="true">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0 space-y-2">
+                  <Skeleton className="h-3.5 w-28" />
+                  <Skeleton className="h-3 w-40" />
+                </div>
+                <Skeleton className="h-5 w-24 shrink-0 rounded-full" />
+              </div>
+              <div className="mt-3 flex items-center gap-2">
+                <Skeleton className="h-7 w-20" />
+                <Skeleton className="h-7 w-16" />
+              </div>
+            </div>
+          ))}
+        </div>
       )}
 
       {loadError && (

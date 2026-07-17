@@ -13,6 +13,7 @@
 // flips under RTL so the band visually flows start→end like the rest of the
 // page, instead of always left→right.
 import { useLang } from "../i18n/LangProvider";
+import { staggerDelayMs } from "../lib/motion";
 
 export type SaduStageState = "done" | "active" | "pending";
 // "accent" resolves against the ambient portal accent (needs a data-portal
@@ -28,6 +29,13 @@ interface CommonProps {
   size?: SaduSize;
   className?: string;
   ariaLabel?: string;
+  /** Static illustrations only (landing page's "how it works" band): gates a
+   * staggered per-stage fade-in, driven by the caller's own useReveal() (scroll
+   * into view). Omit for real pipeline usage (in-portal live/mini bands) —
+   * those stages already animate their own state transitions on completion
+   * (see the `stage-fill-in` mount animation below) and should render
+   * immediately, not wait on a scroll trigger. */
+  revealed?: boolean;
 }
 
 type Props =
@@ -50,6 +58,8 @@ function Stage({
   width,
   topY,
   baseY,
+  revealed,
+  delayMs,
 }: {
   state: SaduStageState;
   x: number;
@@ -57,27 +67,52 @@ function Stage({
   width: number;
   topY: number;
   baseY: number;
+  /** undefined = real pipeline usage (animate on state change, see below);
+   * boolean = static illustration usage (animate on scroll reveal instead). */
+  revealed?: boolean;
+  delayMs: number;
 }) {
   const fill = tone === "gold" ? "var(--gold)" : "var(--accent)";
   const mid = x + width / 2;
   const outline = `M${x} ${baseY} L${mid} ${topY} L${x + width} ${baseY} Z`;
+
+  // Two mutually-exclusive entrance mechanisms, never both on the same
+  // instance: a static illustration's `state` never changes (always "done"),
+  // so it's revealed via a scroll-gated opacity transition; a real pipeline's
+  // `revealed` is never passed, so each stage instead fades in via
+  // `stage-fill-in` — a mount animation that fires naturally because `key`
+  // forces a remount every time `state` actually changes underneath it.
+  const scrollReveal = revealed !== undefined;
+  const wrapperStyle = scrollReveal ? { transitionDelay: `${delayMs}ms` } : undefined;
+  const wrapperClass = scrollReveal
+    ? `transition-opacity duration-base ease-out motion-reduce:transition-none motion-reduce:!opacity-100 ${revealed ? "opacity-100" : "opacity-0"}`
+    : undefined;
+
   if (state === "done") {
-    return <path d={outline} fill={fill} />;
+    return (
+      <g key={state} style={wrapperStyle} className={[wrapperClass, !scrollReveal && "stage-fill-in motion-reduce:animate-none"].filter(Boolean).join(" ")}>
+        <path d={outline} fill={fill} />
+      </g>
+    );
   }
   if (state === "active") {
     const inset = width * 0.25;
     const innerTopY = topY + (baseY - topY) * 0.5;
     return (
-      <>
+      <g key={state} style={wrapperStyle} className={[wrapperClass, !scrollReveal && "stage-fill-in motion-reduce:animate-none"].filter(Boolean).join(" ")}>
         <path d={outline} fill="none" stroke={fill} strokeWidth="2" />
         <path d={`M${x + inset} ${baseY} L${mid} ${innerTopY} L${x + width - inset} ${baseY} Z`} fill={fill} />
-      </>
+      </g>
     );
   }
-  return <path d={outline} fill="none" stroke="var(--line-strong)" strokeWidth="2" />;
+  return (
+    <g key={state} style={wrapperStyle} className={wrapperClass}>
+      <path d={outline} fill="none" stroke="var(--line-strong)" strokeWidth="2" />
+    </g>
+  );
 }
 
-export default function SaduBand({ tone = "accent", size = "default", className, ariaLabel, ...props }: Props) {
+export default function SaduBand({ tone = "accent", size = "default", className, ariaLabel, revealed, ...props }: Props) {
   const { t, dir } = useLang();
   const stages = props.stages ?? stagesFromDone(props.done, props.total ?? 6);
   const { width: stageWidth, gap, topY, baseY, height } = GEOMETRY[size];
@@ -103,6 +138,8 @@ export default function SaduBand({ tone = "accent", size = "default", className,
             width={stageWidth}
             topY={topY}
             baseY={baseY}
+            revealed={revealed}
+            delayMs={staggerDelayMs(i)}
           />
         );
       })}

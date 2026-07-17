@@ -1,0 +1,38 @@
+Osama here — closing the backend data-layer gap that blocks the redesigned frontend from
+showing real data (per the 2026-07-16 handoff). Read architecture.md §4, CONVENTIONS.md,
+models.py, backend/routers/*.py, backend/main.py, and the data/generate_synthetic_data.py
+"SCHEMA KNOBS" comment block FIRST. Environment: Replit/Linux, DATABASE_URL = Supabase IPv4
+session pooler.
+
+⚠️ ENUM MISMATCH TO RECONCILE FIRST (source of truth = the LIVE DB, confirmed in
+generate_synthetic_data.py): the live applications.status enum is
+  draft, processing, review_ready, approved, rejected, more_info_needed
+There is NO "submitted" and it's "more_info_needed", NOT "info_requested". models.py's
+ApplicationStatus Literal and architecture.md §4 currently disagree with the DB and will
+cause write failures. Reconcile models.py + architecture.md §4 to the LIVE enum values in
+THIS commit. Do not invent a migration to change the enum — match the code to the DB.
+
+TASKS:
+
+1. SMEProfile read/write endpoints. Add GET /api/v1/me/profile (returns the caller's
+   SMEProfile from models.py) and PATCH /api/v1/me/profile (updates name, sector, district,
+   established_year, and any editable business fields; cr_number read-only). Enforce role=sme
+   + ownership; standard error shape { "error": { "code", "message" } }.
+
+2. Application financing fields. Write migration supabase/migrations/004_application_financing_fields.sql
+   (idempotent, add column if not exists): amount numeric, purpose text, term_months int,
+   description text on public.applications. Then: add these to the application model in
+   models.py; accept them in the POST /api/v1/applications body; surface `amount` in the bank
+   queue response (GET /bank/applications) and the bank detail response (GET /bank/applications/{id}).
+
+3. Lifecycle transition. In POST /api/v1/applications/{id}/process's background task, on
+   LangGraph completion, transition the application processing -> review_ready in the DB (so the
+   SME review phase is real reload-safe server state, not client-derived). Add the one-line note
+   to architecture.md §4.
+
+4. Same-commit doc hygiene (CONVENTIONS rule): update architecture.md §4 + models.py together
+   for all of the above.
+
+Add/extend DB/LLM-free tests where practical (endpoint shape, ownership 403, model validation).
+Don't run a full live E2E yourself — the user does that in Prompt 4. Report every file changed
+and the exact migration command to run (psql / Supabase SQL editor).

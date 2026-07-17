@@ -48,6 +48,7 @@ def _uploaded(document_id: str) -> UploadedFile:
 def _state(*document_ids: str) -> ApplicationState:
     return ApplicationState(
         application_id="app-1",
+        status="processing",
         sme_profile=SMEProfile(id="sme-1", company_name="Acme", cr_number="1010", sector="logistics", district="Al-Kharj"),
         raw_documents=[_uploaded(d) for d in document_ids],
         extracted_documents=[],

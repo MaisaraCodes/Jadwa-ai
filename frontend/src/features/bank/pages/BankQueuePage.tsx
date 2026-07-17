@@ -3,9 +3,8 @@
 // "Queue": a KPI strip derived client-side from the list, then a dense
 // hairline table with a sticky header.
 //
-// PENDING BACKEND: BankApplicationSummaryItem has no amount field (see
-// types.ts) — the Amount column shows a neutral placeholder, never a
-// fabricated figure.
+// Amount column reads BankApplicationSummaryItem.amount (now real; see
+// backend/routers/bank.py and migration 004).
 import { useNavigate } from "react-router-dom";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLang } from "../../../i18n/LangProvider";
@@ -15,8 +14,10 @@ import MetricTile from "../../../components/MetricTile";
 import StatusPill, { type StatusTone } from "../../../components/StatusPill";
 import Card from "../../../components/Card";
 import Button from "../../../components/Button";
+import Skeleton from "../../../components/Skeleton";
+import { useReveal, staggerDelayMs } from "../../../lib/motion";
 
-const FORENSIC_TONE: Record<BankApplicationSummaryItem["forensic_status"], StatusTone> = {
+const FORENSIC_TONE: Record<NonNullable<BankApplicationSummaryItem["forensic_status"]>, StatusTone> = {
   green: "pass",
   yellow: "review",
   red: "flag",
@@ -24,7 +25,6 @@ const FORENSIC_TONE: Record<BankApplicationSummaryItem["forensic_status"], Statu
 
 export default function BankQueuePage() {
   const { t } = useLang();
-  const navigate = useNavigate();
 
   const [applications, setApplications] = useState<BankApplicationSummaryItem[] | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -76,7 +76,7 @@ export default function BankQueuePage() {
       </div>
 
       {kpis && (
-        <div className="mt-6 grid grid-cols-2 gap-3.5 sm:grid-cols-4">
+        <div className="page-fade mt-6 grid grid-cols-2 gap-3.5 sm:grid-cols-4">
           <MetricTile label={t("bank.queue.kpi.inQueue")}>
             <span className="text-2xl font-semibold tabular-nums text-ink">{kpis.inQueue}</span>
           </MetricTile>
@@ -99,7 +99,21 @@ export default function BankQueuePage() {
       )}
 
       {applications === null && !loadError && (
-        <Card className="mt-6 py-6 text-center text-[13px] text-text-2">{t("bank.queue.loading")}</Card>
+        <div className="mt-6 overflow-hidden rounded-2xl border border-line bg-surface" role="status">
+          <span className="sr-only">{t("bank.queue.loading")}</span>
+          <div aria-hidden="true">
+            {[0, 1, 2, 3, 4].map((i) => (
+              <div key={i} className="flex items-center gap-4 border-b border-line px-4 py-3.5 last:border-b-0">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="ms-auto h-5 w-16 rounded-full" />
+                <Skeleton className="h-4 w-16" />
+                <Skeleton className="h-4 w-10" />
+              </div>
+            ))}
+          </div>
+        </div>
       )}
 
       {loadError && (
@@ -144,47 +158,56 @@ export default function BankQueuePage() {
               </tr>
             </thead>
             <tbody>
-              {applications.map((app) => {
-                const to = `/bank/applications/${app.application_id}`;
-                const goToDetail = () => navigate(to, { state: { submittedAt: app.submitted_at } });
-                return (
-                  <tr
-                    key={app.application_id}
-                    tabIndex={0}
-                    role="link"
-                    onClick={goToDetail}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") goToDetail();
-                    }}
-                    className="cursor-pointer transition-colors last:[&>td]:border-b-0 hover:bg-surface-2 focus:outline-none focus-visible:bg-surface-2 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
-                  >
-                    <td className="border-b border-line px-4 py-3 font-medium text-ink">{app.sme_name}</td>
-                    <td className="border-b border-line px-4 py-3 text-text-2">{app.sector}</td>
-                    <td className="border-b border-line px-4 py-3 tabular-nums text-text-2" dir="ltr">
-                      {app.submitted_at.slice(0, 10)}
-                    </td>
-                    <td className="border-b border-line px-4 py-3">
-                      <StatusPill tone={FORENSIC_TONE[app.forensic_status]}>
-                        {t(`forensic.status.${app.forensic_status}`)}
-                      </StatusPill>
-                    </td>
-                    <td
-                      className="border-b border-line px-4 py-3 text-end tabular-nums text-text-3"
-                      dir="ltr"
-                      title={t("bank.queue.amountPendingTooltip")}
-                    >
-                      —
-                    </td>
-                    <td className="border-b border-line px-4 py-3 text-end font-semibold tabular-nums text-ink" dir="ltr">
-                      {app.business_model_score ?? "—"}
-                    </td>
-                  </tr>
-                );
-              })}
+              {applications.map((app, index) => (
+                <QueueRow key={app.application_id} app={app} index={index} />
+              ))}
             </tbody>
           </table>
         </div>
       )}
     </section>
+  );
+}
+
+function QueueRow({ app, index }: { app: BankApplicationSummaryItem; index: number }) {
+  const { t } = useLang();
+  const navigate = useNavigate();
+  const { ref, revealed } = useReveal<HTMLTableRowElement>();
+
+  const to = `/bank/applications/${app.application_id}`;
+  const goToDetail = () => navigate(to, { state: { submittedAt: app.submitted_at } });
+
+  return (
+    <tr
+      ref={ref}
+      data-revealed={revealed}
+      tabIndex={0}
+      role="link"
+      onClick={goToDetail}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") goToDetail();
+      }}
+      style={{ transitionDelay: `${staggerDelayMs(index)}ms` }}
+      className="reveal-fade cursor-pointer transition-[opacity,background-color] duration-base ease-out last:[&>td]:border-b-0 hover:bg-surface-2 focus:outline-none focus-visible:bg-surface-2 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent motion-reduce:transition-none"
+    >
+      <td className="border-b border-line px-4 py-3 font-medium text-ink">{app.sme_name}</td>
+      <td className="border-b border-line px-4 py-3 text-text-2">{app.sector}</td>
+      <td className="border-b border-line px-4 py-3 tabular-nums text-text-2" dir="ltr">
+        {app.submitted_at.slice(0, 10)}
+      </td>
+      <td className="border-b border-line px-4 py-3">
+        {app.forensic_status === null ? (
+          <StatusPill tone="neutral" dot={false}>{t("forensic.status.pending")}</StatusPill>
+        ) : (
+          <StatusPill tone={FORENSIC_TONE[app.forensic_status]}>{t(`forensic.status.${app.forensic_status}`)}</StatusPill>
+        )}
+      </td>
+      <td className="border-b border-line px-4 py-3 text-end tabular-nums text-text-2" dir="ltr">
+        {app.amount != null ? app.amount.toLocaleString("en-US") : "—"}
+      </td>
+      <td className="border-b border-line px-4 py-3 text-end font-semibold tabular-nums text-ink" dir="ltr">
+        {app.business_model_score ?? "—"}
+      </td>
+    </tr>
   );
 }

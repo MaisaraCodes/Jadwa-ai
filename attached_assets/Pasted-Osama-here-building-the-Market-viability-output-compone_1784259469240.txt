@@ -1,0 +1,43 @@
+Osama here — building the Market viability output component (Saudi Market Oracle verdict UI on the bank dashboard). Read docs/architecture.md §1 and §4, docs/schema_mapping.md §2 (Node 4 — saudi_market_oracle_node), backend/models.py (MarketVerdict + ApplicationRecord), DESIGN_SYSTEM.md, and follow CONVENTIONS.md.
+
+STEP 0 — INVESTIGATE FIRST, DO NOT CODE YET
+Before writing any component, do the following and REPORT it back in section A of your final output:
+1. Search the frontend for any existing MarketVerdictCard, MarketOracleCard, MarketViabilityCard, or similarly named component. Report: path + current state (real / stub / placeholder / none).
+2. Open the bank application detail page that already renders ForensicReportCard and WeaknessReportCard. Report its path.
+3. Confirm the page fetches the whole application in ONE call (GET /api/v1/bank/applications/{id}) returning unified_application_record — and that market_verdict is already in that payload, just not rendered. Report the exact hook / selector used to read the other two reports (so you copy that pattern).
+
+Only after reporting the above, implement.
+
+TASK
+Build the MarketVerdictCard component and wire it into the bank application detail page, next to ForensicReportCard and WeaknessReportCard. It reads market_verdict from the already-fetched unified_application_record. NO new API call. NO backend changes.
+
+REQUIREMENTS (design + behavior)
+1. Data contract — import the MarketVerdict TypeScript type from the shared types file (mirror of models.py). Do NOT redefine the shape. Fields to render: sector_trend ("growing" | "stable" | "declining"), district_saturation ("low" | "medium" | "high"), oracle_insight (string), sources_cited (string[]).
+2. Layout — same card structure as ForensicReportCard and WeaknessReportCard: bg-surface, border border-line, rounded-xl, p-4, semantic-token colors only, no hardcoded hex. Match their heading style + spacing exactly.
+3. Two badges at the top: sector trend + district saturation, using the neutral lifecycle-pill style from DESIGN_SYSTEM §8.6 (bg-surface-2 text-text-2 border border-line). Do NOT use pass/review/flag tokens — those are RESERVED for ForensicStatus per DESIGN_SYSTEM §4.1. The market verdict is informational, not a fraud verdict.
+4. Icons for each trend: use lucide-react (or whatever icon lib the other cards use — match them). Growing = trending-up, stable = minus, declining = trending-down. Small, aria-hidden, decorative only.
+5. oracle_insight rendered as body prose (Alexandria, leading-[1.9] for Arabic per DESIGN_SYSTEM §3.2). Do NOT truncate.
+6. sources_cited — small list under a "Sources" label (text-label text-text-2 style). Each source a plain string, no fake links unless a URL is present in the string.
+7. Empty / partial states — market_verdict may be null (Oracle node hasn't run, or graph ran with data limits). Handle: render a compact "Market verdict unavailable — Oracle has not yet run for this application" line in the same card frame. Do NOT hide the card entirely. If sources_cited is [], omit the Sources section quietly.
+8. RTL — logical Tailwind utilities only (ms/me/ps/pe/start/end/border-s/text-start), per DESIGN_SYSTEM §7. Test the component renders correctly with dir="rtl" AND dir="ltr".
+9. Dark + light — every color via semantic tokens (bg-surface, text-ink, text-text-2, border-line, etc.). Mental test: at near-black background, is every text element still readable?
+10. Accessibility — decorative icons aria-hidden="true"; the card gets a proper heading (h3 or matching existing card level).
+11. NO framer-motion, NO animation, NO new dependencies unless the existing cards already use them.
+
+WIRE-UP
+Insert MarketVerdictCard into the bank application detail page in the same visual group as ForensicReportCard + WeaknessReportCard. Match their vertical order + gap. No routing changes, no new tab.
+
+OUT OF SCOPE
+Risk Sandbox UI, PDF download, any Phase 4 work, ANY backend change, the SME portal side. Bank dashboard only.
+
+WHEN DONE, output the following back to me verbatim:
+A. Investigation report (step 0, all 3 items).
+B. Files created/modified (paths).
+C. Full final source of MarketVerdictCard.
+D. The single line/block added to the detail page to render it.
+E. Confirm ForensicStatus tokens (pass/review/flag) are NOT used in this card.
+F. Confirm no new API call and no backend change.
+G. RTL check: paste the exact utility class list you used and confirm zero physical utilities (no ml/mr/pl/pr/left/right/text-left).
+H. Null-verdict handling: paste the empty-state block.
+I. Any deviation from DESIGN_SYSTEM.md or CONVENTIONS.md, or any assumption.
+J. Screenshot description (LTR + RTL, light + dark, valid verdict + null verdict — 4 states in words, since you can't attach images).

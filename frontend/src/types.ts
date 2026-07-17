@@ -78,8 +78,7 @@ export type ApplicationStatus =
 // Mirrors backend routers/*.py GET /me (architecture.md §4 "Shared") — the
 // only endpoint that returns anything about the signed-in user themselves.
 // It has no business-specific fields (company_name, cr_number, sector,
-// district) — those stay PENDING BACKEND until a real SME profile endpoint
-// ships; never fabricate them from this shape.
+// district) — full profile comes from GET /api/v1/me/profile (SMEProfile).
 export interface Me {
   user_id: string;
   role: "sme" | "bank";
@@ -93,6 +92,18 @@ export interface SMEProfile {
   sector: string;
   district: string;
   user_id: string | null;
+  established_year?: number | null;
+  backstory?: string | null;
+}
+
+// Mirrors backend routers/profile.py PatchProfileRequest — cr_number is
+// intentionally absent (server enforces read-only; omit it from all PATCH calls).
+export interface PatchProfileRequest {
+  company_name?: string;
+  sector?: string;
+  district?: string;
+  established_year?: number | null;
+  backstory?: string | null;
 }
 
 export interface WeaknessReport {
@@ -115,6 +126,35 @@ export interface RiskBaseline {
   recommended_interest_rate: number;
 }
 
+// Mirrors backend/models.py ScenarioDeltas / RiskProjection / RiskClass — the
+// Risk Sandbox contract (architecture.md §3/§4). The client sends ONLY deltas
+// (fractions: 0.20 = +20%); the risk_baseline never leaves the server. Do not
+// redefine these shapes elsewhere.
+export type RiskClass = "low" | "medium" | "high";
+
+export interface ScenarioDeltas {
+  revenue_growth: number;
+  cost_increase: number;
+  customer_churn: number;
+  demand_shift: number;
+  interest_rate: number;
+  oil_price_sensitivity: number;
+}
+
+export interface RiskProjection {
+  months: string[]; // 12 labels
+  cash_flow: number[]; // 12 projected values, same order as months
+  risk_score: number;
+  risk_class: RiskClass;
+  summary_line: string;
+}
+
+// POST /bank/applications/:id/sandbox/recalculate request/response
+// (routers/bank.py SandboxRequest / SandboxResponse).
+export interface SandboxRecalculateResponse {
+  projection: RiskProjection;
+}
+
 // Mirrors backend routers/applications.py's ApplicationSummaryItem
 // (GET /applications — the SME's own applications list).
 export interface ApplicationSummaryItem {
@@ -122,6 +162,7 @@ export interface ApplicationSummaryItem {
   status: ApplicationStatus;
   created_at: string; // ISO datetime
   document_count: number;
+  amount: number | null;
 }
 
 // Mirrors backend routers/applications.py DTOs for the application detail
@@ -162,16 +203,18 @@ export interface DecisionResponse {
 }
 
 // Mirrors backend routers/bank.py GET /bank/applications (architecture.md §4
-// "the pre-scored queue"). No amount field — requested amount is PENDING
-// BACKEND everywhere in the bank portal, never fabricated.
+// "the pre-scored queue").
 export interface BankApplicationSummaryItem {
   application_id: string;
   sme_name: string;
   sector: string;
   district: string;
   submitted_at: string; // ISO datetime
-  forensic_status: ForensicStatus;
+  // null until the Phase-2 agents have scored the application (backend
+  // routers/bank.py returns forensic_report.overall_status or None).
+  forensic_status: ForensicStatus | null;
   business_model_score: number | null;
+  amount: number | null;
 }
 
 export interface BankApplicationDetail {
@@ -183,4 +226,5 @@ export interface BankApplicationDetail {
   weakness_report: WeaknessReport | null;
   market_verdict: MarketVerdict | null;
   risk_baseline: RiskBaseline | null;
+  amount: number | null;
 }

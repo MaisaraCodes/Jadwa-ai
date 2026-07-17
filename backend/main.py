@@ -16,7 +16,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from core.errors import APIError, api_error_handler
-from routers import applications, bank, documents, shared
+from routers import applications, bank, documents, profile, shared
 
 
 def create_app() -> FastAPI:
@@ -27,6 +27,11 @@ def create_app() -> FastAPI:
         for o in os.environ.get("CORS_ORIGINS", "http://localhost:5173").split(",")
         if o.strip()
     ]
+    # On Replit, requests come through the proxied dev domain — allow it automatically.
+    replit_dev = os.environ.get("REPLIT_DEV_DOMAIN")
+    if replit_dev:
+        origins.append(f"https://{replit_dev}")
+        origins.append(f"http://{replit_dev}")
     app.add_middleware(
         CORSMiddleware,
         allow_origins=origins,
@@ -37,6 +42,7 @@ def create_app() -> FastAPI:
 
     app.add_exception_handler(APIError, api_error_handler)
     app.include_router(shared.router)
+    app.include_router(profile.router)
     app.include_router(applications.router)
     app.include_router(bank.router)
     app.include_router(documents.router)

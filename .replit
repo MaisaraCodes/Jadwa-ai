@@ -1,11 +1,77 @@
+modules = ["python-3.12", "nodejs-20", "web"]
+[agent]
+expertMode = true
+
+[nix]
+channel = "stable-25_05"
+
+[userenv]
+
+[userenv.shared]
+CORS_ORIGINS = "http://localhost:5173,http://localhost:5000,https://dedb382e-633b-4a22-99df-fb153eead8c4-00-13n5eebfx8uso.sisko.replit.dev,https://dedb382e-633b-4a22-99df-fb153eead8c4-00-13n5eebfx8uso.sisko.replit.dev:5000"
+EMBEDDING_DIMENSIONS = "1536"
+ENABLE_MOCK_OPEN_BANKING = "true"
+ENV = "development"
+HOST = "0.0.0.0"
+LANGCHAIN_ENDPOINT = "https://api.smith.langchain.com"
+LANGCHAIN_PROJECT = "jadwa-ai-agents"
+LANGCHAIN_TRACING_V2 = "false"
+OPENAI_EMBEDDING_MODEL = "text-embedding-3-large"
+OPENAI_MODEL = "gpt-4o"
+OPENAI_MODEL_MINI = "gpt-4o-mini"
+OPENAI_MODEL_VISION = "gpt-4o"
+PORT = "8000"
+SUPABASE_STORAGE_BUCKET = "application-documents"
+VITE_API_BASE_URL = "/api/v1"
+VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxzbW1tbWFnaXppbnlyZ3VldGRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyMTcyNTcsImV4cCI6MjA5Nzc5MzI1N30.doz8b5D4Vvv5AYSmVrPMT6BTahef1ndaGki4EhV2f-E"
+VITE_SUPABASE_URL = "https://lsmmmmagizinyrguetde.supabase.co"
+SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxzbW1tbWFnaXppbnlyZ3VldGRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyMTcyNTcsImV4cCI6MjA5Nzc5MzI1N30.doz8b5D4Vvv5AYSmVrPMT6BTahef1ndaGki4EhV2f-E"
+SUPABASE_URL = "https://lsmmmmagizinyrguetde.supabase.co"
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Backend API"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start application"
+
+[[workflows.workflow]]
+name = "Backend API"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd backend && uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
+waitForPort = 8000
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[workflows.workflow]]
+name = "Start application"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd frontend && npm install --silent && npm run dev"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
 [[ports]]
 localPort = 5000
 externalPort = 5000
-exposeLocalhost = true
 
 [[ports]]
 localPort = 8000
 externalPort = 80
-
-[agent]
-expertMode = true

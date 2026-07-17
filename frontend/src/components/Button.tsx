@@ -35,7 +35,10 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
       ref={ref}
       type={type}
       className={[
-        "inline-flex items-center justify-center rounded-lg font-medium transition-colors motion-reduce:transition-none",
+        // Explicit property list (not transition-colors) so the disabled-state
+        // opacity change (DESIGN_SYSTEM.md motion pass item 6, "smooth the
+        // decision-bar disabling") animates too, not just color/background/border.
+        "inline-flex items-center justify-center rounded-lg font-medium transition-[color,background-color,border-color,opacity] duration-base ease-out motion-reduce:transition-none",
         "disabled:cursor-not-allowed disabled:opacity-50",
         "focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
         SIZE_CLASSES[size],

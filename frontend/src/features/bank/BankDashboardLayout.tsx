@@ -4,6 +4,7 @@
 import { Outlet } from "react-router-dom";
 import { useLang } from "../../i18n/LangProvider";
 import PortalHeader from "../../components/PortalHeader";
+import PageFade from "../../components/PageFade";
 
 export default function BankDashboardLayout() {
   const { t } = useLang();
@@ -18,7 +19,9 @@ export default function BankDashboardLayout() {
       <PortalHeader label={t("bank.dashboardLabel")} nav={nav} containerClassName="max-w-[1200px]" homeTo="/bank" />
 
       <main className="mx-auto max-w-[1200px] px-4 py-8">
-        <Outlet />
+        <PageFade>
+          <Outlet />
+        </PageFade>
       </main>
     </div>
   );

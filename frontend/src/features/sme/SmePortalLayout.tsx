@@ -6,6 +6,7 @@
 import { Outlet } from "react-router-dom";
 import { useLang } from "../../i18n/LangProvider";
 import PortalHeader from "../../components/PortalHeader";
+import PageFade from "../../components/PageFade";
 
 export default function SmePortalLayout() {
   const { t } = useLang();
@@ -21,7 +22,9 @@ export default function SmePortalLayout() {
       <PortalHeader label={t("sme.portalLabel")} nav={nav} containerClassName="max-w-[1080px]" homeTo="/sme" />
 
       <main className="mx-auto max-w-[1080px] px-[18px] py-6 sm:py-10">
-        <Outlet />
+        <PageFade>
+          <Outlet />
+        </PageFade>
       </main>
     </div>
   );

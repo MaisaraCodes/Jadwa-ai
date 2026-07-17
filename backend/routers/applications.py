@@ -9,7 +9,7 @@ SME portal — application lifecycle (docs/API_CONTRACT.md).
     PATCH /api/v1/applications/{id}/documents/{document_id}     REAL
     POST  /api/v1/applications/{id}/submit                      REAL
     GET   /api/v1/applications/{id}/summary                     STUB
-    GET   /api/v1/applications/{id}/pdf                          STUB
+    GET   /api/v1/applications/{id}/pdf                          REAL
 
 Ownership resolves auth user -> sme_profiles row -> applications.sme_profile_id, same
 pattern (and the same helpers) as routers/documents.py — imported from there rather than
@@ -32,13 +32,14 @@ from core.errors import APIError
 from core.orchestrator import run_pipeline
 from core.pipeline import ALL_NODES, TERMINAL_STATUSES
 from core.supabase import get_service_client
-from models import ApplicationStatus, DocumentJSON, WeaknessReport
+from models import ApplicationFinancing, ApplicationStatus, DocumentJSON, WeaknessReport
 from routers.documents import (
     APPLICATIONS_ID_COL,
     APPLICATIONS_OWNER_COL,
     APPLICATIONS_TABLE,
     _assert_owned_application,
     _caller_profile_id,
+    _signed_url,
 )
 
 AGENT_RESULTS_TABLE = "agent_results"
@@ -50,6 +51,11 @@ router = APIRouter(prefix="/api/v1/applications", tags=["applications"])
 # --- request/response DTOs (shapes not already in models.py) ---------------
 class CreateApplicationRequest(BaseModel):
     requested_amount: float | None = None
+    # financing detail fields (migration 004)
+    amount: float | None = None
+    purpose: str | None = None
+    term_months: int | None = None
+    description: str | None = None
 
 
 class CreateApplicationResponse(BaseModel):
@@ -62,6 +68,7 @@ class ApplicationSummaryItem(BaseModel):
     status: ApplicationStatus
     created_at: str
     document_count: int
+    amount: float | None = None
 
 
 class ListApplicationsResponse(BaseModel):
@@ -147,6 +154,11 @@ async def create_application(
                     APPLICATIONS_OWNER_COL: profile_id,
                     "requested_amount": body.requested_amount or 0,
                     "status": "draft",
+                    # financing fields — NULL when not supplied
+                    "amount": body.amount,
+                    "purpose": body.purpose,
+                    "term_months": body.term_months,
+                    "description": body.description,
                 }
             )
             .execute()
@@ -168,7 +180,7 @@ async def list_applications(principal: Principal = Depends(require_sme)) -> List
 
     res = (
         svc.table(APPLICATIONS_TABLE)
-        .select(f"{APPLICATIONS_ID_COL},status,created_at")
+        .select(f"{APPLICATIONS_ID_COL},status,created_at,amount")
         .eq(APPLICATIONS_OWNER_COL, profile_id)
         .order("created_at", desc=True)
         .execute()
@@ -194,6 +206,7 @@ async def list_applications(principal: Principal = Depends(require_sme)) -> List
             status=a["status"],
             created_at=str(a["created_at"]),
             document_count=counts.get(str(a[APPLICATIONS_ID_COL]), 0),
+            amount=a.get("amount"),
         )
         for a in apps
     ]
@@ -363,6 +376,13 @@ async def application_pdf(
     svc = get_service_client()
     _assert_owned_application(svc, application_id, principal.user_id)
 
-    # STUB — Phase-4 PDF builder writes applications.final_pdf_url; null until then.
+    # application_builder_node stores the bare Storage object path (migration 005),
+    # not a URL — same convention as application_documents.file_url. Sign it here,
+    # the same way the upload response does, so the contract's "signed Supabase
+    # Storage URL" (architecture.md §4) is what actually goes out. Still null when
+    # the graph has not run for this application yet.
     app = _get_application(svc, application_id)
-    return PdfResponse(pdf_url=app.get("final_pdf_url"))
+    storage_path = app.get("final_pdf_url")
+    if not storage_path:
+        return PdfResponse(pdf_url=None)
+    return PdfResponse(pdf_url=_signed_url(svc, storage_path))

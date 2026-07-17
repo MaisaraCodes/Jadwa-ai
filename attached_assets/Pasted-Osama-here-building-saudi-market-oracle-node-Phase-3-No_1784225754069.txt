@@ -1,0 +1,64 @@
+Osama here — building saudi_market_oracle_node (Phase 3, Node 4). Read architecture.md §1
+(node table + fan-out), schema_mapping.md (Node 4), CONVENTIONS.md, models.py, and READ THE
+EXISTING backend/nodes/forensic/ AND backend/nodes/devils_advocate/ AND backend/core/graph.py
+FIRST — mirror their structure, DB-access, LLM-wrapper use, and fallback pattern exactly.
+Environment: Replit/Linux, run with `python`; DATABASE_URL is the Supabase IPv4 Session Pooler.
+
+CORPUS IS ALREADY INGESTED AND VERIFIED — 2,150 rows in market_knowledge_base with REAL
+columns (migration 003 applied): content (clean Arabic chunk text), embedding vector(1536),
+source_agency, source_filename, citation, chunk_index. `sector` is NULL on every row —
+DO NOT filter on it (these are general regulator reports; a sector WHERE clause would drop
+everything). Retrieval is pure vector similarity.
+
+GOAL: replace the saudi_market_oracle stub with a real RAG node at
+backend/nodes/saudi_market_oracle/. Reads sme_profile.sector + sme_profile.district from
+graph state; writes ONLY market_verdict (models.py MarketVerdict — DO NOT redefine it).
+
+STRUCTURE (mirror the DA/forensic node):
+- retrieve.py — pure-Python retrieval. Build a query string from sector + district, embed it
+  with core.llm.embed(...) (text-embedding-3-large, dimensions=1536 — the SAME helper the
+  ingest used, so vectors match). Open a psycopg2 connection the SAME way the forensic node
+  reads its ledger (os.environ['DATABASE_URL']). Run pgvector cosine similarity with NO sector
+  filter:
+    SELECT content, source_agency, citation,
+           1 - (embedding <=> %s::vector) AS score
+    FROM market_knowledge_base
+    ORDER BY embedding <=> %s::vector
+    LIMIT %s            -- TOP_K module constant, default 6
+  Pass the query embedding as a pgvector literal ('[' + ','.join(...) + ']'), same format the
+  ingest used. Return top-k rows as dicts with content + citation + score.
+- verdict.py — assembly:
+    * PRETTIFY source labels: the stored source_agency/citation use raw folder names
+      (Sama, Moc, Monshaat, fsdp, hrsd, Simah, Gastat, Kafalah). Map them to display form
+      for citations: Sama→SAMA, Moc→MoC, Monshaat→Monsha'at, fsdp→FSDP, hrsd→HRSD,
+      Simah→SIMAH, Gastat→GASTAT, Kafalah→Kafalah. Apply when building sources_cited.
+    * sources_cited: built DETERMINISTICALLY in Python from the retrieved rows' citation
+      values (prettified), deduped, order-preserved. The LLM NEVER invents citations.
+    * ONE GPT-4-mini call via the existing llm wrapper (the mini model the wrapper already
+      uses), grounded STRICTLY in the retrieved chunk text, returning JSON ONLY:
+      sector_trend (growing|stable|declining), district_saturation (low|medium|high),
+      oracle_insight (2–3 sentences naming the sources). Prompt in English; chunk content
+      is Arabic — that's fine, do not translate it. Parse + validate into MarketVerdict.
+- __init__.py — exposes saudi_market_oracle_node(state) -> {"market_verdict": MarketVerdict}.
+
+FALLBACK (required, like DA/forensic): if retrieval returns nothing, OR the LLM raises
+LLMError, OR the JSON fails to parse/validate → return a deterministic honest MarketVerdict:
+sector_trend="stable", district_saturation="medium", oracle_insight plainly stating there is
+insufficient grounded market data for this sector/district, sources_cited from whatever was
+retrieved (may be empty). NEVER crash the graph.
+
+FRAMING in all code/comments/prompts: retrieval-augmented — "grounded in / retrieves / cites",
+NEVER "trained on".
+
+WIRING: in backend/core/graph.py replace the oracle stub, keeping the EXACT fan-out already
+used for forensic/devils_advocate (dispatch -> saudi_market_oracle_node -> aggregate).
+LangGraph joins automatically; don't hand-write wait logic.
+
+TESTS (DB/LLM-free, mirror the DA test style, in backend/tests/): mock retrieve + the llm
+wrapper — NO live DB, NO real OpenAI. Cover: (1) happy path → valid MarketVerdict;
+(2) sources_cited deduped, prettified, drawn ONLY from retrieved citations never the LLM;
+(3) empty-retrieval fallback; (4) LLMError fallback; (5) malformed-JSON fallback;
+(6) output validates against models.py MarketVerdict.
+
+Run the full existing suite + new tests, confirm all green. Report every file changed.
+Do NOT run the live graph yourself — the user verifies end-to-end.

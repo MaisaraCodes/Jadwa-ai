@@ -15,7 +15,11 @@ import type {
   DocumentJSON,
   Me,
   PatchDocumentRequest,
+  PatchProfileRequest,
   ProcessResponse,
+  SandboxRecalculateResponse,
+  ScenarioDeltas,
+  SMEProfile,
   SubmitResponse,
   UploadedDocument,
 } from "../types";
@@ -119,14 +123,37 @@ export function getMe(): Promise<Me> {
   return authedJson(`/me`);
 }
 
+export function getProfile(): Promise<SMEProfile> {
+  return authedJson(`/me/profile`);
+}
+
+export function patchProfile(patch: PatchProfileRequest): Promise<SMEProfile> {
+  return authedJson(`/me/profile`, {
+    method: "PATCH",
+    body: JSON.stringify(patch),
+  });
+}
+
 export function listApplications(): Promise<{ applications: ApplicationSummaryItem[] }> {
   return authedJson(`/applications`);
 }
 
-export function createApplication(requestedAmount?: number): Promise<CreateApplicationResponse> {
+export interface CreateApplicationParams {
+  amount?: number;
+  purpose?: string;
+  term_months?: number;
+  description?: string;
+}
+
+export function createApplication(params?: CreateApplicationParams): Promise<CreateApplicationResponse> {
   return authedJson(`/applications`, {
     method: "POST",
-    body: JSON.stringify({ requested_amount: requestedAmount ?? null }),
+    body: JSON.stringify({
+      amount: params?.amount ?? null,
+      purpose: params?.purpose ?? null,
+      term_months: params?.term_months ?? null,
+      description: params?.description ?? null,
+    }),
   });
 }
 
@@ -151,7 +178,7 @@ export function getExtractedDocuments(applicationId: string): Promise<{ document
 }
 
 export function listBankApplications(): Promise<{ applications: BankApplicationSummaryItem[] }> {
-  return authedJson(`/bank/applications?status=submitted&sort=submitted_at&order=desc`);
+  return authedJson(`/bank/applications?status=review_ready&sort=submitted_at&order=desc`);
 }
 
 export function getBankApplication(applicationId: string): Promise<BankApplicationDetail> {
@@ -166,6 +193,24 @@ export function decideApplication(
   return authedJson(`/bank/applications/${applicationId}/decision`, {
     method: "POST",
     body: JSON.stringify({ decision, note: note || undefined }),
+  });
+}
+
+// Signed URL for the final generated PDF report; pdf_url is null while the
+// graph has not produced a report for this application yet.
+export function getBankApplicationPdf(applicationId: string): Promise<{ pdf_url: string | null }> {
+  return authedJson(`/bank/applications/${applicationId}/pdf`);
+}
+
+// Risk Sandbox (architecture.md §3/§4). The body carries ONLY deltas — the
+// risk_baseline is loaded server-side and never travels either direction.
+export function recalculateSandbox(
+  applicationId: string,
+  deltas: ScenarioDeltas,
+): Promise<SandboxRecalculateResponse> {
+  return authedJson(`/bank/applications/${applicationId}/sandbox/recalculate`, {
+    method: "POST",
+    body: JSON.stringify({ deltas }),
   });
 }
 

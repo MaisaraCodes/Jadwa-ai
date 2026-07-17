@@ -7,12 +7,10 @@
 // Layout matches design-mocks/jadwa_sme_screens.html "Dashboard": metric strip
 // + rich application cards (mini Sadu progress, amount, lifecycle pill, action).
 //
-// PENDING BACKEND: ApplicationSummaryItem has no `amount` field yet (see
-// types.ts) — the "Total requested" metric and each card's amount are real
-// UI slots with a neutral placeholder, never a fabricated number. Per-card
-// progress IS real: for any "processing" row we additionally call the real
-// GET /applications/:id/status (the same endpoint ApplicationDetailPage
-// polls) to read live nodes_completed — no invented progress either.
+// Amount comes from ApplicationSummaryItem.amount (now real — migration 004
+// and backend/routers/applications.py list handler). "Total requested" sums
+// all non-null amounts. Per-card progress is also real: "processing" rows
+// call GET /applications/:id/status to read live nodes_completed.
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { IconFileUpload, IconPlus } from "@tabler/icons-react";
@@ -25,6 +23,8 @@ import SaduBand from "../../../components/SaduBand";
 import Card from "../../../components/Card";
 import MetricTile from "../../../components/MetricTile";
 import Button from "../../../components/Button";
+import Skeleton from "../../../components/Skeleton";
+import { useReveal, staggerDelayMs } from "../../../lib/motion";
 
 const STAGE_TOTAL = 6;
 
@@ -99,10 +99,15 @@ export default function SmeDashboardPage() {
 
   const metrics = useMemo(() => {
     if (!applications) return null;
+    const withAmount = applications.filter((a) => a.amount != null);
+    const totalRequested = withAmount.length > 0
+      ? withAmount.reduce((sum, a) => sum + (a.amount ?? 0), 0)
+      : null;
     return {
       active: applications.filter((a) => a.status === "draft" || a.status === "processing").length,
       inReview: applications.filter((a) => a.status === "review_ready").length,
       approved: applications.filter((a) => a.status === "approved").length,
+      totalRequested,
     };
   }, [applications]);
 
@@ -120,7 +125,7 @@ export default function SmeDashboardPage() {
       </div>
 
       {metrics && (
-        <div className="mt-6 grid grid-cols-2 gap-3.5 sm:grid-cols-4">
+        <div className="page-fade mt-6 grid grid-cols-2 gap-3.5 sm:grid-cols-4">
           <MetricTile label={t("sme.dashboard.metric.active")}>
             <span className="text-2xl font-semibold tabular-nums text-ink">{metrics.active}</span>
           </MetricTile>
@@ -131,14 +136,40 @@ export default function SmeDashboardPage() {
             <span className="text-2xl font-semibold tabular-nums text-ink">{metrics.approved}</span>
           </MetricTile>
           <MetricTile label={t("sme.dashboard.metric.totalRequested")}>
-            <span className="text-2xl font-semibold tabular-nums text-text-3">—</span>
-            <div className="mt-0.5 text-[11px] font-normal text-text-3">{t("sme.dashboard.metric.totalPending")}</div>
+            {metrics.totalRequested != null ? (
+              <span className="text-2xl font-semibold tabular-nums text-ink" dir="ltr">
+                {metrics.totalRequested.toLocaleString("en-US")}
+              </span>
+            ) : (
+              <>
+                <span className="text-2xl font-semibold tabular-nums text-text-3">—</span>
+                <div className="mt-0.5 text-[11px] font-normal text-text-3">{t("sme.dashboard.metric.totalPending")}</div>
+              </>
+            )}
           </MetricTile>
         </div>
       )}
 
       {applications === null && !loadError && (
-        <Card className="mt-6 py-6 text-center text-[13px] text-text-2">{t("sme.dashboard.loading")}</Card>
+        <div className="mt-6 flex flex-col gap-3.5" role="status">
+          <span className="sr-only">{t("sme.dashboard.loading")}</span>
+          {[0, 1, 2].map((i) => (
+            <Card key={i} className="p-5" aria-hidden="true">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_auto_auto] sm:items-center sm:gap-6">
+                <div className="min-w-0 space-y-2">
+                  <Skeleton className="h-4 w-36" />
+                  <Skeleton className="h-3 w-44" />
+                </div>
+                <Skeleton className="h-11 w-40" />
+                <Skeleton className="h-5 w-20 justify-self-end" />
+              </div>
+              <div className="mt-4 flex items-center justify-between gap-3 border-t border-line pt-3.5">
+                <Skeleton className="h-5 w-24 rounded-full" />
+                <Skeleton className="h-[34px] w-24" />
+              </div>
+            </Card>
+          ))}
+        </div>
       )}
 
       {loadError && (
@@ -163,49 +194,91 @@ export default function SmeDashboardPage() {
 
       {applications !== null && applications.length > 0 && (
         <div className="mt-6 flex flex-col gap-3.5">
-          {applications.map((app) => {
+          {applications.map((app, index) => {
             const { done, actionKey, to } = cardPhase(app, liveStatusById[app.application_id]);
             return (
-              <Card key={app.application_id} className="p-5">
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_auto_auto] sm:items-center sm:gap-6">
-                  <div className="min-w-0">
-                    <div className="truncate text-[17px] font-semibold text-ink">
-                      {t("sme.dashboard.cardTitle")}
-                    </div>
-                    <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[13px] text-text-3">
-                      <span dir="ltr" className="tabular-nums">
-                        {app.created_at.slice(0, 10)}
-                      </span>
-                      <span>·</span>
-                      <span dir="ltr" className="tabular-nums">
-                        {app.document_count}
-                      </span>
-                      <span>{t("sme.dashboard.colDocuments")}</span>
-                    </div>
-                  </div>
-
-                  <SaduBand size="mini" done={done} total={STAGE_TOTAL} />
-
-                  <div className="text-end sm:min-w-[110px]">
-                    <div className="text-[17px] font-semibold tabular-nums text-text-3">—</div>
-                    <div className="text-xs text-text-3">{t("sme.dashboard.amountNotSet")}</div>
-                  </div>
-                </div>
-
-                <div className="mt-4 flex items-center justify-between gap-3 border-t border-line pt-3.5">
-                  <LifecycleStatusPill status={app.status} />
-                  <Link
-                    to={to}
-                    className="inline-flex h-[34px] items-center rounded-lg border border-line-strong px-4 text-sm font-medium text-ink hover:bg-surface-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-                  >
-                    {t(actionKey)}
-                  </Link>
-                </div>
-              </Card>
+              <ApplicationCard
+                key={app.application_id}
+                app={app}
+                index={index}
+                done={done}
+                actionKey={actionKey}
+                to={to}
+              />
             );
           })}
         </div>
       )}
     </section>
+  );
+}
+
+function ApplicationCard({
+  app,
+  index,
+  done,
+  actionKey,
+  to,
+}: {
+  app: ApplicationSummaryItem;
+  index: number;
+  done: number;
+  actionKey: StringKey;
+  to: string;
+}) {
+  const { t } = useLang();
+  const { ref, revealed } = useReveal<HTMLDivElement>();
+
+  return (
+    <Card
+      ref={ref}
+      data-revealed={revealed}
+      className="reveal p-5 hover:border-line-strong"
+      style={{ transitionDelay: `${staggerDelayMs(index)}ms` }}
+    >
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_auto_auto] sm:items-center sm:gap-6">
+        <div className="min-w-0">
+          <div className="truncate text-[17px] font-semibold text-ink">{t("sme.dashboard.cardTitle")}</div>
+          <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[13px] text-text-3">
+            <span dir="ltr" className="tabular-nums">
+              {app.created_at.slice(0, 10)}
+            </span>
+            <span>·</span>
+            <span dir="ltr" className="tabular-nums">
+              {app.document_count}
+            </span>
+            <span>{t("sme.dashboard.colDocuments")}</span>
+          </div>
+        </div>
+
+        <SaduBand size="mini" done={done} total={STAGE_TOTAL} />
+
+        <div className="text-end sm:min-w-[110px]">
+          {app.amount != null ? (
+            <>
+              <div className="text-[17px] font-semibold tabular-nums text-ink" dir="ltr">
+                {app.amount.toLocaleString("en-US")}
+              </div>
+              <div className="text-xs text-text-3">SAR</div>
+            </>
+          ) : (
+            <>
+              <div className="text-[17px] font-semibold tabular-nums text-text-3">—</div>
+              <div className="text-xs text-text-3">{t("sme.dashboard.amountNotSet")}</div>
+            </>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-4 flex items-center justify-between gap-3 border-t border-line pt-3.5">
+        <LifecycleStatusPill status={app.status} />
+        <Link
+          to={to}
+          className="inline-flex h-[34px] items-center rounded-lg border border-line-strong px-4 text-sm font-medium text-ink transition-colors duration-base ease-out motion-reduce:transition-none hover:bg-surface-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        >
+          {t(actionKey)}
+        </Link>
+      </div>
+    </Card>
   );
 }

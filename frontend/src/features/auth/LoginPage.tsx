@@ -10,6 +10,7 @@ import { IconEye, IconEyeOff } from "@tabler/icons-react";
 import { useAuth, type AppRole } from "./AuthProvider";
 import { useLang } from "../../i18n/LangProvider";
 import LangToggle from "../../components/LangToggle";
+import PageFade from "../../components/PageFade";
 
 type Mode = "signin" | "signup";
 
@@ -82,161 +83,163 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-bg">
-      <div className="grid min-h-screen grid-cols-1 sm:grid-cols-2">
-        {/* Brand panel — inline-start side */}
-        <div className="flex flex-col justify-between border-b border-[#1D2A23] px-8 py-[34px] sm:border-b-0 sm:border-e sm:border-[#1D2A23]">
-          <Link
-            to="/"
-            className="flex w-fit items-center gap-3 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
-          >
-            <FramedMark />
-            <span className="font-display text-[22px] font-extrabold text-ink">{t("brand.wordmark")}</span>
-          </Link>
-
-          <div className="py-10 sm:py-0">
-            <div className="whitespace-pre-line text-start font-display text-[34px] font-extrabold leading-[1.45] text-ink">
-              {t("login.heroHeadline")}
-            </div>
-          </div>
-
-          <div>
-            <BrandSaduBand />
-            <p className="mt-3.5 text-[11px] leading-[1.6] text-text-3">{t("login.demoNote")}</p>
-          </div>
-        </div>
-
-        {/* Form panel — inline-end side */}
-        <div className="flex flex-col justify-center bg-surface px-8 py-[34px]">
-          <div className="mb-[22px] flex justify-end">
-            <LangToggle />
-          </div>
-
-          <h1 className="font-display text-2xl font-bold text-ink">
-            {mode === "signin" ? t("login.signInTitle") : t("login.signUpTitle")}
-          </h1>
-          <p className="mb-5 mt-1 text-[12.5px] text-text-2">
-            {mode === "signin" ? t("login.signInSubtitle") : t("login.signUpSubtitle")}
-          </p>
-
-          <form onSubmit={onSubmit}>
-            {mode === "signup" && (
-              <fieldset className="mb-4">
-                <legend className="mb-1.5 block text-xs font-medium text-text-2">
-                  {t("login.signingUpAs")}
-                </legend>
-                <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label={t("login.signingUpAs")}>
-                  {(["sme", "bank"] as AppRole[]).map((r) => {
-                    const active = accountRole === r;
-                    return (
-                      <div key={r} data-portal={r}>
-                        <button
-                          type="button"
-                          role="radio"
-                          aria-checked={active}
-                          onClick={() => setAccountRole(r)}
-                          className={[
-                            "w-full rounded-lg border px-3 py-2 text-sm font-medium transition-colors motion-reduce:transition-none focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-accent",
-                            active
-                              ? "border-accent bg-accent-soft text-ink"
-                              : "border-line text-text-2 hover:border-accent",
-                          ].join(" ")}
-                        >
-                          {r === "sme" ? t("auth.roleSme") : t("auth.roleBank")}
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
-              </fieldset>
-            )}
-
-            <label htmlFor="email" className="mb-1.5 block text-xs font-medium text-text-2">
-              {t("login.email")}
-            </label>
-            <input
-              id="email"
-              type="email"
-              autoComplete="email"
-              required
-              placeholder={t("login.emailPlaceholder")}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mb-3.5 w-full rounded-lg border border-line-strong bg-bg px-3 py-2.5 text-[13px] text-ink placeholder:text-text-3 focus:outline-none focus-visible:border-gold focus-visible:ring-2 focus-visible:ring-gold"
-            />
-
-            <label htmlFor="password" className="mb-1.5 block text-xs font-medium text-text-2">
-              {t("login.password")}
-            </label>
-            <div className="mb-5 flex items-center justify-between rounded-lg border border-line-strong bg-bg px-3 py-2.5 text-[13px] focus-within:border-gold focus-within:ring-2 focus-within:ring-gold">
-              <input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                autoComplete={mode === "signin" ? "current-password" : "new-password"}
-                required
-                minLength={6}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-transparent text-ink placeholder:text-text-3 focus:outline-none"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword((s) => !s)}
-                aria-label={showPassword ? t("login.hidePassword") : t("login.showPassword")}
-                className="shrink-0 rounded text-text-3 hover:text-text-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
-              >
-                {showPassword ? <IconEyeOff size={15} /> : <IconEye size={15} />}
-              </button>
-            </div>
-
-            {error && (
-              <p className="mb-4 rounded-lg bg-flag-bg px-3 py-2 text-sm text-flag" role="alert">
-                {error}
-              </p>
-            )}
-
-            <button
-              type="submit"
-              disabled={busy}
-              className="w-full rounded-lg bg-gold py-[11px] text-sm font-semibold text-on-gold hover:bg-gold-strong focus:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:opacity-60"
+    <PageFade>
+      <div className="min-h-screen bg-bg">
+        <div className="grid min-h-screen grid-cols-1 sm:grid-cols-2">
+          {/* Brand panel — inline-start side */}
+          <div className="flex flex-col justify-between border-b border-[#1D2A23] px-8 py-[34px] sm:border-b-0 sm:border-e sm:border-[#1D2A23]">
+            <Link
+              to="/"
+              className="flex w-fit items-center gap-3 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
             >
-              {busy ? t("auth.workingEllipsis") : mode === "signin" ? t("login.signInCta") : t("login.createAccountCta")}
-            </button>
-          </form>
+              <FramedMark />
+              <span className="font-display text-[22px] font-extrabold text-ink">{t("brand.wordmark")}</span>
+            </Link>
 
-          <p className="mt-4 text-center text-xs text-text-3">
-            {mode === "signin" ? (
-              <>
-                {t("login.newSme")}{" "}
+            <div className="py-10 sm:py-0">
+              <div className="whitespace-pre-line text-start font-display text-[34px] font-extrabold leading-[1.45] text-ink">
+                {t("login.heroHeadline")}
+              </div>
+            </div>
+
+            <div>
+              <BrandSaduBand />
+              <p className="mt-3.5 text-[11px] leading-[1.6] text-text-3">{t("login.demoNote")}</p>
+            </div>
+          </div>
+
+          {/* Form panel — inline-end side */}
+          <div className="flex flex-col justify-center bg-surface px-8 py-[34px]">
+            <div className="mb-[22px] flex justify-end">
+              <LangToggle />
+            </div>
+
+            <h1 className="font-display text-2xl font-bold text-ink">
+              {mode === "signin" ? t("login.signInTitle") : t("login.signUpTitle")}
+            </h1>
+            <p className="mb-5 mt-1 text-[12.5px] text-text-2">
+              {mode === "signin" ? t("login.signInSubtitle") : t("login.signUpSubtitle")}
+            </p>
+
+            <form onSubmit={onSubmit}>
+              {mode === "signup" && (
+                <fieldset className="mb-4">
+                  <legend className="mb-1.5 block text-xs font-medium text-text-2">
+                    {t("login.signingUpAs")}
+                  </legend>
+                  <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label={t("login.signingUpAs")}>
+                    {(["sme", "bank"] as AppRole[]).map((r) => {
+                      const active = accountRole === r;
+                      return (
+                        <div key={r} data-portal={r}>
+                          <button
+                            type="button"
+                            role="radio"
+                            aria-checked={active}
+                            onClick={() => setAccountRole(r)}
+                            className={[
+                              "w-full rounded-lg border px-3 py-2 text-sm font-medium transition-colors motion-reduce:transition-none focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-accent",
+                              active
+                                ? "border-accent bg-accent-soft text-ink"
+                                : "border-line text-text-2 hover:border-accent",
+                            ].join(" ")}
+                          >
+                            {r === "sme" ? t("auth.roleSme") : t("auth.roleBank")}
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </fieldset>
+              )}
+
+              <label htmlFor="email" className="mb-1.5 block text-xs font-medium text-text-2">
+                {t("login.email")}
+              </label>
+              <input
+                id="email"
+                type="email"
+                autoComplete="email"
+                required
+                placeholder={t("login.emailPlaceholder")}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="mb-3.5 w-full rounded-lg border border-line-strong bg-bg px-3 py-2.5 text-[13px] text-ink placeholder:text-text-3 focus:outline-none focus-visible:border-gold focus-visible:ring-2 focus-visible:ring-gold"
+              />
+
+              <label htmlFor="password" className="mb-1.5 block text-xs font-medium text-text-2">
+                {t("login.password")}
+              </label>
+              <div className="mb-5 flex items-center justify-between rounded-lg border border-line-strong bg-bg px-3 py-2.5 text-[13px] focus-within:border-gold focus-within:ring-2 focus-within:ring-gold">
+                <input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete={mode === "signin" ? "current-password" : "new-password"}
+                  required
+                  minLength={6}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full bg-transparent text-ink placeholder:text-text-3 focus:outline-none"
+                />
                 <button
                   type="button"
-                  onClick={() => {
-                    setMode("signup");
-                    setError(null);
-                  }}
-                  className="rounded text-gold hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+                  onClick={() => setShowPassword((s) => !s)}
+                  aria-label={showPassword ? t("login.hidePassword") : t("login.showPassword")}
+                  className="shrink-0 rounded text-text-3 hover:text-text-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
                 >
-                  {t("login.createAnAccount")}
+                  {showPassword ? <IconEyeOff size={15} /> : <IconEye size={15} />}
                 </button>
-              </>
-            ) : (
-              <>
-                {t("login.alreadyHaveAccount")}{" "}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMode("signin");
-                    setError(null);
-                  }}
-                  className="rounded text-gold hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
-                >
-                  {t("login.signInLink")}
-                </button>
-              </>
-            )}
-          </p>
+              </div>
+
+              {error && (
+                <p className="mb-4 rounded-lg bg-flag-bg px-3 py-2 text-sm text-flag" role="alert">
+                  {error}
+                </p>
+              )}
+
+              <button
+                type="submit"
+                disabled={busy}
+                className="w-full rounded-lg bg-gold py-[11px] text-sm font-semibold text-on-gold hover:bg-gold-strong focus:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:opacity-60"
+              >
+                {busy ? t("auth.workingEllipsis") : mode === "signin" ? t("login.signInCta") : t("login.createAccountCta")}
+              </button>
+            </form>
+
+            <p className="mt-4 text-center text-xs text-text-3">
+              {mode === "signin" ? (
+                <>
+                  {t("login.newSme")}{" "}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMode("signup");
+                      setError(null);
+                    }}
+                    className="rounded text-gold hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+                  >
+                    {t("login.createAnAccount")}
+                  </button>
+                </>
+              ) : (
+                <>
+                  {t("login.alreadyHaveAccount")}{" "}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMode("signin");
+                      setError(null);
+                    }}
+                    className="rounded text-gold hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+                  >
+                    {t("login.signInLink")}
+                  </button>
+                </>
+              )}
+            </p>
+          </div>
         </div>
       </div>
-    </div>
+    </PageFade>
   );
 }
