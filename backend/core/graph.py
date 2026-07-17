@@ -236,10 +236,12 @@ def aggregate_results_node(state: ApplicationState) -> dict:
     """
     record = ApplicationRecord(
         application_id=state["application_id"],
-        # Still "processing" at this instant: the outer app-level status only
-        # advances once /submit is called (routers/applications.py) — this
-        # record's own status field mirrors that, not the graph's completion.
-        status="processing",
+        # Carried through from state UNCHANGED (spec rule: no lifecycle
+        # transition here). The processing→review_ready advance happens in the
+        # orchestrator after the graph completes, never inside this node.
+        # "processing" is only the fallback when the key is absent (e.g. legacy
+        # callers that predate status in ApplicationState).
+        status=state.get("status", "processing"),
         sme_profile=state["sme_profile"],
         extracted_documents=state.get("extracted_documents", []),
         forensic_report=state.get("forensic_report"),

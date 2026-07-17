@@ -79,6 +79,9 @@ async def _build_initial_state(application_id: str) -> ApplicationState:
 
     return ApplicationState(
         application_id=application_id,
+        # Carried through the graph unchanged; aggregate_results_node copies it
+        # into unified_application_record without advancing the lifecycle.
+        status=app_row["status"],
         sme_profile=sme_profile,
         raw_documents=raw_documents,
         extracted_documents=[],

@@ -191,6 +191,10 @@ class RiskProjection(BaseModel):
 # ---------------------------------------------------------------------------
 class ApplicationState(TypedDict):
     application_id: str
+    # App-level lifecycle status at graph start (architecture.md §4). Carried
+    # through unchanged into unified_application_record by aggregate_results_node
+    # — no node advances the lifecycle inside the graph.
+    status: ApplicationStatus
     sme_profile: SMEProfile
     raw_documents: list[UploadedFile]
 
