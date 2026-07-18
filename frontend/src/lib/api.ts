@@ -173,6 +173,13 @@ export function getApplicationSummary(applicationId: string): Promise<Applicatio
   return authedJson(`/applications/${applicationId}/summary`);
 }
 
+// Signed URL for the final generated PDF report (SME side). The backend builds
+// the report on demand and caches it, so pdf_url is only null while the
+// application has no analysis to report on yet.
+export function getApplicationPdf(applicationId: string): Promise<{ pdf_url: string | null }> {
+  return authedJson(`/applications/${applicationId}/pdf`);
+}
+
 export function getExtractedDocuments(applicationId: string): Promise<{ documents: DocumentJSON[] }> {
   return authedJson(`/applications/${applicationId}/extracted`);
 }

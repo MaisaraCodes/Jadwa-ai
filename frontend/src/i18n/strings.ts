@@ -368,7 +368,15 @@ export const STRINGS = {
     en: "The business summary isn't available right now.",
   },
   "sme.detail.pdfButton": { ar: "تحميل PDF", en: "Download PDF" },
-  "sme.detail.pdfComingSoon": { ar: "قريبًا", en: "Coming soon" },
+  "sme.detail.pdfFetching": { ar: "جارٍ التجهيز…", en: "Preparing…" },
+  "sme.detail.pdfNotReady": {
+    ar: "لم يُنشأ التقرير النهائي لهذا الطلب بعد.",
+    en: "The final report has not been generated for this application yet.",
+  },
+  "sme.detail.pdfError": {
+    ar: "تعذّر جلب التقرير. حاول مرة أخرى.",
+    en: "Could not fetch the report. Try again.",
+  },
 
   // --- SME settings (/sme/settings) — matches design-mocks/jadwa_sme_settings.html ---
   "sme.settings.title": { ar: "الملف والإعدادات", en: "Profile and settings" },

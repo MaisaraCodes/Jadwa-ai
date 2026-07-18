@@ -154,6 +154,11 @@ class ApplicationRecord(BaseModel):
     application_id: str
     status: ApplicationStatus
     sme_profile: SMEProfile
+    # Financing request (applications row, migration 004) — carried into the
+    # record so the final PDF states what is being applied for. None on records
+    # aggregated before this field existed; the builder falls back to the
+    # applications row in that case.
+    financing: ApplicationFinancing | None = None
     extracted_documents: list[DocumentJSON] = Field(default_factory=list)
     forensic_report: ForensicReport | None = None
     weakness_report: WeaknessReport | None = None
@@ -196,6 +201,10 @@ class ApplicationState(TypedDict):
     # — no node advances the lifecycle inside the graph.
     status: ApplicationStatus
     sme_profile: SMEProfile
+    # Financing request from the applications row (migration 004), loaded by the
+    # orchestrator at graph start and copied into unified_application_record by
+    # aggregate_results_node.
+    financing: ApplicationFinancing | None
     raw_documents: list[UploadedFile]
 
     # written by document_intelligence_node

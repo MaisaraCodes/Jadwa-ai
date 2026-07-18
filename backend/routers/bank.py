@@ -13,11 +13,14 @@ populate `agent_results` (`{}` in the DB reads back as "not yet computed" -> Non
 """
 from __future__ import annotations
 
+import asyncio
+import logging
 from typing import Literal
 
 from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel
 
+from core.application_builder import ensure_application_pdf
 from core.auth import Principal, require_bank
 from core.errors import APIError
 from core.risk_calc_engine import recalculate
@@ -55,6 +58,8 @@ DECISION_TO_STATUS = {
     "reject": "rejected",
     "request_info": "more_info_needed",
 }
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1/bank", tags=["bank"])
 
@@ -250,9 +255,10 @@ async def get_bank_application(
 # --- GET /bank/applications/{id}/pdf ----------------------------------------------
 # Bank-side mirror of GET /applications/{id}/pdf (routers/applications.py, which is
 # require_sme + ownership-checked and therefore unusable from the bank portal).
-# Same contract: signs the bare Storage path stored by application_builder_node,
-# null while the graph has not produced a PDF yet. Role guard only — no per-row
-# ownership on the bank side (see module docstring).
+# Same contract and the same self-healing ensure_application_pdf path: serve the
+# cached Storage object when it exists, build the report on demand when it
+# doesn't (seeded apps reach review_ready without running the graph). Role
+# guard only — no per-row ownership on the bank side (see module docstring).
 class PdfResponse(BaseModel):
     pdf_url: str | None
 
@@ -263,8 +269,20 @@ async def bank_application_pdf(
     principal: Principal = Depends(require_bank),
 ) -> PdfResponse:
     svc = get_service_client()
-    app = _get_application(svc, application_id)
-    storage_path = app.get("final_pdf_url")
+    _get_application(svc, application_id)  # 404 if missing
+    try:
+        # Off the event loop: WeasyPrint blocks for seconds on a cold build.
+        storage_path = await asyncio.to_thread(ensure_application_pdf, application_id)
+    except Exception:
+        logger.exception(
+            "GET /bank/.../pdf: report build failed for application_id=%s",
+            application_id,
+        )
+        raise APIError(
+            500,
+            "pdf_build_failed",
+            "The final report could not be generated for this application.",
+        )
     if not storage_path:
         return PdfResponse(pdf_url=None)
     return PdfResponse(pdf_url=_signed_url(svc, storage_path))

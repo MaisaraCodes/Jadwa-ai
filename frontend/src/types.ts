@@ -106,6 +106,16 @@ export interface PatchProfileRequest {
   backstory?: string | null;
 }
 
+// Mirrors backend/models.py ApplicationFinancing (applications row, migration
+// 004) — the financing request the SME states at creation time, carried into
+// unified_application_record so the final PDF can report it.
+export interface ApplicationFinancing {
+  amount: number | null;
+  purpose: string | null;
+  term_months: number | null;
+  description: string | null;
+}
+
 export interface WeaknessReport {
   critical_weaknesses: string[];
   mitigation_suggestions: string[];

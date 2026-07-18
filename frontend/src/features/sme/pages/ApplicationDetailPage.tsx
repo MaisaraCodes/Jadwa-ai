@@ -22,6 +22,7 @@ import { useLang } from "../../../i18n/LangProvider";
 import type { StringKey } from "../../../i18n/strings";
 import {
   ApiError,
+  getApplicationPdf,
   getApplicationStatus,
   getApplicationSummary,
   listApplications,
@@ -354,7 +355,7 @@ export default function ApplicationDetailPage() {
           {summaryError && <p className="mb-4 text-center text-xs text-text-3">{t("sme.detail.summaryUnavailable")}</p>}
 
           <Card className="flex items-center justify-end">
-            <PdfPlaceholderButton />
+            <PdfDownloadButton applicationId={applicationId} />
           </Card>
         </>
       )}
@@ -393,13 +394,41 @@ function HealthSummaryCard({ summary }: { summary: ApplicationSummaryResponse })
   );
 }
 
-function PdfPlaceholderButton() {
+// Mirrors the bank detail page's download flow: fetch the short-lived signed
+// Storage URL on demand (never cached client-side — it expires) and hand it to
+// the browser. The backend builds the report on demand and caches it, so a
+// null pdf_url only means there is no analysis to report on yet.
+function PdfDownloadButton({ applicationId }: { applicationId?: string }) {
   const { t } = useLang();
+  const [busy, setBusy] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
+
+  const download = useCallback(async () => {
+    if (!applicationId) return;
+    setBusy(true);
+    setNotice(null);
+    try {
+      const { pdf_url } = await getApplicationPdf(applicationId);
+      if (pdf_url) {
+        window.open(pdf_url, "_blank", "noopener");
+      } else {
+        setNotice(t("sme.detail.pdfNotReady"));
+      }
+    } catch (err) {
+      setNotice(err instanceof ApiError ? err.message : t("sme.detail.pdfError"));
+    } finally {
+      setBusy(false);
+    }
+  }, [applicationId, t]);
+
   return (
-    <Button variant="ghost" size="sm" disabled title={t("sme.detail.pdfComingSoon")}>
-      <IconFileDownload size={15} aria-hidden="true" />
-      {t("sme.detail.pdfButton")}
-    </Button>
+    <div className="flex flex-col items-end gap-1.5">
+      <Button variant="ghost" size="sm" onClick={download} disabled={busy || !applicationId}>
+        <IconFileDownload size={15} aria-hidden="true" />
+        {busy ? t("sme.detail.pdfFetching") : t("sme.detail.pdfButton")}
+      </Button>
+      {notice && <p className="text-[12px] text-text-3">{notice}</p>}
+    </div>
   );
 }
 

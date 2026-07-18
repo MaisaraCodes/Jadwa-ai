@@ -29,8 +29,19 @@ from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
+from core.pipeline import TERMINAL_STATUSES
 from core.supabase import get_service_client
-from models import ApplicationRecord, ApplicationState
+from models import (
+    ApplicationFinancing,
+    ApplicationRecord,
+    ApplicationState,
+    DocumentJSON,
+    ForensicReport,
+    MarketVerdict,
+    RiskBaseline,
+    SMEProfile,
+    WeaknessReport,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -47,6 +58,8 @@ PDF_CONTENT_TYPE = "application/pdf"
 
 APPLICATIONS_TABLE = "applications"
 APPLICATIONS_ID_COL = "id"
+AGENT_RESULTS_TABLE = "agent_results"
+SME_PROFILES_TABLE = "sme_profiles"
 # GET /applications/{id}/pdf already reads this column (routers/applications.py).
 # It stores the bare Storage object path — same convention as
 # application_documents.file_url — and the endpoint signs it on read.
@@ -112,6 +125,16 @@ def format_number(value: float | None, decimals: int = 2) -> str:
     return f"{value:.{decimals}f}"
 
 
+def format_amount(value: float | None) -> str:
+    """350000 -> '350,000.00' — Western digits, thousands separators, two
+    decimals (DESIGN_SYSTEM.md §3.2, '1,500.50 ر.س'). Digits only: the Arabic
+    currency label sits in the template's RTL run, OUTSIDE the LTR figure span,
+    so it joins the surrounding Arabic correctly."""
+    if value is None:
+        return "—"
+    return f"{value:,.2f}"
+
+
 def latest_document_date(record: ApplicationRecord) -> date | None:
     """The newest extracted document's date — the cover's 'as of' date.
 
@@ -143,9 +166,17 @@ def build_context(record: ApplicationRecord) -> dict:
     record renders a complete PDF with 'not available' notes, never a crash.
     """
     forensic = record.forensic_report
+    # An all-None ApplicationFinancing renders the same 'not available' card as
+    # a missing one — an empty shell of em dashes tells the bank nothing.
+    financing = record.financing
+    if financing is not None and not any(
+        (financing.amount is not None, financing.purpose, financing.term_months)
+    ):
+        financing = None
     return {
         "record": record,
         "profile": record.sme_profile,
+        "financing": financing,
         "forensic": forensic,
         "weakness": record.weakness_report,
         "market": record.market_verdict,
@@ -161,6 +192,7 @@ def build_context(record: ApplicationRecord) -> dict:
         "metadata_epoch": _PDF_METADATA_EPOCH,
         "format_percent": format_percent,
         "format_number": format_number,
+        "format_amount": format_amount,
     }
 
 
@@ -210,6 +242,159 @@ def persist_pdf_path(application_id: str, storage_path: str) -> None:
     ).eq(APPLICATIONS_ID_COL, application_id).execute()
 
 
+def build_and_store_pdf(application_id: str, record: ApplicationRecord) -> str:
+    """render -> upload -> persist final_pdf_url, returning the Storage path.
+
+    The ONE build path (guardrail: don't fork the builder) — the graph node and
+    the on-demand GET /pdf route both come through here. Raises on failure;
+    each caller applies its own degrade policy (the node swallows into None,
+    the API route surfaces a real error response).
+    """
+    pdf_bytes = render_pdf_bytes(record)
+    storage_path = upload_pdf(application_id, pdf_bytes)
+    persist_pdf_path(application_id, storage_path)
+    return storage_path
+
+
+def pdf_object_exists(application_id: str) -> bool:
+    """True when {application_id}/report.pdf is actually in Storage. A stored
+    final_pdf_url alone is not proof — the object can be gone after a bucket
+    wipe or re-seed, and signing a dangling path yields a URL that 404s."""
+    try:
+        objects = (
+            get_service_client().storage.from_(PDF_BUCKET).list(application_id)
+        ) or []
+    except Exception:
+        return False
+    report_name = pdf_storage_path(application_id).rsplit("/", 1)[-1]
+    for obj in objects:
+        name = obj.get("name") if isinstance(obj, dict) else getattr(obj, "name", None)
+        if name == report_name:
+            return True
+    return False
+
+
+# The five per-node agent_results columns (schema_mapping.md §2) — what the
+# assemble-from-columns fallback below reads when the aggregate is absent.
+_AGENT_COLUMN_MODELS = {
+    "forensic_report": ForensicReport,
+    "weakness_report": WeaknessReport,
+    "market_verdict": MarketVerdict,
+    "risk_baseline": RiskBaseline,
+}
+
+
+def load_record_for_pdf(application_id: str, app_row: dict) -> ApplicationRecord | None:
+    """The builder's source record, loaded as the graph would have left it.
+
+    Prefers the stored unified_application_record; when the aggregate is absent
+    (rows written by a backfill that skipped aggregate_results_node) the record
+    is assembled from the individual agent_results columns plus the
+    sme_profiles/applications rows. None when no agent output exists at all —
+    there is nothing to report on yet.
+
+    Financing comes from the applications row whenever the stored record
+    predates ApplicationRecord.financing — the PDF must state what is being
+    applied for either way.
+    """
+    svc = get_service_client()
+    res = (
+        svc.table(AGENT_RESULTS_TABLE)
+        .select("*")
+        .eq("application_id", application_id)
+        .limit(1)
+        .execute()
+    )
+    rows = res.data or []
+    agent_row = rows[0] if rows else {}
+
+    financing = ApplicationFinancing.model_validate(app_row)
+
+    raw_record = agent_row.get("unified_application_record")
+    if raw_record:
+        record = ApplicationRecord.model_validate(raw_record)
+        if record.financing is None:
+            record.financing = financing
+        return record
+
+    if not agent_row.get("extracted_documents") and not any(
+        agent_row.get(col) for col in _AGENT_COLUMN_MODELS
+    ):
+        return None
+
+    profile_rows = (
+        svc.table(SME_PROFILES_TABLE)
+        .select("*")
+        .eq("id", app_row["sme_profile_id"])
+        .limit(1)
+        .execute()
+        .data
+        or []
+    )
+    if not profile_rows:
+        return None
+
+    sections = {
+        col: model.model_validate(agent_row[col]) if agent_row.get(col) else None
+        for col, model in _AGENT_COLUMN_MODELS.items()
+    }
+    return ApplicationRecord(
+        application_id=application_id,
+        status=app_row["status"],
+        sme_profile=SMEProfile.model_validate(profile_rows[0]),
+        financing=financing,
+        extracted_documents=[
+            DocumentJSON.model_validate(d)
+            for d in agent_row.get("extracted_documents") or []
+        ],
+        **sections,
+    )
+
+
+def ensure_application_pdf(application_id: str) -> str | None:
+    """GET /pdf's self-healing path: return the report's Storage path, building
+    it now if the graph never did.
+
+    Seeded/backfilled applications land in review_ready without ever running
+    the graph, so final_pdf_url stays null even though the analysis exists —
+    this decouples the PDF from the lifecycle: cached when present, built on
+    demand when not, same artifact either way.
+
+    Returns None when there is nothing to serve or build (unknown id, app not
+    past processing, or no agent output at all). Raises when a build was
+    attempted and failed — API callers turn that into a real error response
+    instead of a permanent 'not generated yet'.
+    """
+    svc = get_service_client()
+    app_rows = (
+        svc.table(APPLICATIONS_TABLE)
+        .select("*")
+        .eq(APPLICATIONS_ID_COL, application_id)
+        .limit(1)
+        .execute()
+        .data
+        or []
+    )
+    if not app_rows:
+        return None
+    app_row = app_rows[0]
+
+    existing = app_row.get(PDF_URL_COLUMN)
+    if existing and pdf_object_exists(application_id):
+        return existing
+
+    # Only build on demand once the pipeline is done with the application — a
+    # mid-processing build would cache a half-empty report, and the graph's own
+    # terminal builder node covers the happy path anyway.
+    if app_row.get("status") not in TERMINAL_STATUSES:
+        return None
+
+    record = load_record_for_pdf(application_id, app_row)
+    if record is None:
+        return None
+    return build_and_store_pdf(application_id, record)
+
+
 def application_builder_node(state: ApplicationState) -> dict:
     """Render the completed application to a PDF and file it (architecture.md §1).
 
@@ -241,9 +426,7 @@ def application_builder_node(state: ApplicationState) -> dict:
 
     application_id = state["application_id"]
     try:
-        pdf_bytes = render_pdf_bytes(record)
-        storage_path = upload_pdf(application_id, pdf_bytes)
-        persist_pdf_path(application_id, storage_path)
+        storage_path = build_and_store_pdf(application_id, record)
     except Exception:
         logger.exception(
             "application_builder_node: PDF build/upload failed for application_id=%s",
@@ -256,7 +439,11 @@ def application_builder_node(state: ApplicationState) -> dict:
 
 __all__ = [
     "application_builder_node",
+    "build_and_store_pdf",
     "build_context",
+    "ensure_application_pdf",
+    "load_record_for_pdf",
+    "pdf_object_exists",
     "pdf_storage_path",
     "render_html",
     "render_pdf_bytes",
