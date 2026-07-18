@@ -112,6 +112,12 @@ Here is the exact JSON structure (Pydantic schema) expected from each LangGraph 
 
 - **Target Column:** `unified_application_record` (JSONB)
 - **Goal:** Merge the outputs of the previous four parallel nodes into one clean payload for the `application_builder_node` to turn into a PDF, and for the React UI to consume.
+- The record also carries `financing` (`ApplicationFinancing` — amount / purpose / term_months / description from the `applications` row, migration 004) so the final PDF states what is being applied for. On stored records that predate this field, the PDF builder falls back to reading the `applications` row directly.
+
+### Node 7: `application_builder_node` → `applications.final_pdf_url`
+
+- Renders `unified_application_record` to the Arabic PDF (WeasyPrint, no LLM), uploads it to Storage at `{application_id}/report.pdf`, and persists the bare object path in `applications.final_pdf_url` (signed on read by `GET /pdf`).
+- The same builder is also invoked **on demand** by `GET /applications/{id}/pdf` and `GET /bank/applications/{id}/pdf` (`ensure_application_pdf`): cached when `final_pdf_url` points at a live Storage object, built now when it doesn't. If the aggregate column is empty, the builder assembles the record from the five individual `agent_results` columns.
 
 ---
 

@@ -47,9 +47,9 @@ draft ──▶ processing ──▶ review_ready ──▶ approved | rejected 
 | GET | `/applications/{id}/status` | — | `200 { status, nodes_completed:[...], progress }` | STUB — real `status`; `nodes_completed`/`progress` derived (review_ready → all 6 done, progress 1.0). |
 | GET | `/applications/{id}/extracted` | — | `200 { documents:[DocumentJSON,...] }` | REAL — `agent_results.extracted_documents` (seeded). |
 | PATCH | `/applications/{id}/documents/{document_id}` | `{ extracted_amount?, date?, vendor?, type? }` | `200 { document_id, ...updated }` | REAL — patch the matching element inside `extracted_documents` JSONB, write back. |
-| POST | `/applications/{id}/submit` | — | `200 { status:"review_ready" }` | REAL — set `review_ready` (enters bank queue). |
+| POST | `/applications/{id}/submit` | — | `200 { status:"review_ready" }` | REAL — set `review_ready` (enters bank queue); best-effort idempotent PDF build (failure deferred to GET /pdf). |
 | GET | `/applications/{id}/summary` | — | `200 { health_summary, business_model_score, top_risks:[...] }` | STUB — from `weakness_report` if present, else placeholder text + `null` score. |
-| GET | `/applications/{id}/pdf` | — | `200 { pdf_url }` | STUB — return `applications.final_pdf_url` (may be `null` until the PDF builder exists). |
+| GET | `/applications/{id}/pdf` | — | `200 { pdf_url }` | REAL — self-healing: serve the cached report if `final_pdf_url` points at a live Storage object, else build now (`ensure_application_pdf`), persist, and sign. `null` only while no agent output exists; build failure → `500 pdf_build_failed`. Bank mirror: `GET /bank/applications/{id}/pdf`. |
 
 ## Bank dashboard (role `bank`)
 | Method | Path | Req | Response | Status |

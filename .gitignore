@@ -75,3 +75,9 @@ Thumbs.db
 data/demo_credentials.json
 # TS build info
 frontend/tsconfig.tsbuildinfo
+
+# Debug screenshots pasted into chat — never commit
+attached_assets/image_*.png
+attached_assets/image_*.jpg
+attached_assets/image_*.jpeg
+attached_assets/image_*.webp

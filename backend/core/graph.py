@@ -324,6 +324,7 @@ def aggregate_results_node(state: ApplicationState) -> dict:
         # callers that predate status in ApplicationState).
         status=state.get("status", "processing"),
         sme_profile=state["sme_profile"],
+        financing=state.get("financing"),
         extracted_documents=state.get("extracted_documents", []),
         forensic_report=state.get("forensic_report"),
         weakness_report=state.get("weakness_report"),

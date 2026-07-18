@@ -21,7 +21,7 @@ from core.graph import get_graph
 from core.pipeline import ALL_NODES
 from core.supabase import get_service_client
 from document_intelligence import document_intelligence_node
-from models import ApplicationState, SMEProfile, UploadedFile
+from models import ApplicationFinancing, ApplicationState, SMEProfile, UploadedFile
 
 logger = logging.getLogger(__name__)
 
@@ -83,6 +83,7 @@ async def _build_initial_state(application_id: str) -> ApplicationState:
         # into unified_application_record without advancing the lifecycle.
         status=app_row["status"],
         sme_profile=sme_profile,
+        financing=ApplicationFinancing.model_validate(app_row),
         raw_documents=raw_documents,
         extracted_documents=[],
         forensic_report=None,

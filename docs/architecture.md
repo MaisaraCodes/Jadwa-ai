@@ -60,6 +60,7 @@ So the honest phrasing everywhere is *"parses and validates the ZATCA QR (TLV)"*
 class ApplicationState(TypedDict):
     application_id: str
     sme_profile: SMEProfile
+    financing: ApplicationFinancing | None  # applications row (migration 004); copied into the record
     raw_documents: list[UploadedFile]
 
     # written by document_intelligence_node
@@ -161,6 +162,14 @@ GET  /api/v1/applications/{id}/summary
 
 GET  /api/v1/applications/{id}/pdf
   → 200 { pdf_url }                                   # signed Supabase Storage URL
+  # Self-healing: serves the cached report when applications.final_pdf_url
+  # points at a live Storage object; otherwise builds it NOW via the one
+  # WeasyPrint builder (core/application_builder.py) from the stored analysis,
+  # uploads to {application_id}/report.pdf, persists final_pdf_url, then signs.
+  # pdf_url is null only while there is no agent output to report on (or the
+  # app is still draft/processing). A failed build returns 500 pdf_build_failed
+  # — never a silent null. Same behavior on the bank mirror route
+  # GET /bank/applications/{id}/pdf.
 ```
 
 ### Bank dashboard  (role: bank)

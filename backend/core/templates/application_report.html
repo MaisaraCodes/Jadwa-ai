@@ -411,11 +411,55 @@
 </div>
 
 {# ---------------------------------------------------------------------------
-   b. FORENSIC SUMMARY — traffic-light badge + reconciliation rate + flags
+   b. FINANCING REQUEST — amount + term + purpose (applications row, migration
+   004, via ApplicationRecord.financing). Deliberately WITHOUT `description`:
+   that column carries internal demo colour, not applicant-facing content.
    --------------------------------------------------------------------------- #}
 <div class="section">
   <div class="section__head">
     <div class="section__index">2</div>
+    <div class="section__title">تفاصيل طلب التمويل</div>
+  </div>
+  {% if financing %}
+  <div class="card">
+    <div class="metrics">
+      <div class="metrics__row">
+        <div class="metric">
+          <div class="metric__key">المبلغ المطلوب</div>
+          <div class="metric__val">
+            {% if financing.amount is not none %}
+            <span class="num" dir="ltr">{{ format_amount(financing.amount) }}</span><span class="metric__unit"> ر.س</span>
+            {% else %}—{% endif %}
+          </div>
+        </div>
+        <div class="metric">
+          <div class="metric__key">مدة السداد المطلوبة</div>
+          <div class="metric__val">
+            {% if financing.term_months %}
+            <span class="num" dir="ltr">{{ financing.term_months }}</span><span class="metric__unit"> شهرًا</span>
+            {% else %}—{% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% if financing.purpose %}
+    <div style="margin-top: 4mm;">
+      <div class="kv__key">الغرض من التمويل</div>
+      <div class="prose">{{ financing.purpose }}</div>
+    </div>
+    {% endif %}
+  </div>
+  {% else %}
+  <div class="empty">{{ not_available }}</div>
+  {% endif %}
+</div>
+
+{# ---------------------------------------------------------------------------
+   c. FORENSIC SUMMARY — traffic-light badge + reconciliation rate + flags
+   --------------------------------------------------------------------------- #}
+<div class="section">
+  <div class="section__head">
+    <div class="section__index">3</div>
     <div class="section__title">ملخص التدقيق المحاسبي</div>
   </div>
   {% if forensic %}
@@ -453,11 +497,11 @@
 </div>
 
 {# ---------------------------------------------------------------------------
-   c. WEAKNESS REPORT — big score + two side-by-side columns
+   d. WEAKNESS REPORT — big score + two side-by-side columns
    --------------------------------------------------------------------------- #}
 <div class="section">
   <div class="section__head">
-    <div class="section__index">3</div>
+    <div class="section__index">4</div>
     <div class="section__title">تقرير نقاط الضعف</div>
   </div>
   {% if weakness %}
@@ -503,11 +547,11 @@
 </div>
 
 {# ---------------------------------------------------------------------------
-   d. MARKET VIABILITY VERDICT
+   e. MARKET VIABILITY VERDICT
    --------------------------------------------------------------------------- #}
 <div class="section">
   <div class="section__head">
-    <div class="section__index">4</div>
+    <div class="section__index">5</div>
     <div class="section__title">جدوى السوق</div>
   </div>
   {% if market %}
@@ -544,14 +588,14 @@
 </div>
 
 {# ---------------------------------------------------------------------------
-   e. FINANCIAL PROJECTIONS — the four risk_baseline coefficients.
+   f. FINANCIAL PROJECTIONS — the four risk_baseline coefficients.
    The 12-month sandbox projection is deliberately NOT here: it's an interactive
    tool driven by the bank's sliders (architecture.md §3), and a single frozen
    frame of it in a static PDF would misrepresent it as a forecast.
    --------------------------------------------------------------------------- #}
 <div class="section">
   <div class="section__head">
-    <div class="section__index">5</div>
+    <div class="section__index">6</div>
     <div class="section__title">المؤشرات المالية</div>
   </div>
   {% if risk %}

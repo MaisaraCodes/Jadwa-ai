@@ -67,3 +67,4 @@ supabase/         DB migrations
 ## User preferences
 
 - Keep existing project structure and stack — do not restructure or migrate.
+- Never commit debug screenshots pasted into chat (`attached_assets/image_*`); they are gitignored.

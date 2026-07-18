@@ -21,12 +21,15 @@ STUB markers below for exactly which Phase-2/4 node fills each one.
 """
 from __future__ import annotations
 
+import asyncio
+import logging
 from datetime import date as _date
 
 from fastapi import APIRouter, BackgroundTasks, Depends
 from pydantic import BaseModel
 
 from core import progress as progress_store
+from core.application_builder import ensure_application_pdf
 from core.auth import Principal, require_sme
 from core.errors import APIError
 from core.orchestrator import run_pipeline
@@ -44,6 +47,8 @@ from routers.documents import (
 
 AGENT_RESULTS_TABLE = "agent_results"
 DOCUMENTS_TABLE = "application_documents"
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1/applications", tags=["applications"])
 
@@ -336,6 +341,20 @@ async def submit_application(
     svc.table(APPLICATIONS_TABLE).update({"status": "review_ready"}).eq(
         APPLICATIONS_ID_COL, application_id
     ).execute()
+
+    # Build the final PDF now (API_CONTRACT: submit "runs application_builder
+    # if not already"). Idempotent — ensure_application_pdf serves the cached
+    # object when it exists — and best-effort: a build failure must not fail
+    # the submit, because GET /pdf rebuilds on demand and surfaces the error
+    # there. Off the event loop: WeasyPrint blocks for seconds.
+    try:
+        await asyncio.to_thread(ensure_application_pdf, application_id)
+    except Exception:
+        logger.exception(
+            "submit: PDF build failed for application_id=%s (deferred to GET /pdf)",
+            application_id,
+        )
+
     return SubmitResponse(status="review_ready")
 
 
@@ -376,13 +395,26 @@ async def application_pdf(
     svc = get_service_client()
     _assert_owned_application(svc, application_id, principal.user_id)
 
-    # application_builder_node stores the bare Storage object path (migration 005),
-    # not a URL — same convention as application_documents.file_url. Sign it here,
-    # the same way the upload response does, so the contract's "signed Supabase
-    # Storage URL" (architecture.md §4) is what actually goes out. Still null when
-    # the graph has not run for this application yet.
-    app = _get_application(svc, application_id)
-    storage_path = app.get("final_pdf_url")
+    # Self-healing: ensure_application_pdf serves the cached Storage object when
+    # final_pdf_url points at a real one, and otherwise builds the report NOW
+    # from the stored analysis (seeded/backfilled apps reach review_ready
+    # without ever running the graph — the PDF is decoupled from the lifecycle).
+    # The bare object path is signed here so the contract's "signed Supabase
+    # Storage URL" (architecture.md §4) is what actually goes out. Still null
+    # when there is no analysis to report on yet. Off the event loop:
+    # WeasyPrint blocks for seconds.
+    _get_application(svc, application_id)  # 404 if missing
+    try:
+        storage_path = await asyncio.to_thread(ensure_application_pdf, application_id)
+    except Exception:
+        logger.exception(
+            "GET /pdf: report build failed for application_id=%s", application_id
+        )
+        raise APIError(
+            500,
+            "pdf_build_failed",
+            "The final report could not be generated for this application.",
+        )
     if not storage_path:
         return PdfResponse(pdf_url=None)
     return PdfResponse(pdf_url=_signed_url(svc, storage_path))

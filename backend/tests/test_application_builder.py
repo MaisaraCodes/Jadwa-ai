@@ -26,6 +26,7 @@ from core.application_builder import (
     render_pdf_bytes,
 )
 from models import (
+    ApplicationFinancing,
     ApplicationRecord,
     ApplicationState,
     DiscrepancyFlag,
@@ -86,11 +87,21 @@ def make_document(doc_id: str = "doc-1", day: int = 12) -> DocumentJSON:
     )
 
 
+def make_financing() -> ApplicationFinancing:
+    return ApplicationFinancing(
+        amount=350_000.0,
+        purpose="توسيع تشكيلة قطع الغيار وتمويل رأس المال العامل",
+        term_months=48,
+        description="internal demo colour — must NOT appear in the PDF",
+    )
+
+
 def make_record(**overrides) -> ApplicationRecord:
     fields = {
         "application_id": APP_ID,
         "status": "processing",
         "sme_profile": make_profile(),
+        "financing": make_financing(),
         "extracted_documents": [make_document()],
         "forensic_report": ForensicReport(
             overall_status="yellow",
@@ -127,6 +138,7 @@ def make_state(**overrides) -> ApplicationState:
         "application_id": APP_ID,
         "status": "processing",
         "sme_profile": make_profile(),
+        "financing": make_financing(),
         "raw_documents": [],
         "extracted_documents": [make_document()],
         "forensic_report": None,
@@ -203,10 +215,11 @@ class TestRenderHappyPath:
         html = render_html(make_record())
         headings = [
             "بيانات المنشأة",          # a. SME profile
-            "ملخص التدقيق المحاسبي",   # b. forensic
-            "تقرير نقاط الضعف",        # c. weakness
-            "جدوى السوق",              # d. market
-            "المؤشرات المالية",        # e. financial
+            "تفاصيل طلب التمويل",      # b. financing request
+            "ملخص التدقيق المحاسبي",   # c. forensic
+            "تقرير نقاط الضعف",        # d. weakness
+            "جدوى السوق",              # e. market
+            "المؤشرات المالية",        # f. financial
         ]
         positions = [html.index(h) for h in headings]
         assert positions == sorted(positions), "sections are out of order"
@@ -255,12 +268,14 @@ class TestPartialRecord:
         assert pdf[:5] == b"%PDF-"
         assert len(pdf) > 1000
 
-    def test_everything_none_shows_the_placeholder_for_all_four_sections(self):
+    def test_everything_none_shows_the_placeholder_for_all_five_sections(self):
+        """financing + the four agent sections — every data section except the
+        profile header degrades to the same 'not available' card."""
         record = ApplicationRecord(
             application_id=APP_ID, status="processing", sme_profile=make_profile()
         )
         html = render_html(record)
-        assert html.count(builder_mod.NOT_AVAILABLE) == 4
+        assert html.count(builder_mod.NOT_AVAILABLE) == 5
 
     def test_empty_flag_and_source_lists_do_not_crash(self):
         record = make_record(
@@ -288,6 +303,41 @@ class TestPartialRecord:
         profile = make_profile()
         profile.established_year = None
         assert "—" in render_html(make_record(sme_profile=profile))
+
+
+# --- financing section (DESIGN_SYSTEM.md §3.2 figure rules) ------------------
+class TestFinancingSection:
+    def test_amount_formatted_with_thousands_separators_and_sar(self):
+        html = render_html(make_record())
+        assert "350,000.00" in html
+        assert "ر.س" in html
+
+    def test_term_and_purpose_are_rendered(self):
+        html = render_html(make_record())
+        assert ">48<" in html  # term_months inside its LTR span
+        assert "توسيع تشكيلة قطع الغيار وتمويل رأس المال العامل" in html
+
+    def test_description_is_internal_and_never_rendered(self):
+        """financing.description carries persona/demo colour, not
+        applicant-facing content — it must never reach the bank PDF."""
+        html = render_html(make_record())
+        assert "internal demo colour" not in html
+
+    def test_missing_financing_shows_the_placeholder(self):
+        html = render_html(make_record(financing=None))
+        assert "تفاصيل طلب التمويل" in html
+        assert builder_mod.NOT_AVAILABLE in html
+
+    def test_all_none_financing_collapses_to_the_placeholder(self):
+        """An ApplicationFinancing with nothing in it renders the same
+        'not available' card as a missing one — not a shell of em dashes."""
+        record = make_record(financing=ApplicationFinancing())
+        assert build_context(record)["financing"] is None
+
+    def test_format_amount_examples(self):
+        assert builder_mod.format_amount(4_705_845.5) == "4,705,845.50"
+        assert builder_mod.format_amount(350_000) == "350,000.00"
+        assert builder_mod.format_amount(None) == "—"
 
 
 # --- determinism -------------------------------------------------------------
